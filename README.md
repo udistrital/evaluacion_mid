@@ -39,7 +39,7 @@ bee run -downdoc=true -gendoc=true
 ac continuacion se visualizaran los diagramas inicialmente planteados para el manejo de informacion y funciones principales.
 
 <details>
-    <summary><b>Ppost plantilla</b></summary>
+    <summary><b>Post plantilla</b></summary>
 
 ![diagrama para plantillas-post_plantilla](https://user-images.githubusercontent.com/28914781/69213926-891f7800-0b33-11ea-81ee-fc63c0de7c60.png)
     
