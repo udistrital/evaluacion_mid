@@ -55,11 +55,11 @@ func (c *ContratosProveedorController) GetAll() {
 	var alertErr models.Alert
 	alertas := append([]interface{}{"Response:"})
 	logs.Info("viva el get")
-	ProveedorID := c.GetString("ProvID")
-	logs.Info(ProveedorID)
-	SupervisorID := c.GetString("SupID")
-	logs.Info(SupervisorID)
-	resultContratos, err1 := ListaContratos(ProveedorID, SupervisorID)
+	ProveedorIdent := c.GetString("ProvID")
+	logs.Info(ProveedorIdent)
+	SupervisorIdent := c.GetString("SupID")
+	logs.Info(SupervisorIdent)
+	resultContratos, err1 := ListaContratos(ProveedorIdent, SupervisorIdent)
 	if resultContratos != nil {
 		alertErr.Type = "OK"
 		alertErr.Code = "200"
@@ -75,27 +75,42 @@ func (c *ContratosProveedorController) GetAll() {
 	c.ServeJSON()
 }
 
-func ListaContratos(Idprov string, Idsuper string) (novedad []map[string]interface{}, outputError interface{}) {
-	// fmt.Println(Idprov, Idsuper)
+func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]interface{}, outputError interface{}) {
+	// fmt.Println(IdentProv, Idsuper)
 	// fmt.Println(beego.AppConfig.String("administrativa_amazon_api_url"), beego.AppConfig.String("administrativa_amazon_api_version"))
-	resultProv, err1 := InfoProveedor(Idprov)
+	resultProv, err1 := InfoProveedor(IdentProv)
 	fmt.Println("error  lista", err1)
-	// fmt.Println("resultado lista", resultProv)
+	// fmt.Println(resultProv)
+	// fmt.Println(models.GetElementoMaptoString(resultProv, "Id"))
 	if resultProv != nil {
 		fmt.Println("entro a no nil")
-		return resultProv, nil
+		IdProveedor := models.GetElementoMaptoString(resultProv, "Id")
+		fmt.Println(IdProveedor)
+		resultContrato, err2 := ObtenerContratos(IdProveedor)
+		fmt.Println("error  contrato", err2)
+		// fmt.Println(resultProv)
+		// fmt.Println(models.GetElementoMaptoString(resultProv, "Id"))
+		if resultContrato != nil {
+			fmt.Println("entro a no nil")
+			// fmt.Println(resultContrato)
+			pruebaOrg := models.OrganizarInfoContratos(resultProv, resultContrato)
+			return pruebaOrg, nil
+		} else {
+			fmt.Println("entro a si nil contrato")
+			return nil, err2
+		}
+		// return resultProv, nil
 	} else {
 		fmt.Println("entro a si nil")
-		// err1 =interface{"error": "no" }
-		// err1 = models.CrearError("no se pudo traer la info del proveedor")
 		return nil, err1
 	}
+
 }
 
-func InfoProveedor(Idprov string) (novedad []map[string]interface{}, outputError interface{}) {
+func InfoProveedor(IdentProv string) (novedad []map[string]interface{}, outputError interface{}) {
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+Idprov, &infoProveedor)
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv, &infoProveedor)
 	fmt.Println(len(infoProveedor))
 	if len(infoProveedor) < 1 {
 		fmt.Println(error)
@@ -105,5 +120,20 @@ func InfoProveedor(Idprov string) (novedad []map[string]interface{}, outputError
 	} else {
 		fmt.Println("ok")
 		return infoProveedor, nil
+	}
+}
+
+func ObtenerContratos(IdProv string) (novedad []map[string]interface{}, outputError interface{}) {
+	var ContratosProveedor []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IdProv, &ContratosProveedor)
+	fmt.Println(len(ContratosProveedor))
+	if len(ContratosProveedor) < 1 {
+		fmt.Println(error)
+		fmt.Println("entro al error")
+		errorContrato := models.CrearError("no se encontraron contratos")
+		return nil, errorContrato
+	} else {
+		fmt.Println("ok")
+		return ContratosProveedor, nil
 	}
 }
