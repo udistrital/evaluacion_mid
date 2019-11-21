@@ -87,6 +87,7 @@ func ListaContratos(Idprov string, Idsuper string) (novedad []map[string]interfa
 	} else {
 		fmt.Println("entro a si nil")
 		// err1 =interface{"error": "no" }
+		// err1 = models.CrearError("no se pudo traer la info del proveedor")
 		return nil, err1
 	}
 }
@@ -95,11 +96,12 @@ func InfoProveedor(Idprov string) (novedad []map[string]interface{}, outputError
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+Idprov, &infoProveedor)
-	fmt.Println(error)
 	fmt.Println(len(infoProveedor))
 	if len(infoProveedor) < 1 {
+		fmt.Println(error)
 		fmt.Println("entro al error")
-		return nil, error
+		errorProv := models.CrearError("no se pudo traer la info del proveedor")
+		return nil, errorProv
 	} else {
 		fmt.Println("ok")
 		return infoProveedor, nil
