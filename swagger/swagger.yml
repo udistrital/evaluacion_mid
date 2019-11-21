@@ -19,37 +19,20 @@ paths:
       operationId: ContratosProveedorController.GetAll
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
+        name: ProvID
+        description: ID del Proveedor
+        required: true
         type: string
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
+        name: SupID
+        description: ID del supervisor
+        required: true
         type: string
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.ContratosProveedor'
-        "403":
-          description: ""
+          description: '{}'
+        "404":
+          description: not found resource
     post:
       tags:
       - filtroProveedor
@@ -61,14 +44,12 @@ paths:
         description: body for ContratosProveedor content
         required: true
         schema:
-          $ref: '#/definitions/models.ContratosProveedor'
+          $ref: '#/definitions/{}'
       responses:
-        "201":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.ContratosProveedor'
-        "403":
-          description: body is empty
+        "200":
+          description: '{}'
+        "404":
+          description: not found resource
   /filtroProveedor/{id}:
     get:
       tags:
@@ -79,58 +60,15 @@ paths:
       - in: path
         name: id
         description: The key for staticblock
-        required: true
         type: string
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.ContratosProveedor'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - filtroProveedor
-      description: update the ContratosProveedor
-      operationId: ContratosProveedorController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for ContratosProveedor content
-        required: true
-        schema:
-          $ref: '#/definitions/models.ContratosProveedor'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.ContratosProveedor'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - filtroProveedor
-      description: delete the ContratosProveedor
-      operationId: ContratosProveedorController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
+          description: '{}'
+        "404":
+          description: not found resource
 definitions:
-  models.ContratosProveedor:
-    title: ContratosProveedor
+  '{}':
+    title: '{}'
     type: object
   models.Object:
     title: Object

@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
 // ContratosProveedorController operations for ContratosProveedor
@@ -15,16 +19,14 @@ func (c *ContratosProveedorController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("GetOne", c.GetOne)
 	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
 }
 
 // Post ...
 // @Title Create
 // @Description create ContratosProveedor
-// @Param	body		body 	models.ContratosProveedor	true		"body for ContratosProveedor content"
-// @Success 201 {object} models.ContratosProveedor
-// @Failure 403 body is empty
+// @Param	body		body 	{}	true		"body for ContratosProveedor content"
+// @Success 200 {}
+// @Failure 404 not found resource
 // @router / [post]
 func (c *ContratosProveedorController) Post() {
 
@@ -33,9 +35,9 @@ func (c *ContratosProveedorController) Post() {
 // GetOne ...
 // @Title GetOne
 // @Description get ContratosProveedor by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.ContratosProveedor
-// @Failure 403 :id is empty
+// @Param	id		path 	string	false		"The key for staticblock"
+// @Success 200 {}
+// @Failure 404 not found resource
 // @router /:id [get]
 func (c *ContratosProveedorController) GetOne() {
 
@@ -44,39 +46,62 @@ func (c *ContratosProveedorController) GetOne() {
 // GetAll ...
 // @Title GetAll
 // @Description get ContratosProveedor
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.ContratosProveedor
-// @Failure 403
+// @Param	ProvID	query	string	true		"ID del Proveedor"
+// @Param	SupID	query	string	true		"ID del supervisor"
+// @Success 200 {}
+// @Failure 404 not found resource
 // @router / [get]
 func (c *ContratosProveedorController) GetAll() {
+	var alertErr models.Alert
+	alertas := append([]interface{}{"Response:"})
 	logs.Info("viva el get")
-
+	ProveedorID := c.GetString("ProvID")
+	logs.Info(ProveedorID)
+	SupervisorID := c.GetString("SupID")
+	logs.Info(SupervisorID)
+	resultContratos, err1 := ListaContratos(ProveedorID, SupervisorID)
+	if resultContratos != nil {
+		alertErr.Type = "OK"
+		alertErr.Code = "200"
+		alertErr.Body = resultContratos
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "400"
+		alertas = append(alertas, err1)
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(400)
+	}
+	c.Data["json"] = alertErr
+	c.ServeJSON()
 }
 
-// Put ...
-// @Title Put
-// @Description update the ContratosProveedor
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.ContratosProveedor	true		"body for ContratosProveedor content"
-// @Success 200 {object} models.ContratosProveedor
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *ContratosProveedorController) Put() {
-
+func ListaContratos(Idprov string, Idsuper string) (novedad []map[string]interface{}, outputError interface{}) {
+	// fmt.Println(Idprov, Idsuper)
+	// fmt.Println(beego.AppConfig.String("administrativa_amazon_api_url"), beego.AppConfig.String("administrativa_amazon_api_version"))
+	resultProv, err1 := InfoProveedor(Idprov)
+	fmt.Println("error  lista", err1)
+	// fmt.Println("resultado lista", resultProv)
+	if resultProv != nil {
+		fmt.Println("entro a no nil")
+		return resultProv, nil
+	} else {
+		fmt.Println("entro a si nil")
+		// err1 =interface{"error": "no" }
+		return nil, err1
+	}
 }
 
-// Delete ...
-// @Title Delete
-// @Description delete the ContratosProveedor
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *ContratosProveedorController) Delete() {
-
+func InfoProveedor(Idprov string) (novedad []map[string]interface{}, outputError interface{}) {
+	// registroNovedadPost := make(map[string]interface{})
+	var infoProveedor []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+Idprov, &infoProveedor)
+	fmt.Println(error)
+	fmt.Println(len(infoProveedor))
+	if len(infoProveedor) < 1 {
+		fmt.Println("entro al error")
+		return nil, error
+	} else {
+		fmt.Println("ok")
+		return infoProveedor, nil
+	}
 }
