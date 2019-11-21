@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/udistrital/evaluacion_mid/models"
 	"encoding/json"
+
+	"github.com/udistrital/evaluacion_mid/models"
 
 	"github.com/astaxie/beego"
 )
@@ -23,25 +24,6 @@ func (o *ObjectController) Post() {
 	json.Unmarshal(o.Ctx.Input.RequestBody, &ob)
 	objectid := models.AddOne(ob)
 	o.Data["json"] = map[string]string{"ObjectId": objectid}
-	o.ServeJSON()
-}
-
-// @Title Get
-// @Description find object by objectid
-// @Param	objectId		path 	string	true		"the objectid you want to get"
-// @Success 200 {object} models.Object
-// @Failure 403 :objectId is empty
-// @router /:objectId [get]
-func (o *ObjectController) Get() {
-	objectId := o.Ctx.Input.Param(":objectId")
-	if objectId != "" {
-		ob, err := models.GetOne(objectId)
-		if err != nil {
-			o.Data["json"] = err.Error()
-		} else {
-			o.Data["json"] = ob
-		}
-	}
 	o.ServeJSON()
 }
 
@@ -89,4 +71,3 @@ func (o *ObjectController) Delete() {
 	o.Data["json"] = "delete success!"
 	o.ServeJSON()
 }
-

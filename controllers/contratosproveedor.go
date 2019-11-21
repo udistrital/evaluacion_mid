@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 )
 
 // ContratosProveedorController operations for ContratosProveedor
@@ -53,6 +54,7 @@ func (c *ContratosProveedorController) GetOne() {
 // @Failure 403
 // @router / [get]
 func (c *ContratosProveedorController) GetAll() {
+	logs.Info("viva el get")
 
 }
 
