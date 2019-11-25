@@ -11,10 +11,10 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 basePath: /v1
 paths:
-  /filtroProveedor/:
+  /filtroContrato/:
     get:
       tags:
-      - filtroProveedor
+      - filtroContrato
       description: get ContratosProveedor
       operationId: ContratosProveedorController.GetAll
       parameters:
@@ -35,7 +35,7 @@ paths:
           description: not found resource
     post:
       tags:
-      - filtroProveedor
+      - filtroContrato
       description: create ContratosProveedor
       operationId: ContratosProveedorController.Create
       parameters:
@@ -50,10 +50,10 @@ paths:
           description: '{}'
         "404":
           description: not found resource
-  /filtroProveedor/{id}:
+  /filtroContrato/{id}:
     get:
       tags:
-      - filtroProveedor
+      - filtroContrato
       description: get ContratosProveedor by id
       operationId: ContratosProveedorController.GetOne
       parameters:
@@ -66,6 +66,123 @@ paths:
           description: '{}'
         "404":
           description: not found resource
+  /filtroProveedor/:
+    get:
+      tags:
+      - filtroProveedor
+      description: get Contatoscontrato
+      operationId: ContatoscontratoController.GetAll
+      parameters:
+      - in: query
+        name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: fields
+        description: Fields returned. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: sortby
+        description: Sorted-by fields. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: order
+        description: Order corresponding to each sortby field, if single value, apply
+          to all sortby fields. e.g. desc,asc ...
+        type: string
+      - in: query
+        name: limit
+        description: Limit the size of result set. Must be an integer
+        type: string
+      - in: query
+        name: offset
+        description: Start position of result set. Must be an integer
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Contatoscontrato'
+        "403":
+          description: ""
+    post:
+      tags:
+      - filtroProveedor
+      description: create Contatoscontrato
+      operationId: ContatoscontratoController.Create
+      parameters:
+      - in: body
+        name: body
+        description: body for Contatoscontrato content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Contatoscontrato'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Contatoscontrato'
+        "403":
+          description: body is empty
+  /filtroProveedor/{id}:
+    get:
+      tags:
+      - filtroProveedor
+      description: get Contatoscontrato by id
+      operationId: ContatoscontratoController.GetOne
+      parameters:
+      - in: path
+        name: id
+        description: The key for staticblock
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Contatoscontrato'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - filtroProveedor
+      description: update the Contatoscontrato
+      operationId: ContatoscontratoController.Put
+      parameters:
+      - in: path
+        name: id
+        description: The id you want to update
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for Contatoscontrato content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Contatoscontrato'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Contatoscontrato'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - filtroProveedor
+      description: delete the Contatoscontrato
+      operationId: ContatoscontratoController.Delete
+      parameters:
+      - in: path
+        name: id
+        description: The id you want to delete
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
   /object/:
     get:
       tags:
@@ -167,6 +284,9 @@ definitions:
   '{}':
     title: '{}'
     type: object
+  models.Contatoscontrato:
+    title: Contatoscontrato
+    type: object
   models.ContratosProveedor:
     title: ContratosProveedor
     type: object
@@ -211,5 +331,8 @@ tags:
   description: |
     Operations about object
 - name: filtroProveedor
+  description: |
+    ContatoscontratoController operations for Contatoscontrato
+- name: filtroContrato
   description: |
     ContratosProveedorController operations for ContratosProveedor
