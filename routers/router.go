@@ -20,12 +20,12 @@ func init() {
 				&controllers.ObjectController{},
 			),
 		),
-		beego.NSNamespace("/filtroProveedor",
+		beego.NSNamespace("/filtroContrato",
 			beego.NSInclude(
 				&controllers.ContatoscontratoController{},
 			),
 		),
-		beego.NSNamespace("/filtroContrato",
+		beego.NSNamespace("/filtroProveedor",
 			beego.NSInclude(
 				&controllers.ContratosProveedorController{},
 			),

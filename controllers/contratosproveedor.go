@@ -63,6 +63,7 @@ func (c *ContratosProveedorController) GetAll() {
 	c.ServeJSON()
 }
 
+// ListaContratos ...
 func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]interface{}, outputError interface{}) {
 	// fmt.Println(IdentProv, Idsuper)
 	// fmt.Println(beego.AppConfig.String("administrativa_amazon_api_url"), beego.AppConfig.String("administrativa_amazon_api_version"))
@@ -72,9 +73,9 @@ func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]inte
 	// fmt.Println(models.GetElementoMaptoString(resultProv, "Id"))
 	if resultProv != nil {
 		fmt.Println("entro a no nil")
-		IdProveedor := models.GetElementoMaptoString(resultProv, "Id")
-		fmt.Println(IdProveedor)
-		resultContrato, err2 := ObtenerContratos(IdProveedor)
+		IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
+		fmt.Println(IDProveedor)
+		resultContrato, err2 := ObtenerContratos(IDProveedor)
 		fmt.Println("error  contrato", err2)
 		// fmt.Println(resultProv)
 		// fmt.Println(models.GetElementoMaptoString(resultProv, "Id"))
@@ -95,6 +96,7 @@ func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]inte
 
 }
 
+// InfoProveedor ...
 func InfoProveedor(IdentProv string) (novedad []map[string]interface{}, outputError interface{}) {
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
@@ -111,9 +113,10 @@ func InfoProveedor(IdentProv string) (novedad []map[string]interface{}, outputEr
 	}
 }
 
-func ObtenerContratos(IdProv string) (novedad []map[string]interface{}, outputError interface{}) {
+// ObtenerContratos ...
+func ObtenerContratos(IDProv string) (novedad []map[string]interface{}, outputError interface{}) {
 	var ContratosProveedor []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IdProv, &ContratosProveedor)
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
 	fmt.Println(len(ContratosProveedor))
 	if len(ContratosProveedor) < 1 {
 		fmt.Println(error)

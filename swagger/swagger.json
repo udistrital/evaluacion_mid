@@ -20,65 +20,6 @@
                 "tags": [
                     "filtroContrato"
                 ],
-                "description": "get ContratosProveedor",
-                "operationId": "ContratosProveedorController.GetAll",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "ProvID",
-                        "description": "ID del Proveedor",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "SupID",
-                        "description": "ID del supervisor",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{}"
-                    },
-                    "404": {
-                        "description": "not found resource"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "filtroContrato"
-                ],
-                "description": "create ContratosProveedor",
-                "operationId": "ContratosProveedorController.Create",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for ContratosProveedor content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/{}"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{}"
-                    },
-                    "404": {
-                        "description": "not found resource"
-                    }
-                }
-            }
-        },
-        "/filtroProveedor/": {
-            "get": {
-                "tags": [
-                    "filtroProveedor"
-                ],
                 "description": "get Contatoscontrato",
                 "operationId": "ContatoscontratoController.GetAll",
                 "parameters": [
@@ -133,7 +74,7 @@
             },
             "post": {
                 "tags": [
-                    "filtroProveedor"
+                    "filtroContrato"
                 ],
                 "description": "create Contatoscontrato",
                 "operationId": "ContatoscontratoController.Create",
@@ -157,6 +98,65 @@
                     },
                     "403": {
                         "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/filtroProveedor/": {
+            "get": {
+                "tags": [
+                    "filtroProveedor"
+                ],
+                "description": "get ContratosProveedor",
+                "operationId": "ContratosProveedorController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ProvID",
+                        "description": "ID del Proveedor",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "SupID",
+                        "description": "ID del supervisor",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "filtroProveedor"
+                ],
+                "description": "create ContratosProveedor",
+                "operationId": "ContratosProveedorController.Create",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for ContratosProveedor content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
                     }
                 }
             }
@@ -381,11 +381,11 @@
             "description": "Operations about object\n"
         },
         {
-            "name": "filtroProveedor",
+            "name": "filtroContrato",
             "description": "ContatoscontratoController operations for Contatoscontrato\n"
         },
         {
-            "name": "filtroContrato",
+            "name": "filtroProveedor",
             "description": "ContratosProveedorController operations for ContratosProveedor\n"
         }
     ]
