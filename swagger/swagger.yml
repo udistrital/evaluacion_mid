@@ -19,37 +19,23 @@ paths:
       operationId: ContatoscontratoController.GetAll
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
+        name: NumContrato
+        description: Numero del contrato
+        required: true
         type: string
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
+        name: Vigencia
+        description: Vigencia del contrato
         type: string
       - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
+        name: SupID
+        description: ID del supervisor
         type: string
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Contatoscontrato'
-        "403":
-          description: ""
+          description: '{}'
+        "404":
+          description: not found resource
     post:
       tags:
       - filtroContrato
@@ -84,7 +70,6 @@ paths:
       - in: query
         name: SupID
         description: ID del supervisor
-        required: true
         type: string
       responses:
         "200":
@@ -257,7 +242,7 @@ tags:
     Operations about object
 - name: filtroContrato
   description: |
-    ContatoscontratoController operations for Contatoscontrato
+    ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos
 - name: filtroProveedor
   description: |
     ContratosProveedorController operations for ContratosProveedor

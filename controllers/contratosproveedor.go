@@ -35,7 +35,7 @@ func (c *ContratosProveedorController) Post() {
 // @Title GetAll
 // @Description get ContratosProveedor
 // @Param	ProvID	query	string	true		"ID del Proveedor"
-// @Param	SupID	query	string	true		"ID del supervisor"
+// @Param	SupID	query	string	false		"ID del supervisor"
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]
@@ -47,7 +47,7 @@ func (c *ContratosProveedorController) GetAll() {
 	logs.Info(ProveedorIdent)
 	SupervisorIdent := c.GetString("SupID")
 	logs.Info(SupervisorIdent)
-	resultContratos, err1 := ListaContratos(ProveedorIdent, SupervisorIdent)
+	resultContratos, err1 := ListaContratosProveedor(ProveedorIdent, SupervisorIdent)
 	if resultContratos != nil {
 		alertErr.Type = "OK"
 		alertErr.Code = "200"
@@ -63,8 +63,8 @@ func (c *ContratosProveedorController) GetAll() {
 	c.ServeJSON()
 }
 
-// ListaContratos ...
-func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]interface{}, outputError interface{}) {
+// ListaContratosProveedor ...
+func ListaContratosProveedor(IdentProv string, Idsuper string) (contratos []map[string]interface{}, outputError interface{}) {
 	// fmt.Println(IdentProv, Idsuper)
 	// fmt.Println(beego.AppConfig.String("administrativa_amazon_api_url"), beego.AppConfig.String("administrativa_amazon_api_version"))
 	resultProv, err1 := InfoProveedor(IdentProv)
@@ -75,7 +75,7 @@ func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]inte
 		fmt.Println("entro a no nil")
 		IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
 		fmt.Println(IDProveedor)
-		resultContrato, err2 := ObtenerContratos(IDProveedor)
+		resultContrato, err2 := ObtenerContratosProveedor(IDProveedor)
 		fmt.Println("error  contrato", err2)
 		// fmt.Println(resultProv)
 		// fmt.Println(models.GetElementoMaptoString(resultProv, "Id"))
@@ -97,10 +97,10 @@ func ListaContratos(IdentProv string, Idsuper string) (novedad []map[string]inte
 }
 
 // InfoProveedor ...
-func InfoProveedor(IdentProv string) (novedad []map[string]interface{}, outputError interface{}) {
+func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, outputError interface{}) {
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv, &infoProveedor)
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor)
 	fmt.Println(len(infoProveedor))
 	if len(infoProveedor) < 1 {
 		fmt.Println(error)
@@ -113,8 +113,8 @@ func InfoProveedor(IdentProv string) (novedad []map[string]interface{}, outputEr
 	}
 }
 
-// ObtenerContratos ...
-func ObtenerContratos(IDProv string) (novedad []map[string]interface{}, outputError interface{}) {
+// ObtenerContratosProveedor ...
+func ObtenerContratosProveedor(IDProv string) (contrato []map[string]interface{}, outputError interface{}) {
 	var ContratosProveedor []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
 	fmt.Println(len(ContratosProveedor))

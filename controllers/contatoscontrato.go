@@ -1,10 +1,15 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
-// ContatoscontratoController operations for Contatoscontrato
+// ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos
 type ContatoscontratoController struct {
 	beego.Controller
 }
@@ -29,15 +34,65 @@ func (c *ContatoscontratoController) Post() {
 // GetAll ...
 // @Title GetAll
 // @Description get Contatoscontrato
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.Contatoscontrato
-// @Failure 403
+// @Param	NumContrato	query	string	true		"Numero del contrato"
+// @Param	Vigencia	query	string	false		"Vigencia del contrato"
+// @Param	SupID	query	string	false		"ID del supervisor"
+// @Success 200 {}
+// @Failure 404 not found resource
 // @router / [get]
 func (c *ContatoscontratoController) GetAll() {
+	var alertErr models.Alert
+	alertas := append([]interface{}{"Response:"})
+	NumContrato := c.GetString("NumContrato")
+	Vigencia := c.GetString("Vigencia")
+	logs.Info(NumContrato)
+	SupervisorIdent := c.GetString("SupID")
+	logs.Info(Vigencia)
+	resultContratos, err1 := ListaContratosContrato(NumContrato, Vigencia, SupervisorIdent)
+	if resultContratos != nil {
+		alertErr.Type = "OK"
+		alertErr.Code = "200"
+		alertErr.Body = resultContratos
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "400"
+		alertas = append(alertas, err1)
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(400)
+	}
+	c.Data["json"] = alertErr
+	c.ServeJSON()
+}
 
+// ListaContratosContrato ...
+func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorIdent string) (contratos []map[string]interface{}, outputError interface{}) {
+	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
+	fmt.Println("error  contrato", err1)
+	if resultContrato != nil {
+		fmt.Println("entro a no nil")
+		// fmt.Println(resultContrato)
+		// pruebaOrg := models.OrganizarInfoContratos(resultProv, resultContrato)
+		// return pruebaOrg, nil
+		return resultContrato, nil
+	} else {
+		fmt.Println("entro a si nil contrato")
+		return nil, err1
+	}
+	// return nil, nil
+}
+
+// ObtenerContratosContrato ...
+func ObtenerContratosContrato(NumContrato string, vigencia string) (contrato []map[string]interface{}, outputError interface{}) {
+	var ContratosProveedor []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato, &ContratosProveedor)
+	fmt.Println(len(ContratosProveedor))
+	if len(ContratosProveedor) < 1 {
+		fmt.Println(error)
+		fmt.Println("entro al error")
+		errorContrato := models.CrearError("no se encontraron contratos")
+		return nil, errorContrato
+	} else {
+		fmt.Println("ok")
+		return ContratosProveedor, nil
+	}
 }
