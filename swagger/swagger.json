@@ -74,31 +74,6 @@
                 }
             }
         },
-        "/filtroContrato/{id}": {
-            "get": {
-                "tags": [
-                    "filtroContrato"
-                ],
-                "description": "get ContratosProveedor by id",
-                "operationId": "ContratosProveedorController.GetOne",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The key for staticblock",
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{}"
-                    },
-                    "404": {
-                        "description": "not found resource"
-                    }
-                }
-            }
-        },
         "/filtroProveedor/": {
             "get": {
                 "tags": [
@@ -182,95 +157,6 @@
                     },
                     "403": {
                         "description": "body is empty"
-                    }
-                }
-            }
-        },
-        "/filtroProveedor/{id}": {
-            "get": {
-                "tags": [
-                    "filtroProveedor"
-                ],
-                "description": "get Contatoscontrato by id",
-                "operationId": "ContatoscontratoController.GetOne",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The key for staticblock",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Contatoscontrato"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is empty"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "filtroProveedor"
-                ],
-                "description": "update the Contatoscontrato",
-                "operationId": "ContatoscontratoController.Put",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to update",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Contatoscontrato content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Contatoscontrato"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Contatoscontrato"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is not int"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "filtroProveedor"
-                ],
-                "description": "delete the Contatoscontrato",
-                "operationId": "ContatoscontratoController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to delete",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} delete success!"
-                    },
-                    "403": {
-                        "description": "id is empty"
                     }
                 }
             }

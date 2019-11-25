@@ -17,7 +17,6 @@ type ContratosProveedorController struct {
 // URLMapping ...
 func (c *ContratosProveedorController) URLMapping() {
 	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
 	c.Mapping("GetAll", c.GetAll)
 }
 
@@ -29,17 +28,6 @@ func (c *ContratosProveedorController) URLMapping() {
 // @Failure 404 not found resource
 // @router / [post]
 func (c *ContratosProveedorController) Post() {
-
-}
-
-// GetOne ...
-// @Title GetOne
-// @Description get ContratosProveedor by id
-// @Param	id		path 	string	false		"The key for staticblock"
-// @Success 200 {}
-// @Failure 404 not found resource
-// @router /:id [get]
-func (c *ContratosProveedorController) GetOne() {
 
 }
 
