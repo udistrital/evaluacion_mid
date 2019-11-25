@@ -84,7 +84,12 @@ func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorId
 // ObtenerContratosContrato ...
 func ObtenerContratosContrato(NumContrato string, vigencia string) (contrato []map[string]interface{}, outputError interface{}) {
 	var ContratosProveedor []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato, &ContratosProveedor)
+	var error error
+	if vigencia == "0" {
+		error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato, &ContratosProveedor)
+	} else {
+		error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",VigenciaContrato:"+vigencia, &ContratosProveedor)
+	}
 	fmt.Println(len(ContratosProveedor))
 	if len(ContratosProveedor) < 1 {
 		fmt.Println(error)
