@@ -45,14 +45,11 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 			fmt.Println("entro a si nil contrato", err)
 			// return nil, err1
 		}
-		// logs.Emergency(IDProv)
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
-			"IdProveedor": infoContratos[i]["Contratista"],
-			// "NombreProveedor":  infoProveedor[0]["NomProveedor"],
-			"NombreProveedor":  NomProveedor[0]["NomProveedor"],
-			"ContratoSuscrito": models.GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
-			"Vigencia":         infoContratos[i]["VigenciaContrato"],
-			// "Cotizacion":            infoContratos[i],
+			"IdProveedor":           infoContratos[i]["Contratista"],
+			"NombreProveedor":       NomProveedor[0]["NomProveedor"],
+			"ContratoSuscrito":      models.GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
+			"Vigencia":              infoContratos[i]["VigenciaContrato"],
 			"DependenciaSupervisor": models.GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
 		})
 	}
