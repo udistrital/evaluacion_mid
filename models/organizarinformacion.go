@@ -15,8 +15,9 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 			"IdProveedor":      infoContratos[i]["Contratista"],
 			"NombreProveedor":  infoProveedor[0]["NomProveedor"],
 			"ContratoSuscrito": models.GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
-			"vigencia":         infoContratos[i]["VigenciaContrato"],
-			"supervisor":       infoContratos[i]["Supervisor"],
+			"Vigencia":         infoContratos[i]["VigenciaContrato"],
+			// "Cotizacion":            infoContratos[i],
+			"DependenciaSupervisor": models.GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
 		})
 	}
 	return registrojbpm
