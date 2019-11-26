@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/udistrital/evaluacion_mid/models"
 	"encoding/json"
+
+	"github.com/udistrital/evaluacion_mid/models"
 
 	"github.com/astaxie/beego"
 )
@@ -26,29 +27,17 @@ func (o *ObjectController) Post() {
 	o.ServeJSON()
 }
 
-// @Title Get
-// @Description find object by objectid
-// @Param	objectId		path 	string	true		"the objectid you want to get"
-// @Success 200 {object} models.Object
-// @Failure 403 :objectId is empty
-// @router /:objectId [get]
-func (o *ObjectController) Get() {
-	objectId := o.Ctx.Input.Param(":objectId")
-	if objectId != "" {
-		ob, err := models.GetOne(objectId)
-		if err != nil {
-			o.Data["json"] = err.Error()
-		} else {
-			o.Data["json"] = ob
-		}
-	}
-	o.ServeJSON()
-}
-
+/// GetAll ...
 // @Title GetAll
-// @Description get all objects
-// @Success 200 {object} models.Object
-// @Failure 403 :objectId is empty
+// @Description get ContratosProveedor
+// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
+// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
+// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
+// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
+// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// @Success 200 {object} models.ContratosProveedor
+// @Failure 403
 // @router / [get]
 func (o *ObjectController) GetAll() {
 	obs := models.GetAll()
@@ -89,4 +78,3 @@ func (o *ObjectController) Delete() {
 	o.Data["json"] = "delete success!"
 	o.ServeJSON()
 }
-
