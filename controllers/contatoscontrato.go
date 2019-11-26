@@ -72,9 +72,9 @@ func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorId
 	if resultContrato != nil {
 		fmt.Println("entro a no nil")
 		// fmt.Println(resultContrato)
-		// pruebaOrg := models.OrganizarInfoContratos(resultProv, resultContrato)
-		// return pruebaOrg, nil
-		return resultContrato, nil
+		InfoOrg := models.OrganizarInfoContratosMultipleProv(resultContrato)
+		return InfoOrg, nil
+		// return resultContrato, nil
 	} else {
 		fmt.Println("entro a si nil contrato")
 		return nil, err1
