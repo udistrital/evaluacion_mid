@@ -66,6 +66,7 @@ func (c *ContatoscontratoController) GetAll() {
 
 // ListaContratosContrato ...
 func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorIdent string) (contratos []map[string]interface{}, outputError interface{}) {
+	// resultContrato, err1 := models.ObtenerDependencias(supervidorIdent)
 	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
 	fmt.Println("error  contrato", err1)
 	if resultContrato != nil {
