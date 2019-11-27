@@ -9,7 +9,7 @@ import (
 )
 
 // OrganizarInfoContratos ...
-func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContratos []map[string]interface{}) (novedad []map[string]interface{}) {
+func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContratos []map[string]interface{}) (contratos []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	// logs.Emergency(InfoOrganizada)
 	// logs.Warning(len(infoContratos))
@@ -29,7 +29,7 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 }
 
 // OrganizarInfoContratosMultipleProv ...
-func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (novedad []map[string]interface{}) {
+func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	NomProveedor := []map[string]interface{}{}
 	// logs.Emergency(InfoOrganizada)
@@ -76,8 +76,24 @@ func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputE
 
 // FiltroDependencia ...
 func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError interface{}) {
-	Dependencia := make([]map[string]interface{}, 0)
-	Dependencia = append(Dependencia, dependencias)
-	fmt.Println(Dependencia[0]["DependenciasSic"])
-	return nil, nil
+	DependenciasSic := make([]map[string]interface{}, 0)
+	InfoFiltrada := make([]map[string]interface{}, 0)
+	DependenciasSic = append(DependenciasSic, dependencias)
+	Dependencia := GetElemento(DependenciasSic[0]["DependenciasSic"], "Dependencia")
+	ArrayDependencia := GetElementoMaptoStringToArray(Dependencia, "ESFCODIGODEP")
+	for i := 0; i < len(infoContratos); i++ {
+		for _, Dep := range ArrayDependencia {
+			// fmt.Println(Dep)
+			if Dep == infoContratos[i]["DependenciaSupervisor"] {
+				fmt.Println("son iguales y es", Dep, infoContratos[i]["DependenciaSupervisor"])
+				InfoFiltrada = append(InfoFiltrada, infoContratos[i])
+			}
+		}
+	}
+	if len(InfoFiltrada) > 0 {
+		return InfoFiltrada, nil
+	} else {
+		errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene cntratos disponibles")
+		return nil, errorContratos
+	}
 }
