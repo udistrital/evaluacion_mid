@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/logs"
 )
 
+// CrearError ...
 func CrearError(contenido string) interface{} {
 	var ErrorCreado interface{}
 

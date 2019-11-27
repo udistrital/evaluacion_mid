@@ -66,13 +66,17 @@ func (c *ContatoscontratoController) GetAll() {
 
 // ListaContratosContrato ...
 func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorIdent string) (contratos []map[string]interface{}, outputError interface{}) {
-	// resultContrato, err1 := models.ObtenerDependencias(supervidorIdent)
 	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
 	fmt.Println("error  contrato", err1)
 	if resultContrato != nil {
 		fmt.Println("entro a no nil")
 		// fmt.Println(resultContrato)
 		InfoOrg := models.OrganizarInfoContratosMultipleProv(resultContrato)
+		resultDependencia, err3 := models.ObtenerDependencias(supervidorIdent)
+		InfoFiltrada, err2 := models.FiltroDependencia(resultContrato, resultDependencia)
+		fmt.Println("INFO DE FILTRO", InfoFiltrada)
+		fmt.Println("ERROR DE FILTRO", err2)
+		fmt.Println("ERROR DE LAS DEPENDENCIAS", err3)
 		return InfoOrg, nil
 		// return resultContrato, nil
 	} else {

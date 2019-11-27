@@ -8,6 +8,7 @@ import (
 	"github.com/udistrital/utils_oas/request"
 )
 
+// OrganizarInfoContratos ...
 func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContratos []map[string]interface{}) (novedad []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	// logs.Emergency(InfoOrganizada)
@@ -71,4 +72,12 @@ func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputE
 		fmt.Println("ok")
 		return infoProveedor, nil
 	}
+}
+
+// FiltroDependencia ...
+func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError interface{}) {
+	Dependencia := make([]map[string]interface{}, 0)
+	Dependencia = append(Dependencia, dependencias)
+	fmt.Println(Dependencia[0]["DependenciasSic"])
+	return nil, nil
 }

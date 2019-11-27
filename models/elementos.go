@@ -5,12 +5,14 @@ import (
 	"reflect"
 )
 
+// GetElemento ...
 func GetElemento(objeto interface{}, item string) interface{} {
 	var subobjeto interface{}
 	subobjeto = objeto.(map[string]interface{})[item]
 	return subobjeto
 }
 
+// GetElementoMaptoString ...
 func GetElementoMaptoString(objeto interface{}, item string) string {
 	value := reflect.ValueOf(objeto)
 	var resuesta string

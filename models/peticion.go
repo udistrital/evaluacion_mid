@@ -8,7 +8,8 @@ import (
 	"github.com/astaxie/beego"
 )
 
-func GetJsonJBPM(urlp string, target interface{}) error {
+// GetJSONJBPM ...
+func GetJSONJBPM(urlp string, target interface{}) error {
 	b := new(bytes.Buffer)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", urlp, b)
