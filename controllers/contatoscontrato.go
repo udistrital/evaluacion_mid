@@ -13,27 +13,15 @@ type ContatoscontratoController struct {
 
 // URLMapping ...
 func (c *ContatoscontratoController) URLMapping() {
-	c.Mapping("Post", c.Post)
 	c.Mapping("GetAll", c.GetAll)
-}
-
-// Post ...
-// @Title Create
-// @Description create Contatoscontrato
-// @Param	body		body 	models.Contatoscontrato	true		"body for Contatoscontrato content"
-// @Success 201 {object} models.Contatoscontrato
-// @Failure 403 body is empty
-// @router / [post]
-func (c *ContatoscontratoController) Post() {
-
 }
 
 // GetAll ...
 // @Title GetAll
 // @Description get Contatoscontrato
 // @Param	NumContrato	query	string	true		"Numero del contrato"
-// @Param	Vigencia	query	string	false		"Vigencia del contrato"
-// @Param	SupID	query	string	false		"ID del supervisor"
+// @Param	Vigencia	query	string	true		"Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)"
+// @Param	SupID	query	string	true		"Identificacion del supervisor"
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]

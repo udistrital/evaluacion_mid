@@ -25,36 +25,20 @@ paths:
         type: string
       - in: query
         name: Vigencia
-        description: Vigencia del contrato
+        description: Vigencia del contrato,, para evitar el filtro se debe de mandar
+          un 0 (cero)
+        required: true
         type: string
       - in: query
         name: SupID
-        description: ID del supervisor
+        description: Identificacion del supervisor
+        required: true
         type: string
       responses:
         "200":
           description: '{}'
         "404":
           description: not found resource
-    post:
-      tags:
-      - filtroContrato
-      description: create Contatoscontrato
-      operationId: ContatoscontratoController.Create
-      parameters:
-      - in: body
-        name: body
-        description: body for Contatoscontrato content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Contatoscontrato'
-      responses:
-        "201":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Contatoscontrato'
-        "403":
-          description: body is empty
   /filtroProveedor/:
     get:
       tags:
@@ -69,25 +53,10 @@ paths:
         type: string
       - in: query
         name: SupID
-        description: ID del supervisor
-        type: string
-      responses:
-        "200":
-          description: '{}'
-        "404":
-          description: not found resource
-    post:
-      tags:
-      - filtroProveedor
-      description: create ContratosProveedor
-      operationId: ContratosProveedorController.Create
-      parameters:
-      - in: body
-        name: body
-        description: body for ContratosProveedor content
+        description: Identificacion del supervisor, para evitar el filtro se debe
+          de mandar un 0 (cero)
         required: true
-        schema:
-          $ref: '#/definitions/{}'
+        type: string
       responses:
         "200":
           description: '{}'
@@ -191,12 +160,6 @@ paths:
         "403":
           description: objectId is empty
 definitions:
-  '{}':
-    title: '{}'
-    type: object
-  models.Contatoscontrato:
-    title: Contatoscontrato
-    type: object
   models.ContratosProveedor:
     title: ContratosProveedor
     type: object
@@ -245,4 +208,4 @@ tags:
     ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos
 - name: filtroProveedor
   description: |
-    ContratosProveedorController operations for ContratosProveedor
+    ContratosProveedorController ... Filtro para tener lista de contratos de un proveedor
