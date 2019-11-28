@@ -1,10 +1,7 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -45,9 +42,7 @@ func (c *ContatoscontratoController) GetAll() {
 	alertas := append([]interface{}{"Response:"})
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("Vigencia")
-	logs.Info(NumContrato)
 	SupervisorIdent := c.GetString("SupID")
-	logs.Info(Vigencia)
 	resultContratos, err1 := ListaContratosContrato(NumContrato, Vigencia, SupervisorIdent)
 	if resultContratos != nil {
 		alertErr.Type = "OK"
@@ -67,24 +62,24 @@ func (c *ContatoscontratoController) GetAll() {
 // ListaContratosContrato ...
 func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorIdent string) (contratos []map[string]interface{}, outputError interface{}) {
 	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
-	fmt.Println("error  contrato", err1)
 	if resultContrato != nil {
-		fmt.Println("entro a no nil")
-		// fmt.Println(resultContrato)
 		InfoOrg := models.OrganizarInfoContratosMultipleProv(resultContrato)
-		resultDependencia := models.ObtenerDependencias(supervidorIdent)
-		InfoFiltrada, err2 := models.FiltroDependencia(InfoOrg, resultDependencia)
-		// fmt.Println("INFO DE FILTRO", InfoFiltrada)
-		// fmt.Println("ERROR DE FILTRO", err2)
-		if InfoFiltrada != nil {
-			return InfoFiltrada, nil
-
+		resultDependencia, errDep := models.ObtenerDependencias(supervidorIdent)
+		if errDep != nil {
+			return nil, errDep
 		} else {
-			return nil, err2
+			InfoFiltrada, err2 := models.FiltroDependencia(InfoOrg, resultDependencia)
+
+			if InfoFiltrada != nil {
+				return InfoFiltrada, nil
+
+			} else {
+				return nil, err2
+			}
 		}
+
 		// return resultContrato, nil
 	} else {
-		fmt.Println("entro a si nil contrato")
 		return nil, err1
 	}
 	// return nil, nil
@@ -93,20 +88,16 @@ func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorId
 // ObtenerContratosContrato ...
 func ObtenerContratosContrato(NumContrato string, vigencia string) (contrato []map[string]interface{}, outputError interface{}) {
 	var ContratosProveedor []map[string]interface{}
-	var error error
+	var error interface{}
 	if vigencia == "0" {
 		error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato, &ContratosProveedor)
 	} else {
 		error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",VigenciaContrato:"+vigencia, &ContratosProveedor)
 	}
-	fmt.Println(len(ContratosProveedor))
 	if len(ContratosProveedor) < 1 {
-		fmt.Println(error)
-		fmt.Println("entro al error")
-		errorContrato := models.CrearError("no se encontraron contratos")
-		return nil, errorContrato
+		error = models.CrearError("no se encontraron contratos")
+		return nil, error
 	} else {
-		fmt.Println("ok")
 		return ContratosProveedor, nil
 	}
 }

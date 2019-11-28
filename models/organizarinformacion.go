@@ -11,11 +11,7 @@ import (
 // OrganizarInfoContratos ...
 func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContratos []map[string]interface{}) (contratos []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
-	// logs.Emergency(InfoOrganizada)
-	// logs.Warning(len(infoContratos))
-	// logs.Warning(infoContratos[0])
 	for i := 0; i < len(infoContratos); i++ {
-		// fmt.Println(infoContratos[i]["ContratoSuscrito"])
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":      infoContratos[i]["Contratista"],
 			"NombreProveedor":  infoProveedor[0]["NomProveedor"],
@@ -32,9 +28,6 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	NomProveedor := []map[string]interface{}{}
-	// logs.Emergency(InfoOrganizada)
-	// logs.Warning(len(infoContratos))
-	// logs.Warning(infoContratos[0])
 	for i := 0; i < len(infoContratos); i++ {
 		// fmt.Println(infoContratos[i]["ContratoSuscrito"])
 		IDProv := fmt.Sprintf("%v", infoContratos[i]["Contratista"])
@@ -62,14 +55,11 @@ func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputE
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor)
-	fmt.Println(len(infoProveedor))
 	if len(infoProveedor) < 1 {
 		fmt.Println(error)
-		fmt.Println("entro al error")
 		errorProv := CrearError("no se pudo traer la info del proveedor")
 		return nil, errorProv
 	} else {
-		fmt.Println("ok")
 		return infoProveedor, nil
 	}
 }
@@ -84,7 +74,6 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 	if ArrayDependencia != nil {
 		for i := 0; i < len(infoContratos); i++ {
 			for _, Dep := range ArrayDependencia {
-				// fmt.Println(Dep)
 				if Dep == infoContratos[i]["DependenciaSupervisor"] {
 					fmt.Println("son iguales y es", Dep, infoContratos[i]["DependenciaSupervisor"])
 					InfoFiltrada = append(InfoFiltrada, infoContratos[i])

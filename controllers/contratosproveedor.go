@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -42,11 +41,8 @@ func (c *ContratosProveedorController) Post() {
 func (c *ContratosProveedorController) GetAll() {
 	var alertErr models.Alert
 	alertas := append([]interface{}{"Response:"})
-	logs.Info("viva el get")
 	ProveedorIdent := c.GetString("ProvID")
-	logs.Info(ProveedorIdent)
 	SupervisorIdent := c.GetString("SupID")
-	logs.Info(SupervisorIdent)
 	resultContratos, err1 := ListaContratosProveedor(ProveedorIdent, SupervisorIdent)
 	if resultContratos != nil {
 		alertErr.Type = "OK"

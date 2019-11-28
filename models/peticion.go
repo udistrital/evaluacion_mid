@@ -16,7 +16,6 @@ func GetJSONJBPM(urlp string, target interface{}) error {
 	req.Header.Set("Accept", "application/json")
 	r, err := client.Do(req)
 	if err != nil {
-		beego.Error("error", err)
 		return err
 	}
 	defer func() {

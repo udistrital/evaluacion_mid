@@ -16,7 +16,6 @@ func GetElemento(objeto interface{}, item string) interface{} {
 func GetElementoMaptoString(objeto interface{}, item string) string {
 	value := reflect.ValueOf(objeto)
 	var resuesta string
-	fmt.Println(value.Len())
 	if value.Len() > 0 {
 		aux := value.Index(0).Interface().(map[string]interface{})
 		resuesta = fmt.Sprintf("%v", aux[item])
@@ -33,7 +32,6 @@ func GetElementoMaptoStringToArray(objeto interface{}, item string) (ElementosAr
 	value := reflect.ValueOf(objeto)
 	ArrayRespuesta := make([]string, 0)
 	var resuesta string
-	fmt.Println("value valid", value.IsValid())
 	if value.IsValid() {
 		if value.Len() > 0 {
 			for i := 0; i < value.Len(); i++ {
@@ -43,7 +41,8 @@ func GetElementoMaptoStringToArray(objeto interface{}, item string) (ElementosAr
 			}
 		}
 		if value.Len() == 0 {
-			resuesta = fmt.Sprintf("Objeto de longitud cero")
+			errorElementos := CrearError("Longitud cero de elmentos")
+			return nil, errorElementos
 		}
 		return ArrayRespuesta, nil
 
