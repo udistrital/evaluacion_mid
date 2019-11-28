@@ -80,20 +80,25 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 	InfoFiltrada := make([]map[string]interface{}, 0)
 	DependenciasSic = append(DependenciasSic, dependencias)
 	Dependencia := GetElemento(DependenciasSic[0]["DependenciasSic"], "Dependencia")
-	ArrayDependencia := GetElementoMaptoStringToArray(Dependencia, "ESFCODIGODEP")
-	for i := 0; i < len(infoContratos); i++ {
-		for _, Dep := range ArrayDependencia {
-			// fmt.Println(Dep)
-			if Dep == infoContratos[i]["DependenciaSupervisor"] {
-				fmt.Println("son iguales y es", Dep, infoContratos[i]["DependenciaSupervisor"])
-				InfoFiltrada = append(InfoFiltrada, infoContratos[i])
+	ArrayDependencia, errElmento := GetElementoMaptoStringToArray(Dependencia, "ESFCODIGODEP")
+	if ArrayDependencia != nil {
+		for i := 0; i < len(infoContratos); i++ {
+			for _, Dep := range ArrayDependencia {
+				// fmt.Println(Dep)
+				if Dep == infoContratos[i]["DependenciaSupervisor"] {
+					fmt.Println("son iguales y es", Dep, infoContratos[i]["DependenciaSupervisor"])
+					InfoFiltrada = append(InfoFiltrada, infoContratos[i])
+				}
 			}
 		}
-	}
-	if len(InfoFiltrada) > 0 {
-		return InfoFiltrada, nil
+		if len(InfoFiltrada) > 0 {
+			return InfoFiltrada, nil
+		} else {
+			errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene cntratos disponibles")
+			return nil, errorContratos
+		}
 	} else {
-		errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene cntratos disponibles")
-		return nil, errorContratos
+		return nil, errElmento
 	}
+
 }
