@@ -55,6 +55,53 @@
                 }
             }
         },
+        "/filtroMixto/": {
+            "get": {
+                "tags": [
+                    "filtroMixto"
+                ],
+                "description": "get Filtromixto",
+                "operationId": "FiltromixtoController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "IdentProv",
+                        "description": "Identificacion del proveedor",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "NumContrato",
+                        "description": "Numero del contrato",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Vigencia",
+                        "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "SupID",
+                        "description": "Identificacion del supervisor",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
         "/filtroProveedor/": {
             "get": {
                 "tags": [
@@ -97,6 +144,10 @@
         {
             "name": "filtroProveedor",
             "description": "ContratosProveedorController ... Filtro para tener lista de contratos de un proveedor\n"
+        },
+        {
+            "name": "filtroMixto",
+            "description": "FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor\n"
         }
     ]
 }
