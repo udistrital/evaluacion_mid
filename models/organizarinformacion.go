@@ -83,7 +83,7 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 		if len(InfoFiltrada) > 0 {
 			return InfoFiltrada, nil
 		} else {
-			errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene cntratos disponibles")
+			errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene contratos disponibles")
 			return nil, errorContratos
 		}
 	} else {
