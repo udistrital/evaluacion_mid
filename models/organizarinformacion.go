@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
-	"github.com/udistrital/nuxeo_mid/models"
 	"github.com/udistrital/utils_oas/request"
 )
 
@@ -15,10 +14,10 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":      infoContratos[i]["Contratista"],
 			"NombreProveedor":  infoProveedor[0]["NomProveedor"],
-			"ContratoSuscrito": models.GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
+			"ContratoSuscrito": GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
 			"Vigencia":         infoContratos[i]["VigenciaContrato"],
 			// "Cotizacion":            infoContratos[i],
-			"DependenciaSupervisor": models.GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
+			"DependenciaSupervisor": GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
 		})
 	}
 	return InfoOrganizada
@@ -42,9 +41,9 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":           infoContratos[i]["Contratista"],
 			"NombreProveedor":       NomProveedor[0]["NomProveedor"],
-			"ContratoSuscrito":      models.GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
+			"ContratoSuscrito":      GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
 			"Vigencia":              infoContratos[i]["VigenciaContrato"],
-			"DependenciaSupervisor": models.GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
+			"DependenciaSupervisor": GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
 		})
 	}
 	return InfoOrganizada
