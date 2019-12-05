@@ -30,6 +30,11 @@ func init() {
 				&controllers.FiltromixtoController{},
 			),
 		),
+		beego.NSNamespace("/plantilla",
+			beego.NSInclude(
+				&controllers.PlantillaController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
