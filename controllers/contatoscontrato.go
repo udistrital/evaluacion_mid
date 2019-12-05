@@ -38,10 +38,10 @@ func (c *ContatoscontratoController) GetAll() {
 		alertErr.Body = resultContratos
 	} else {
 		alertErr.Type = "error"
-		alertErr.Code = "400"
+		alertErr.Code = "404"
 		alertas = append(alertas, err1)
 		alertErr.Body = alertas
-		c.Ctx.Output.SetStatus(400)
+		c.Ctx.Output.SetStatus(404)
 	}
 	c.Data["json"] = alertErr
 	c.ServeJSON()
