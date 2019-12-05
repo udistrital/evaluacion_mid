@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
+
 	"github.com/astaxie/beego"
+	"github.com/udistrital/evaluacion_mid/models"
 )
 
 // PlantillaController operations for Plantilla
@@ -27,6 +30,36 @@ func (c *PlantillaController) URLMapping() {
 // @Failure 400 Bad Request
 // @router / [post]
 func (c *PlantillaController) Post() {
+	var plantillaRecivida map[string]interface{}
+	var alertErr models.Alert
+	alertas := append([]interface{}{"Response:"})
+
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &plantillaRecivida); err == nil {
+
+		plantillaRespuerta, errPlantilla := models.IngresoPlantilla(plantillaRecivida)
+
+		if plantillaRespuerta != nil {
+			alertErr.Type = "OK"
+			alertErr.Code = "200"
+			alertErr.Body = plantillaRespuerta
+		} else {
+			alertErr.Type = "error"
+			alertErr.Code = "400"
+			alertas = append(alertas, errPlantilla)
+			alertErr.Body = alertas
+			c.Ctx.Output.SetStatus(400)
+		}
+
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "400"
+		alertas = append(alertas, err.Error())
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(400)
+	}
+
+	c.Data["json"] = alertErr
+	c.ServeJSON()
 
 }
 
