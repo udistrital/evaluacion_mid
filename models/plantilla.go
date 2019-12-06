@@ -21,13 +21,17 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 		"Usuario":     plantillaArray[0]["Usuario"],
 	}
 	plantillaBase, errPlantilla := PostPlantilla(plantillaIngresada)
-	fmt.Println(plantillaBase["Id"])
 	if errPlantilla != nil {
 		return nil, errPlantilla
 	} else {
-		clasificacionesResult, errClasificaciones := PostClasificacion(plantillaArray[0]["Clasificacion"])
-		fmt.Println(clasificacionesResult)
-		fmt.Println(errClasificaciones)
+		clasificacionesResult, errClasificaciones := PostClasificacion(plantillaArray[0]["Clasificacion"], plantillaBase)
+		if clasificacionesResult != nil {
+			logs.Info("se ingresaron las clasificaciones con exito: ")
+		} else {
+			logs.Error("error al ingresar alguna clasificacion: ", errClasificaciones)
+			return nil, errClasificaciones
+
+		}
 		return plantillaBase, nil
 
 	}
@@ -45,22 +49,16 @@ func PostPlantilla(plantilla map[string]interface{}) (plantillaResult map[string
 }
 
 // PostClasificacion ...
-func PostClasificacion(clasificaciones interface{}) (clasificacionesResult map[string]interface{}, outputError interface{}) {
-	fmt.Println(clasificaciones)
-	// fmt.Println(clasificaciones.(map[string]interface{}))
+func PostClasificacion(clasificaciones interface{}, Plantilla map[string]interface{}) (clasificacionesResult []map[string]interface{}, outputError interface{}) {
 	clasificacionesMap, errMap := GetElementoMaptoStringToMapArray(clasificaciones)
 	ArrayClasificacionesDB := make([]map[string]interface{}, 0)
 	if clasificacionesMap != nil {
-		// fmt.Println(clasificacionesMap)
-		// fmt.Println(clasificacionesMap[0]["Nombre"])
 		for i := 0; i < len(clasificacionesMap); i++ {
 			getClasificacion := GetClasificacionParametrica(clasificacionesMap[i])
 			if getClasificacion != nil {
-				logs.Info("si existe clasificacion para", clasificacionesMap[i]["Nombre"])
 				ArrayClasificacionesDB = append(ArrayClasificacionesDB, getClasificacion[0])
 
 			} else {
-				logs.Info("NO existe clasificacion para", clasificacionesMap[i]["Nombre"])
 				postClasificacion, errClasif := PostClasificacionParametrica(clasificacionesMap[i])
 				if errClasif != nil {
 					logs.Error("hubo error en ingresar la clasificacion:", clasificacionesMap[i])
@@ -70,14 +68,16 @@ func PostClasificacion(clasificaciones interface{}) (clasificacionesResult map[s
 				}
 			}
 		}
-		logs.Info("clasificaciones: ", ArrayClasificacionesDB)
+		clasificacionesPlantilla, errClsPln := PostClasificacionPlantilla(ArrayClasificacionesDB, Plantilla)
+		if errClsPln != nil {
+			return nil, errClsPln
+		} else {
+			return clasificacionesPlantilla, nil
+		}
 	} else {
 		fmt.Println("valio verga", errMap)
+		return nil, errMap
 	}
-	// for _, clasificacion := range clasificaciones.(map[string]interface{})) {
-	// 	fmt.Println(clasificacion)
-	// }
-	return nil, nil
 }
 
 // PostClasificacionParametrica ... ingresar en tabla
@@ -119,6 +119,31 @@ func GetClasificacionParametrica(clasificacion map[string]interface{}) (clasific
 }
 
 // PostClasificacionPlantilla ... a tabla de rompimiento
-func PostClasificacionPlantilla() {
+func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Plantilla map[string]interface{}) (clasificacionesResult []map[string]interface{}, outputError interface{}) {
+	var clasificacionPlantillaIngresada map[string]interface{}
+	ArrayClasificacionesPlantillaDB := make([]map[string]interface{}, 0)
 
+	for i := 0; i < len(clasificaciones); i++ {
+		datoContruirdo := make(map[string]interface{})
+
+		datoContruirdo = map[string]interface{}{
+			"Activo": true,
+			"IdClasificacion": map[string]interface{}{
+				"Id": clasificaciones[i]["Id"],
+			},
+			"IdPlantilla": map[string]interface{}{
+				"Id": Plantilla["Id"],
+			},
+		}
+		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion_plantilla", "POST", &clasificacionPlantillaIngresada, datoContruirdo)
+		if error != nil {
+			logs.Error("Ocurrio un error al ingresar el dato: ", clasificaciones[i], " el error es:", error)
+			return nil, error
+		} else {
+			ArrayClasificacionesPlantillaDB = append(ArrayClasificacionesPlantillaDB, clasificacionPlantillaIngresada)
+			// return clasificacionPlantillaIngresada, nil
+		}
+	}
+
+	return ArrayClasificacionesPlantillaDB, nil
 }
