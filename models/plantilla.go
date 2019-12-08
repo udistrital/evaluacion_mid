@@ -27,6 +27,10 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 		clasificacionesResult, errClasificaciones := PostClasificacion(plantillaArray[0]["Clasificacion"], plantillaBase)
 		if clasificacionesResult != nil {
 			logs.Info("se ingresaron las clasificaciones con exito: ")
+			// aqui ira el ingreso de la secciones
+			seccionesResult, errSecciones := PostSecciones(plantillaArray[0]["Secciones"], plantillaBase)
+			fmt.Println(seccionesResult)
+			fmt.Println(errSecciones)
 		} else {
 			logs.Error("error al ingresar alguna clasificacion: ", errClasificaciones)
 			return nil, errClasificaciones
