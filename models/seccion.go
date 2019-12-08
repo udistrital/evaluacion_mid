@@ -6,7 +6,6 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/utils_oas/request"
-	"github.com/udistrital/utils_oas/time_bogota"
 )
 
 // PostSecciones ...
@@ -74,7 +73,9 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				"IdPlantilla": map[string]interface{}{
 					"Id": Plantilla["Id"],
 				},
-				"SeccionHijaId": nil,
+				"SeccionPadreId": map[string]interface{}{
+					"Id": seccionPadre["Id"],
+				},
 			}
 			error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionHijaIngresada, datoContruirdo)
 			if error != nil {
@@ -82,12 +83,12 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				return nil, error
 			} else {
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
-				UpdatePadre, errUp := ActualizacionSeccionPadre(seccionHijaIngresada, seccionPadre, Plantilla)
-				if UpdatePadre != nil {
-					logs.Info("padre actualizado", UpdatePadre)
-				} else {
-					logs.Error("error actualizar padre:", errUp)
-				}
+				// UpdatePadre, errUp := ActualizacionSeccionPadre(seccionHijaIngresada, seccionPadre, Plantilla)
+				// if UpdatePadre != nil {
+				// 	logs.Info("padre actualizado", UpdatePadre)
+				// } else {
+				// 	logs.Error("error actualizar padre:", errUp)
+				// }
 			}
 		}
 		return arraySeccionesHijasIngresadas, nil
@@ -96,29 +97,4 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 		fmt.Println("valio verga", errMap)
 		return nil, errMap
 	}
-}
-
-// ActualizacionSeccionPadre ...
-func ActualizacionSeccionPadre(seccionHija map[string]interface{}, seccionPadre map[string]interface{}, Plantilla map[string]interface{}) (seccionPadreUpdate map[string]interface{}, outputError interface{}) {
-	var seccionPadreActualizada map[string]interface{}
-	datoContruirdo := make(map[string]interface{})
-	datoContruirdo = map[string]interface{}{
-		"Activo": true,
-		"Nombre": seccionPadre["Nombre"],
-		"IdPlantilla": map[string]interface{}{
-			"Id": Plantilla["Id"],
-		},
-		"SeccionHijaId": map[string]interface{}{
-			"Id": seccionHija["Id"],
-		},
-		"FechaCreacion": time_bogota.TiempoCorreccionFormato(fmt.Sprintf("%v", seccionPadre["FechaCreacion"])),
-	}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion/"+fmt.Sprintf("%v", seccionPadre["Id"]), "PUT", &seccionPadreActualizada, datoContruirdo)
-	if error != nil {
-		logs.Error("Ocurrio un error al ingresar el dato: ", datoContruirdo, " el error es:", error)
-		return nil, error
-	} else {
-		return seccionPadreActualizada, nil
-	}
-
 }
