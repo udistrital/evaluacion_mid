@@ -85,8 +85,8 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 				// AQUI SE INGRESARA LOS ITEMS
 				itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
-				fmt.Println(itemsResult)
-				fmt.Println(errItems)
+				fmt.Println("--------------------", itemsResult)
+				fmt.Println("------------------------", errItems)
 			}
 		}
 		return arraySeccionesHijasIngresadas, nil

@@ -30,16 +30,47 @@ func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]
 
 // IngresoItems ...
 func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
-	// var seccionIngresada map[string]interface{}
+	var itemIngresado map[string]interface{}
 
 	for i := 0; i < len(items); i++ {
 		tipoItemMap, errTipoMap := GetElementoMaptoStringToMapArray(items[i]["Id_tipo_item"])
 		if tipoItemMap != nil {
 			tipoItemDB := GetTipoItemParametrica(tipoItemMap[0])
 			if tipoItemDB != nil {
+				pipeDB := GetEstiloPipeParametrica(items[i]["Estilo_pipe_id"].(map[string]interface{}))
+				if pipeDB != nil {
+					datoContruirdo := make(map[string]interface{})
 
+					datoContruirdo = map[string]interface{}{
+						"Activo": true,
+						"Valor":  items[i]["Valor"],
+						"Nombre": items[i]["Nombre"],
+						"IdTipoItem": map[string]interface{}{
+							"Id": tipoItemDB[0]["Id"],
+						},
+						"IdEstiloPipe": map[string]interface{}{
+							"Id": pipeDB[0]["Id"],
+						},
+						"IdSeccion": map[string]interface{}{
+							"Id": SeccionDB["Id"],
+						},
+						"SeccionHijaId": nil,
+					}
+					fmt.Println(datoContruirdo)
+					error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"item", "POST", &itemIngresado, datoContruirdo)
+					if error != nil {
+						logs.Error("Ocurrio un error al ingresar el dato: ", itemIngresado, " el error es:", error)
+						return nil, error
+					} else {
+						// return itemIngresado, nil
+						fmt.Println(itemIngresado)
+					}
+				} else {
+					errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
+					return nil, errorPipeDB
+				}
 			} else {
-				errorTipoItem := CrearError("no se pudo traer la info del proveedor")
+				errorTipoItem := CrearError("no se pudo obtener el tipo de item para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
 				return nil, errorTipoItem
 			}
 
@@ -48,16 +79,6 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 			return nil, errTipoMap
 		}
 
-		// datoContruirdo := make(map[string]interface{})
-
-		// datoContruirdo = map[string]interface{}{
-		// 	"Activo": true,
-		// 	"Nombre": items[i]["Nombre"],
-		// 	"IdPlantilla": map[string]interface{}{
-		// 		"Id": Plantilla["Id"],
-		// 	},
-		// 	"SeccionHijaId": nil,
-		// }
 	}
 	return nil, nil
 }
