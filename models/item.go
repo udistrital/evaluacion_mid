@@ -16,7 +16,7 @@ func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]
 	if itemsMap != nil {
 		ItemsIngresados, errItems := IngresoItems(itemsMap, seccionHijaDB)
 		if ItemsIngresados != nil {
-			logs.Info("si se ingresaron los items:", ItemsIngresados)
+			// logs.Info("si se ingresaron los items:", ItemsIngresados)
 			return ItemsIngresados, nil
 		} else {
 			logs.Error("error en items ingresados:", errItems)
@@ -31,6 +31,7 @@ func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]
 // IngresoItems ...
 func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
 	var itemIngresado map[string]interface{}
+	arrayitemsIngresados := make([]map[string]interface{}, 0)
 
 	for i := 0; i < len(items); i++ {
 		tipoItemMap, errTipoMap := GetElementoMaptoStringToMapArray(items[i]["Id_tipo_item"])
@@ -56,14 +57,13 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						},
 						"SeccionHijaId": nil,
 					}
-					fmt.Println(datoContruirdo)
+					// fmt.Println(datoContruirdo)
 					error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"item", "POST", &itemIngresado, datoContruirdo)
 					if error != nil {
 						logs.Error("Ocurrio un error al ingresar el dato: ", itemIngresado, " el error es:", error)
 						return nil, error
 					} else {
-						// return itemIngresado, nil
-						fmt.Println(itemIngresado)
+						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
 					}
 				} else {
 					errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
@@ -80,7 +80,7 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 		}
 
 	}
-	return nil, nil
+	return arrayitemsIngresados, nil
 }
 
 // GetTipoItemParametrica ...

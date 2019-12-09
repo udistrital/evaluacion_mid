@@ -24,7 +24,7 @@ func PostSecciones(secciones interface{}, Plantilla map[string]interface{}) (sec
 	}
 }
 
-// IngresarSeccionesPadre ..4.
+// IngresarSeccionesPadre ...
 func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
 	arraySeccionesIngresadas := make([]map[string]interface{}, 0)
 	var seccionIngresada map[string]interface{}
@@ -46,13 +46,9 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 		} else {
 			arraySeccionesIngresadas = append(arraySeccionesIngresadas, seccionIngresada)
 			seccionesHijasResult, errSecHija := IngresoSeccionHija(secciones[i], seccionIngresada, Plantilla)
-			if errSecHija != nil {
-				logs.Error("no hijas")
-			} else {
-				logs.Info("hijas:", seccionesHijasResult)
+			if (seccionesHijasResult == nil) && (errSecHija != nil) {
+				return nil, errSecHija
 			}
-
-			// return clasificacionPlantillaIngresada, nil
 		}
 	}
 	return arraySeccionesIngresadas, nil
@@ -85,8 +81,11 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 				// AQUI SE INGRESARA LOS ITEMS
 				itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
-				fmt.Println("--------------------", itemsResult)
-				fmt.Println("------------------------", errItems)
+				// fmt.Println("--------------------", itemsResult)
+				// fmt.Println("------------------------", errItems)
+				if (itemsResult == nil) && (errItems != nil) {
+					return nil, errItems
+				}
 			}
 		}
 		return arraySeccionesHijasIngresadas, nil
