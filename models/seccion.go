@@ -83,12 +83,7 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				return nil, error
 			} else {
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
-				// UpdatePadre, errUp := ActualizacionSeccionPadre(seccionHijaIngresada, seccionPadre, Plantilla)
-				// if UpdatePadre != nil {
-				// 	logs.Info("padre actualizado", UpdatePadre)
-				// } else {
-				// 	logs.Error("error actualizar padre:", errUp)
-				// }
+				// AQUI SE INGRESARA LOS ITEMS
 			}
 		}
 		return arraySeccionesHijasIngresadas, nil
