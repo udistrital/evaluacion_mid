@@ -64,6 +64,12 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						return nil, error
 					} else {
 						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
+						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
+						if opcionesItemsMap != nil {
+							logs.Info("si hay opciones a ingresar")
+						} else {
+							logs.Error("no hay opciones a ingresar", errMapOpciones)
+						}
 					}
 				} else {
 					errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
