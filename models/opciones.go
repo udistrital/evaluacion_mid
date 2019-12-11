@@ -15,7 +15,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 		opcionParametrica := GetOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
 		if opcionParametrica != nil {
 			// se puede ingresar la de rompimiento
-			opcionItemIngreso, erroOpIt := IngresoOpcionesItem(opcionesItemMapeo[i], opcionParametrica[0], itemDB)
+			opcionItemIngreso, erroOpIt := IngresoOpcionesItem(opcionParametrica[0], itemDB)
 			if opcionItemIngreso == nil && erroOpIt != nil {
 				logs.Error(erroOpIt)
 				return nil, erroOpIt
@@ -23,7 +23,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 		} else {
 			postOpcionParametrica, errOpt := PostOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
 			if postOpcionParametrica != nil {
-				opcionItemIngreso, erroOpIt := IngresoOpcionesItem(opcionesItemMapeo[i], postOpcionParametrica, itemDB)
+				opcionItemIngreso, erroOpIt := IngresoOpcionesItem(postOpcionParametrica, itemDB)
 				if opcionItemIngreso == nil && erroOpIt != nil {
 					logs.Error(erroOpIt)
 					return nil, erroOpIt
@@ -81,7 +81,7 @@ func PostOpcionesParametrica(opcionEnviar map[string]interface{}) (opcionResult 
 }
 
 // IngresoOpcionesItem ...
-func IngresoOpcionesItem(opcionItem map[string]interface{}, opcionDB map[string]interface{}, itemDB map[string]interface{}) (ItemsResult map[string]interface{}, outputError interface{}) {
+func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]interface{}) (ItemsResult map[string]interface{}, outputError interface{}) {
 	var opcionItemIngresada map[string]interface{}
 	datoContruirdo := make(map[string]interface{})
 	datoContruirdo = map[string]interface{}{

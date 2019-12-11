@@ -78,6 +78,10 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				logs.Error("Ocurrio un error al ingresar el dato: ", seccionMap[i], " el error es:", error)
 				return nil, error
 			} else {
+				itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
+				if (itemsResult == nil) && (errItems != nil) {
+					return nil, errItems
+				}
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 				condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
 				if condicionesMap != nil {
@@ -86,10 +90,6 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 					logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
 				}
 
-				itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
-				if (itemsResult == nil) && (errItems != nil) {
-					return nil, errItems
-				}
 			}
 		}
 		return arraySeccionesHijasIngresadas, nil
