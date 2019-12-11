@@ -79,10 +79,14 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				return nil, error
 			} else {
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
-				// AQUI SE INGRESARA LOS ITEMS
+				condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
+				if condicionesMap != nil {
+					logs.Info("si hay condiciones a ingresar")
+				} else {
+					logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
+				}
+
 				itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
-				// fmt.Println("--------------------", itemsResult)
-				// fmt.Println("------------------------", errItems)
 				if (itemsResult == nil) && (errItems != nil) {
 					return nil, errItems
 				}
