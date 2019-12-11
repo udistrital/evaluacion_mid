@@ -67,6 +67,10 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
 						if opcionesItemsMap != nil {
 							logs.Info("si hay opciones a ingresar")
+							opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresado)
+							if opcionesIngresadas == nil && errOp != nil {
+								return nil, errOp
+							}
 						} else {
 							logs.Error("no hay opciones a ingresar", errMapOpciones)
 						}
