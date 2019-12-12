@@ -11,6 +11,7 @@ import (
 
 // PostOpcionesItem ...
 func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[string]interface{}) (ItemsResult []map[string]interface{}, outputError interface{}) {
+	arrayOpcionesItemsIngresados := make([]map[string]interface{}, 0)
 	for i := 0; i < len(opcionesItemMapeo); i++ {
 		opcionParametrica := GetOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
 		if opcionParametrica != nil {
@@ -20,6 +21,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 				logs.Error(erroOpIt)
 				return nil, erroOpIt
 			}
+			arrayOpcionesItemsIngresados = append(arrayOpcionesItemsIngresados, opcionItemIngreso)
 		} else {
 			postOpcionParametrica, errOpt := PostOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
 			if postOpcionParametrica != nil {
@@ -28,6 +30,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 					logs.Error(erroOpIt)
 					return nil, erroOpIt
 				}
+				arrayOpcionesItemsIngresados = append(arrayOpcionesItemsIngresados, opcionItemIngreso)
 
 			} else {
 				logs.Error("hubo error en ingresar la opcion:", opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
@@ -35,7 +38,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 			}
 		}
 	}
-	return nil, nil
+	return arrayOpcionesItemsIngresados, nil
 }
 
 // GetOpcionesParametrica ...

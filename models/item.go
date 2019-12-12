@@ -63,7 +63,6 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						logs.Error("Ocurrio un error al ingresar el dato: ", itemIngresado, " el error es:", error)
 						return nil, error
 					} else {
-						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
 						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
 						if opcionesItemsMap != nil {
 							logs.Info("si hay opciones a ingresar")
@@ -71,9 +70,12 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 							if opcionesIngresadas == nil && errOp != nil {
 								return nil, errOp
 							}
+							itemIngresado["OpcionesIngresadas"] = opcionesIngresadas
 						} else {
 							logs.Error("no hay opciones a ingresar", errMapOpciones)
 						}
+						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
+
 					}
 				} else {
 					errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))

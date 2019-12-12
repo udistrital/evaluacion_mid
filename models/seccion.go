@@ -82,6 +82,7 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				if (itemsResult == nil) && (errItems != nil) {
 					return nil, errItems
 				}
+				seccionHijaIngresada["ItemsIngresados"] = itemsResult
 				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 				condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
 				if condicionesMap != nil {
