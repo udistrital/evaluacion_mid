@@ -31,6 +31,7 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 			seccionesResult, errSecciones := PostSecciones(plantillaArray[0]["Secciones"], plantillaBase)
 			// fmt.Println(seccionesResult)
 			if seccionesResult != nil {
+				plantillaBase["SeccionesIngresadas"] = seccionesResult
 				return plantillaBase, nil
 				// return seccionesResult, nil
 			} else {

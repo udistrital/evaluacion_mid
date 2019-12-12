@@ -41,7 +41,8 @@ func (c *PlantillaController) Post() {
 		if plantillaRespuerta != nil {
 			alertErr.Type = "OK"
 			alertErr.Code = "200"
-			alertErr.Body = models.CrearSuccess("la plantilla se ingreso con exito")
+			alertErr.Body = plantillaRespuerta
+			// alertErr.Body = models.CrearSuccess("la plantilla se ingreso con exito")
 		} else {
 			alertErr.Type = "error"
 			alertErr.Code = "400"

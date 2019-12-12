@@ -44,8 +44,9 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 			logs.Error("Ocurrio un error al ingresar el dato: ", secciones[i], " el error es:", error)
 			return nil, error
 		} else {
-			arraySeccionesIngresadas = append(arraySeccionesIngresadas, seccionIngresada)
 			seccionesHijasResult, errSecHija := IngresoSeccionHija(secciones[i], seccionIngresada, Plantilla)
+			seccionIngresada["seccionesHijasIngresadas"] = seccionesHijasResult
+			arraySeccionesIngresadas = append(arraySeccionesIngresadas, seccionIngresada)
 			if (seccionesHijasResult == nil) && (errSecHija != nil) {
 				return nil, errSecHija
 			}
