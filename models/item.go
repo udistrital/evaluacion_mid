@@ -30,10 +30,10 @@ func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]
 
 // IngresoItems ...
 func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
-	var itemIngresado map[string]interface{}
 	arrayitemsIngresados := make([]map[string]interface{}, 0)
 
 	for i := 0; i < len(items); i++ {
+		var itemIngresado map[string]interface{}
 		tipoItemMap, errTipoMap := GetElementoMaptoStringToMapArray(items[i]["Id_tipo_item"])
 		if tipoItemMap != nil {
 			tipoItemDB := GetTipoItemParametrica(tipoItemMap[0])
@@ -65,7 +65,7 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 					} else {
 						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
 						if opcionesItemsMap != nil {
-							logs.Info("si hay opciones a ingresar")
+							// logs.Info("si hay opciones a ingresar")
 							opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresado)
 							if opcionesIngresadas == nil && errOp != nil {
 								return nil, errOp

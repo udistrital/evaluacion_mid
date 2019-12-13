@@ -27,8 +27,8 @@ func PostSecciones(secciones interface{}, Plantilla map[string]interface{}) (sec
 // IngresarSeccionesPadre ...
 func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
 	arraySeccionesIngresadas := make([]map[string]interface{}, 0)
-	var seccionIngresada map[string]interface{}
 	for i := 0; i < len(secciones); i++ {
+		var seccionIngresada map[string]interface{}
 		datoContruirdo := make(map[string]interface{})
 
 		datoContruirdo = map[string]interface{}{
@@ -58,11 +58,11 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 // IngresoSeccionHija ...
 func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]interface{}, Plantilla map[string]interface{}) (seccionesHijasResult []map[string]interface{}, outputError interface{}) {
 	seccionMap, errMap := GetElementoMaptoStringToMapArray(seccion["Seccion_hija_id"])
-	var seccionHijaIngresada map[string]interface{}
 	arraySeccionesHijasIngresadas := make([]map[string]interface{}, 0)
 
 	if seccionMap != nil {
 		for i := 0; i < len(seccionMap); i++ {
+			var seccionHijaIngresada map[string]interface{}
 			datoContruirdo := make(map[string]interface{})
 			datoContruirdo = map[string]interface{}{
 				"Activo": true,
@@ -78,22 +78,33 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 			if error != nil {
 				logs.Error("Ocurrio un error al ingresar el dato: ", seccionMap[i], " el error es:", error)
 				return nil, error
-			} else {
-				itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
-				if (itemsResult == nil) && (errItems != nil) {
-					return nil, errItems
-				}
-				seccionHijaIngresada["ItemsIngresados"] = itemsResult
-				arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
-				condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
-				if condicionesMap != nil {
-					logs.Info("si hay condiciones a ingresar")
-				} else {
-					logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
-				}
-
+			} // else {
+			arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
+			itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
+			if (itemsResult == nil) && (errItems != nil) {
+				return nil, errItems
 			}
+			fmt.Println("ID SECCION HIJA INGRESADA : ", seccionHijaIngresada["Id"])
+			seccionHijaIngresada["ItemsIngresados"] = itemsResult
+			fmt.Println("ID SECCION HIJA INGRESADA en cero : ", arraySeccionesHijasIngresadas[0]["Id"])
+
+			// condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
+			// if condicionesMap != nil {
+			// 	logs.Info("si hay condiciones a ingresar")
+			// 	// condicionesIngresadas, errCondiciones := PostCondiciones(condicionesMap, arraySeccionesHijasIngresadas, seccionMap[i])
+			// 	// if condicionesIngresadas != nil {
+
+			// 	// } else {
+			// 	// 	return nil, errCondiciones
+			// 	// }
+			// } else {
+			// 	logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
+			// }
+
+			// }
 		}
+		fmt.Println(arraySeccionesHijasIngresadas[0]["Id"])
+		fmt.Println(arraySeccionesHijasIngresadas[1]["Id"])
 		return arraySeccionesHijasIngresadas, nil
 
 	} else {

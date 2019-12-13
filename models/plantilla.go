@@ -127,10 +127,10 @@ func GetClasificacionParametrica(clasificacion map[string]interface{}) (clasific
 
 // PostClasificacionPlantilla ... a tabla de rompimiento
 func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Plantilla map[string]interface{}) (clasificacionesResult []map[string]interface{}, outputError interface{}) {
-	var clasificacionPlantillaIngresada map[string]interface{}
 	ArrayClasificacionesPlantillaDB := make([]map[string]interface{}, 0)
 
 	for i := 0; i < len(clasificaciones); i++ {
+		var clasificacionPlantillaIngresada map[string]interface{}
 		datoContruirdo := make(map[string]interface{})
 
 		datoContruirdo = map[string]interface{}{
