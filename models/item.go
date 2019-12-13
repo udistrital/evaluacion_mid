@@ -73,6 +73,7 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 							itemIngresado["OpcionesIngresadas"] = opcionesIngresadas
 						} else {
 							logs.Error("no hay opciones a ingresar", errMapOpciones)
+							itemIngresado["OpcionesIngresadas"] = nil
 						}
 						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
 

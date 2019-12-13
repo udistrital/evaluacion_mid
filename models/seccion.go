@@ -79,32 +79,33 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				logs.Error("Ocurrio un error al ingresar el dato: ", seccionMap[i], " el error es:", error)
 				return nil, error
 			} // else {
-			arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 			itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
 			if (itemsResult == nil) && (errItems != nil) {
 				return nil, errItems
 			}
-			fmt.Println("ID SECCION HIJA INGRESADA : ", seccionHijaIngresada["Id"])
+			// fmt.Println("ID SECCION HIJA INGRESADA : ", seccionHijaIngresada["Id"])
 			seccionHijaIngresada["ItemsIngresados"] = itemsResult
-			fmt.Println("ID SECCION HIJA INGRESADA en cero : ", arraySeccionesHijasIngresadas[0]["Id"])
+			// fmt.Println("ID SECCION HIJA INGRESADA en cero : ", arraySeccionesHijasIngresadas[0]["Id"])
+			arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 
-			// condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
-			// if condicionesMap != nil {
-			// 	logs.Info("si hay condiciones a ingresar")
-			// 	// condicionesIngresadas, errCondiciones := PostCondiciones(condicionesMap, arraySeccionesHijasIngresadas, seccionMap[i])
-			// 	// if condicionesIngresadas != nil {
+			condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
+			if condicionesMap != nil {
+				logs.Info("si hay condiciones a ingresar")
+				condicionesIngresadas, errCondiciones := PostCondiciones(condicionesMap, arraySeccionesHijasIngresadas)
+				if condicionesIngresadas != nil {
+					seccionHijaIngresada["CondicionesIngresadas"] = condicionesIngresadas
+				} else {
+					return nil, errCondiciones
+				}
+			} else {
+				logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
+			}
 
-			// 	// } else {
-			// 	// 	return nil, errCondiciones
-			// 	// }
-			// } else {
-			// 	logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
 			// }
 
-			// }
 		}
-		fmt.Println(arraySeccionesHijasIngresadas[0]["Id"])
-		fmt.Println(arraySeccionesHijasIngresadas[1]["Id"])
+		fmt.Println("array para CERO", arraySeccionesHijasIngresadas[0]["Id"])
+		fmt.Println("ARRAY PARA UNO", arraySeccionesHijasIngresadas[1]["Id"])
 		return arraySeccionesHijasIngresadas, nil
 
 	} else {
