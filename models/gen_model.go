@@ -20,6 +20,7 @@ func CrearError(contenido string) interface{} {
 	return ErrorCreado
 }
 
+// CrearSuccess ...
 func CrearSuccess(contenido string) interface{} {
 	var SuccessCreado interface{}
 

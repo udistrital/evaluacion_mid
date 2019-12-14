@@ -16,14 +16,12 @@ func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]
 	if itemsMap != nil {
 		ItemsIngresados, errItems := IngresoItems(itemsMap, seccionHijaDB)
 		if ItemsIngresados != nil {
-			// logs.Info("si se ingresaron los items:", ItemsIngresados)
 			return ItemsIngresados, nil
 		} else {
 			logs.Error("error en items ingresados:", errItems)
 			return nil, errItems
 		}
 	} else {
-		fmt.Println("valio verga", errMap)
 		return nil, errMap
 	}
 }
@@ -57,22 +55,19 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						},
 						"SeccionHijaId": nil,
 					}
-					// fmt.Println(datoContruirdo)
 					error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"item", "POST", &itemIngresado, datoContruirdo)
 					if error != nil {
 						logs.Error("Ocurrio un error al ingresar el dato: ", itemIngresado, " el error es:", error)
 						return nil, error
 					} else {
 						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
-						if opcionesItemsMap != nil {
-							// logs.Info("si hay opciones a ingresar")
+						if opcionesItemsMap != nil && errMapOpciones == nil {
 							opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresado)
 							if opcionesIngresadas == nil && errOp != nil {
 								return nil, errOp
 							}
 							itemIngresado["OpcionesIngresadas"] = opcionesIngresadas
 						} else {
-							logs.Error("no hay opciones a ingresar", errMapOpciones)
 							itemIngresado["OpcionesIngresadas"] = nil
 						}
 						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
@@ -88,7 +83,6 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 			}
 
 		} else {
-			fmt.Println("valio verga", errTipoMap)
 			return nil, errTipoMap
 		}
 
@@ -100,14 +94,12 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []map[string]interface{}) {
 	var tipoItemGet []map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", tipoItem["Nombre"]) + ",CodigoAbreviacion:" + fmt.Sprintf("%v", tipoItem["CodigoAbreviacion"]) + ",Activo:true&limit=1"
-	// fmt.Println("query", query)
 	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"tipo_item?query="+query, &tipoItemGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
 		aux := reflect.ValueOf(tipoItemGet[0])
-		// fmt.Println("aux: ", aux.Len())
 		if aux.IsValid() {
 			if aux.Len() > 0 {
 				return tipoItemGet
@@ -125,14 +117,12 @@ func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []m
 func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map[string]interface{}) {
 	var estiloPipeGet []map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", pipe["Nombre"]) + ",CodigoAbreviacion:" + fmt.Sprintf("%v", pipe["CodigoAbreviacion"]) + ",Activo:true&limit=1"
-	// fmt.Println("query", query)
 	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"estilo_pipe?query="+query, &estiloPipeGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
 		aux := reflect.ValueOf(estiloPipeGet[0])
-		// fmt.Println("aux: ", aux.Len())
 		if aux.IsValid() {
 			if aux.Len() > 0 {
 				return estiloPipeGet

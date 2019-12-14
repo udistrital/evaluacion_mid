@@ -18,7 +18,6 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 			// se puede ingresar la de rompimiento
 			opcionItemIngreso, erroOpIt := IngresoOpcionesItem(opcionParametrica[0], itemDB)
 			if opcionItemIngreso == nil && erroOpIt != nil {
-				logs.Error(erroOpIt)
 				return nil, erroOpIt
 			}
 			arrayOpcionesItemsIngresados = append(arrayOpcionesItemsIngresados, opcionItemIngreso)
@@ -27,7 +26,6 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 			if postOpcionParametrica != nil {
 				opcionItemIngreso, erroOpIt := IngresoOpcionesItem(postOpcionParametrica, itemDB)
 				if opcionItemIngreso == nil && erroOpIt != nil {
-					logs.Error(erroOpIt)
 					return nil, erroOpIt
 				}
 				arrayOpcionesItemsIngresados = append(arrayOpcionesItemsIngresados, opcionItemIngreso)
@@ -45,14 +43,12 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 func GetOpcionesParametrica(opciones map[string]interface{}) (opcionesResult []map[string]interface{}) {
 	var opcionesGet []map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", opciones["Nombre"]) + ",Valor:" + fmt.Sprintf("%v", opciones["Valor"]) + ",Activo:true&limit=1"
-	// fmt.Println("query", query)
 	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"opciones?query="+query, &opcionesGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
 		aux := reflect.ValueOf(opcionesGet[0])
-		// fmt.Println("aux: ", aux.Len())
 		if aux.IsValid() {
 			if aux.Len() > 0 {
 				return opcionesGet

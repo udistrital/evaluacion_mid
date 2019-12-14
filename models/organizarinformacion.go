@@ -28,7 +28,6 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 	InfoOrganizada := []map[string]interface{}{}
 	NomProveedor := []map[string]interface{}{}
 	for i := 0; i < len(infoContratos); i++ {
-		// fmt.Println(infoContratos[i]["ContratoSuscrito"])
 		IDProv := fmt.Sprintf("%v", infoContratos[i]["Contratista"])
 		resultProv, err := InfoProveedorID(IDProv)
 		if resultProv != nil {
@@ -36,7 +35,6 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 
 		} else {
 			fmt.Println("entro a si nil contrato", err)
-			// return nil, err1
 		}
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":           infoContratos[i]["Contratista"],
@@ -74,7 +72,6 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 		for i := 0; i < len(infoContratos); i++ {
 			for _, Dep := range ArrayDependencia {
 				if Dep == infoContratos[i]["DependenciaSupervisor"] {
-					fmt.Println("son iguales y es", Dep, infoContratos[i]["DependenciaSupervisor"])
 					InfoFiltrada = append(InfoFiltrada, infoContratos[i])
 				}
 			}

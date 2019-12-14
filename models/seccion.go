@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/utils_oas/request"
@@ -19,7 +17,6 @@ func PostSecciones(secciones interface{}, Plantilla map[string]interface{}) (sec
 			return seccionesPadre, nil
 		}
 	} else {
-		fmt.Println("valio verga", errMap)
 		return nil, errMap
 	}
 }
@@ -83,30 +80,23 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 			if (itemsResult == nil) && (errItems != nil) {
 				return nil, errItems
 			}
-			// fmt.Println("ID SECCION HIJA INGRESADA : ", seccionHijaIngresada["Id"])
 			seccionHijaIngresada["ItemsIngresados"] = itemsResult
-			// fmt.Println("ID SECCION HIJA INGRESADA en cero : ", arraySeccionesHijasIngresadas[0]["Id"])
 			arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
 
 			condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
-			if condicionesMap != nil {
+			if condicionesMap != nil && errMapcondiciones == nil {
 				condicionesIngresadas, errCondiciones := PostCondiciones(condicionesMap, arraySeccionesHijasIngresadas)
 				if condicionesIngresadas != nil {
 					seccionHijaIngresada["CondicionesIngresadas"] = condicionesIngresadas
 				} else {
 					return nil, errCondiciones
 				}
-			} else {
-				logs.Error("no hay condiciones para ingresar (solo es log, no error que requiera atencion) : ", errMapcondiciones)
 			}
-
-			// }
 
 		}
 		return arraySeccionesHijasIngresadas, nil
 
 	} else {
-		fmt.Println("valio verga", errMap)
 		return nil, errMap
 	}
 }

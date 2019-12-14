@@ -36,7 +36,6 @@ func PostClasificacion(clasificaciones interface{}, Plantilla map[string]interfa
 			return clasificacionesPlantilla, nil
 		}
 	} else {
-		fmt.Println("valio verga", errMap)
 		return nil, errMap
 	}
 }
@@ -55,17 +54,13 @@ func PostClasificacionParametrica(clasificacionEnviar map[string]interface{}) (c
 // GetClasificacionParametrica ... saber si ya existe para no crearla de nuevo
 func GetClasificacionParametrica(clasificacion map[string]interface{}) (clasificacionesResult []map[string]interface{}) {
 	var clasificacionGet []map[string]interface{}
-	// fmt.Println(clasificacion["Nombre"])
-	// var infoClasificacion []map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", clasificacion["Nombre"]) + ",LimiteInferior:" + fmt.Sprintf("%v", clasificacion["LimiteInferior"]) + ",LimiteSuperior:" + fmt.Sprintf("%v", clasificacion["LimiteSuperior"]) + ",Activo:true&limit=1"
-	// fmt.Println("query", query)
 	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion?query="+query, &clasificacionGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
 		aux := reflect.ValueOf(clasificacionGet[0])
-		// fmt.Println("aux: ", aux.Len())
 		if aux.IsValid() {
 			if aux.Len() > 0 {
 				return clasificacionGet

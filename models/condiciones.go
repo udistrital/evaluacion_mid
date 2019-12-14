@@ -3,8 +3,6 @@ package models
 import (
 	"fmt"
 
-	"github.com/astaxie/beego/logs"
-
 	"github.com/astaxie/beego"
 	"github.com/udistrital/utils_oas/request"
 )
@@ -12,11 +10,9 @@ import (
 // PostCondiciones ...
 func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []map[string]interface{}) (condicionesResult map[string]interface{}, outputError interface{}) {
 	if len(arraySecciones) > 0 {
-		logs.Warning("tamaño: ", len(arraySecciones))
 		for i := 0; i < len(condicionesMap); i++ {
 			// se verifica si la seccion penultima es la de la condicion
 			if fmt.Sprintf("%v", condicionesMap[i]["Nombre_seccion_condicion"]) == fmt.Sprintf("%v", arraySecciones[len(arraySecciones)-2]["Nombre"]) {
-				fmt.Println("coincide seccion y condicion")
 				opcionDB := GetOpcionesParametrica(condicionesMap[i])
 				if opcionDB != nil {
 					ItemIngresadosMap, errMapItems := GetElementoMaptoStringToMapArray(arraySecciones[len(arraySecciones)-2]["ItemsIngresados"])
@@ -52,8 +48,6 @@ func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []m
 func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion map[string]interface{}, opcionItem map[string]interface{}) (condicionResult map[string]interface{}, outputError interface{}) {
 	var condicionIngresada map[string]interface{}
 	datoContruirdo := make(map[string]interface{})
-	// datotest := opcionItem["Id"].(float64)
-	// fmt.Println(datotest)
 	datoContruirdo = map[string]interface{}{
 		"Activo": true,
 		"IdSeccion": map[string]interface{}{
