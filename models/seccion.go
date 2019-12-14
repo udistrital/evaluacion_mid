@@ -90,7 +90,6 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 
 			condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
 			if condicionesMap != nil {
-				logs.Info("si hay condiciones a ingresar")
 				condicionesIngresadas, errCondiciones := PostCondiciones(condicionesMap, arraySeccionesHijasIngresadas)
 				if condicionesIngresadas != nil {
 					seccionHijaIngresada["CondicionesIngresadas"] = condicionesIngresadas
@@ -104,8 +103,6 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 			// }
 
 		}
-		fmt.Println("array para CERO", arraySeccionesHijasIngresadas[0]["Id"])
-		fmt.Println("ARRAY PARA UNO", arraySeccionesHijasIngresadas[1]["Id"])
 		return arraySeccionesHijasIngresadas, nil
 
 	} else {
