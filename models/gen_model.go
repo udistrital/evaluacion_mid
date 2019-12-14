@@ -19,3 +19,17 @@ func CrearError(contenido string) interface{} {
 	json.Unmarshal([]byte(ContendoBody), &ErrorCreado)
 	return ErrorCreado
 }
+
+// CrearSuccess ...
+func CrearSuccess(contenido string) interface{} {
+	var SuccessCreado interface{}
+
+	ContendoBody, errBody := json.Marshal(map[string]string{
+		"message": contenido,
+	})
+	if errBody != nil {
+		logs.Error("fallo el objeto a enviar: ", errBody)
+	}
+	json.Unmarshal([]byte(ContendoBody), &SuccessCreado)
+	return SuccessCreado
+}
