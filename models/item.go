@@ -43,6 +43,7 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 					datoContruirdo = map[string]interface{}{
 						"Activo": true,
 						"Valor":  items[i]["Valor"],
+						"Tamano": items[i]["Tamano"],
 						"Nombre": items[i]["Nombre"],
 						"IdTipoItem": map[string]interface{}{
 							"Id": tipoItemDB[0]["Id"],
