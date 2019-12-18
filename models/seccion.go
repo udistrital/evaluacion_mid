@@ -113,6 +113,16 @@ func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[strin
 			if seccionesPlantilla[i]["SeccionPadreId"] == nil {
 				queryHija := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + ",SeccionPadreId:" + fmt.Sprintf("%v", seccionesPlantilla[i]["Id"]) + "&limit=0"
 				seccionesHijas := GetTablaCrudEvaluacion("seccion", queryHija)
+				for j := 0; j < len(seccionesHijas); j++ {
+					condicion, errCondicion := GetCondiciones(seccionesHijas[j])
+					if condicion != nil {
+						seccionesHijas[j]["Condicion"] = condicion
+
+					} else {
+						return nil, errCondicion
+
+					}
+				}
 				seccionesPlantilla[i]["Seccion_hija_id"] = seccionesHijas
 				ArraySeccionesPlantillaDB = append(ArraySeccionesPlantillaDB, seccionesPlantilla[i])
 			}
@@ -121,7 +131,6 @@ func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[strin
 		return ArraySeccionesPlantillaDB, nil
 	}
 	error := CrearError("no se encontraron secciones para la plantilla")
-
 	return nil, error
 	// return nil, nil
 }
