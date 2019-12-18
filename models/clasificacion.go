@@ -103,3 +103,16 @@ func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Planti
 
 	return ArrayClasificacionesPlantillaDB, nil
 }
+
+// GetClasicacionesPlntilla ...
+func GetClasicacionesPlntilla(plantilla map[string]interface{}) (clasificacionesResult []map[string]interface{}, outputError interface{}) {
+	query := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"])
+
+	clasificacionesPlantilla := GetTablaCrudEvaluacion("clasificacion_plantilla", query)
+	if clasificacionesPlantilla != nil {
+		return clasificacionesPlantilla, nil
+	}
+	error := CrearError("no se encontraron clasificaciones para la plantilla")
+
+	return nil, error
+}

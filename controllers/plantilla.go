@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
@@ -72,7 +74,25 @@ func (c *PlantillaController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *PlantillaController) GetOne() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	fmt.Println(id)
+	var alertErr models.Alert
 
+	alertas := append([]interface{}{"Response:"})
+	if alertas != nil {
+		alertErr.Type = "OK"
+		alertErr.Code = "200"
+		alertErr.Body = "hi"
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "404"
+		// alertas = append(alertas, ""err1"")
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(404)
+	}
+	c.Data["json"] = alertErr
+	c.ServeJSON()
 }
 
 // GetAll ...
@@ -88,6 +108,23 @@ func (c *PlantillaController) GetOne() {
 // @Failure 403
 // @router / [get]
 func (c *PlantillaController) GetAll() {
+	var alertErr models.Alert
+
+	alertas := append([]interface{}{"Response:"})
+	plantilla, errPlantilla := models.ObtenerPlantillas()
+	if plantilla != nil {
+		alertErr.Type = "OK"
+		alertErr.Code = "200"
+		alertErr.Body = plantilla
+	} else {
+		alertErr.Type = "error"
+		alertErr.Code = "404"
+		alertas = append(alertas, errPlantilla)
+		alertErr.Body = alertas
+		c.Ctx.Output.SetStatus(404)
+	}
+	c.Data["json"] = alertErr
+	c.ServeJSON()
 
 }
 
