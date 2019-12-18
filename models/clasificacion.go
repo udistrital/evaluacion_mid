@@ -106,11 +106,14 @@ func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Planti
 
 // GetClasicacionesPlntilla ...
 func GetClasicacionesPlntilla(plantilla map[string]interface{}) (clasificacionesResult []map[string]interface{}, outputError interface{}) {
+	ArrayClasificacionesPlantillaDB := make([]map[string]interface{}, 0)
 	query := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"])
-
 	clasificacionesPlantilla := GetTablaCrudEvaluacion("clasificacion_plantilla", query)
 	if clasificacionesPlantilla != nil {
-		return clasificacionesPlantilla, nil
+		for i := 0; i < len(clasificacionesPlantilla); i++ {
+			ArrayClasificacionesPlantillaDB = append(ArrayClasificacionesPlantillaDB, clasificacionesPlantilla[i]["IdClasificacion"].(map[string]interface{}))
+		}
+		return ArrayClasificacionesPlantillaDB, nil
 	}
 	error := CrearError("no se encontraron clasificaciones para la plantilla")
 
