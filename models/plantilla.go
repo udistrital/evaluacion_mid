@@ -188,7 +188,12 @@ func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError in
 		clasificaciones, errClasificaciones := GetClasicacionesPlntilla(plantillaConstruida)
 		if clasificaciones != nil {
 			plantillaConstruida["Clasificaciones"] = clasificaciones
-			return plantillaConstruida, nil
+			secciones, errSecciones := GetSecciones(plantillaConstruida)
+			if secciones != nil {
+				plantillaConstruida["Secciones"] = secciones
+				return plantillaConstruida, nil
+			}
+			return nil, errSecciones
 		}
 		return nil, errClasificaciones
 	}

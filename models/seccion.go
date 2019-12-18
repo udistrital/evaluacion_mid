@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/utils_oas/request"
@@ -99,4 +101,27 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 	} else {
 		return nil, errMap
 	}
+}
+
+// GetSecciones ...
+func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
+	ArraySeccionesPlantillaDB := make([]map[string]interface{}, 0)
+	query := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + "&limit=0"
+	seccionesPlantilla := GetTablaCrudEvaluacion("seccion", query)
+	if seccionesPlantilla != nil {
+		for i := 0; i < len(seccionesPlantilla); i++ {
+			if seccionesPlantilla[i]["SeccionPadreId"] == nil {
+				queryHija := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + ",SeccionPadreId:" + fmt.Sprintf("%v", seccionesPlantilla[i]["Id"]) + "&limit=0"
+				seccionesHijas := GetTablaCrudEvaluacion("seccion", queryHija)
+				seccionesPlantilla[i]["Seccion_hija_id"] = seccionesHijas
+				ArraySeccionesPlantillaDB = append(ArraySeccionesPlantillaDB, seccionesPlantilla[i])
+			}
+		}
+		// return seccionesPlantilla, nil
+		return ArraySeccionesPlantillaDB, nil
+	}
+	error := CrearError("no se encontraron secciones para la plantilla")
+
+	return nil, error
+	// return nil, nil
 }
