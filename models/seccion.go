@@ -117,10 +117,14 @@ func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[strin
 					condicion, errCondicion := GetCondiciones(seccionesHijas[j])
 					if condicion != nil {
 						seccionesHijas[j]["Condicion"] = condicion
-
 					} else {
 						return nil, errCondicion
-
+					}
+					itemSeccion, errItems := GetItems(seccionesHijas[j])
+					if itemSeccion != nil {
+						seccionesHijas[j]["Item"] = itemSeccion
+					} else {
+						return nil, errItems
 					}
 				}
 				seccionesPlantilla[i]["Seccion_hija_id"] = seccionesHijas

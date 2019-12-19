@@ -136,3 +136,14 @@ func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map
 	}
 
 }
+
+// GetItems ...
+func GetItems(seccion map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
+	query := "?query=IdSeccion:" + fmt.Sprintf("%v", seccion["Id"]) + "&limit=0&sortby=Id&order=asc"
+	items := GetTablaCrudEvaluacion("item", query)
+	if items != nil {
+		return items, nil
+	}
+	error := CrearError("no se encontraron los items de la seccion")
+	return nil, error
+}
