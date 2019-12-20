@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/utils_oas/request"
@@ -62,4 +63,42 @@ func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion 
 	} else {
 		return condicionIngresada, nil
 	}
+}
+
+// GetCondiciones ...
+func GetCondiciones(seccion map[string]interface{}) (condicionesResult []map[string]interface{}, outputError interface{}) {
+	arrayCondiciones := make([]map[string]interface{}, 0)
+	query := "?query=IdSeccion:" + fmt.Sprintf("%v", seccion["Id"])
+	condicionesSeccion := GetTablaCrudEvaluacion("condicion", query)
+	if condicionesSeccion != nil {
+
+		aux := reflect.ValueOf(condicionesSeccion[0])
+		if aux.IsValid() {
+			if aux.Len() > 0 {
+				querySeccion := "?query=Id:" + fmt.Sprintf("%v", condicionesSeccion[0]["SeccionDependenciaId"]) + "&fields=Nombre"
+
+				seccionDeCondicion := GetTablaCrudEvaluacion("seccion", querySeccion)
+				if seccionDeCondicion == nil {
+					error := CrearError("no se encuentra la seccion que genera condicion, error en consulta o en base de datos")
+					return nil, error
+				}
+				queryOpcion := "?query=Id:" + fmt.Sprintf("%v", condicionesSeccion[0]["OpcionItemId"]) + "&fields=Nombre,Valor"
+				opcionCondicion := GetTablaCrudEvaluacion("opciones", queryOpcion)
+				if opcionCondicion == nil {
+					error := CrearError("no se encuentra la opcion que genera condicion, error en consulta o en base de datos")
+					return nil, error
+				}
+				datoContruirdo := make(map[string]interface{})
+				datoContruirdo = map[string]interface{}{
+					"Nombre_seccion_condicion": seccionDeCondicion[0]["Nombre"],
+					"Nombre":                   opcionCondicion[0]["Nombre"],
+					"Valor":                    opcionCondicion[0]["Valor"],
+				}
+				arrayCondiciones = append(arrayCondiciones, datoContruirdo)
+				return arrayCondiciones, nil
+			}
+		}
+
+	}
+	return arrayCondiciones, nil
 }

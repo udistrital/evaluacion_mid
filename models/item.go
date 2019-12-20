@@ -43,6 +43,7 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 					datoContruirdo = map[string]interface{}{
 						"Activo": true,
 						"Valor":  items[i]["Valor"],
+						"Tamano": items[i]["Tamano"],
 						"Nombre": items[i]["Nombre"],
 						"IdTipoItem": map[string]interface{}{
 							"Id": tipoItemDB[0]["Id"],
@@ -134,4 +135,20 @@ func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map
 		}
 	}
 
+}
+
+// GetItems ...
+func GetItems(seccion map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
+	campos := "&fields=IdEstiloPipe,IdTipoItem,Nombre,Tamano,Valor,Id&sortby=Id&order=asc&limit=0"
+	query := "?query=IdSeccion:" + fmt.Sprintf("%v", seccion["Id"]) + campos
+	items := GetTablaCrudEvaluacion("item", query)
+	if items != nil {
+		for i := 0; i < len(items); i++ {
+			opcionesItem := GetOpciones(items[i])
+			items[i]["Opcion_item"] = opcionesItem
+		}
+		return items, nil
+	}
+	error := CrearError("no se encontraron los items de la seccion")
+	return nil, error
 }

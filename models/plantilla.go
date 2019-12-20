@@ -176,3 +176,28 @@ func GetPlantilla(plantilla map[string]interface{}) (plantillaResult []map[strin
 	}
 
 }
+
+// ObtenerPlantillas ...
+func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError interface{}) {
+	var plantillaConstruida map[string]interface{}
+	query := "?query=Activo:true"
+	plantillaActiva := GetTablaCrudEvaluacion("plantilla", query)
+	if plantillaActiva != nil {
+		plantillaConstruida = plantillaActiva[0]
+		fmt.Println("tenemos plantilla")
+		clasificaciones, errClasificaciones := GetClasicacionesPlntilla(plantillaConstruida)
+		if clasificaciones != nil {
+			plantillaConstruida["Clasificaciones"] = clasificaciones
+			secciones, errSecciones := GetSecciones(plantillaConstruida)
+			if secciones != nil {
+				plantillaConstruida["Secciones"] = secciones
+				return plantillaConstruida, nil
+			}
+			return nil, errSecciones
+		}
+		return nil, errClasificaciones
+	}
+	fmt.Println("no tenemos plantilla")
+	error := CrearError("no se encontraron plantillas")
+	return nil, error
+}
