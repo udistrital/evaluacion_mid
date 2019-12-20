@@ -99,3 +99,14 @@ func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]inte
 		return opcionItemIngresada, nil
 	}
 }
+
+// GetOpciones ...
+func GetOpciones(item map[string]interface{}) (condicionesResult []map[string]interface{}) {
+	arrayVacio := make([]map[string]interface{}, 0)
+	query := "?query=IdItem:" + fmt.Sprintf("%v", item["Id"]) + "&limit=0&sortby=Id&order=asc"
+	opciones := GetTablaCrudEvaluacion("opcion_item", query)
+	if opciones != nil {
+		return opciones
+	}
+	return arrayVacio
+}

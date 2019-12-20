@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -41,6 +42,7 @@ func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[stri
 	}
 	error := request.GetJson(url, &objetiGet)
 	if error != nil {
+		fmt.Println("error en get tabla", tabla)
 		logs.Error(error)
 		return nil
 	} else {

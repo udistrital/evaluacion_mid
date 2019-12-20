@@ -142,6 +142,10 @@ func GetItems(seccion map[string]interface{}) (itemsResult []map[string]interfac
 	query := "?query=IdSeccion:" + fmt.Sprintf("%v", seccion["Id"]) + "&limit=0&sortby=Id&order=asc"
 	items := GetTablaCrudEvaluacion("item", query)
 	if items != nil {
+		for i := 0; i < len(items); i++ {
+			opcionesItem := GetOpciones(items[i])
+			items[i]["Opcion_item"] = opcionesItem
+		}
 		return items, nil
 	}
 	error := CrearError("no se encontraron los items de la seccion")
