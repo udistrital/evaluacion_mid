@@ -42,7 +42,7 @@ func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[stri
 	}
 	error := request.GetJson(url, &objetiGet)
 	if error != nil {
-		fmt.Println("error en get tabla", tabla)
+		fmt.Println("error en get tabla", tabla, "con la peticion: ", url)
 		logs.Error(error)
 		return nil
 	} else {
