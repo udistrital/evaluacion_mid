@@ -99,7 +99,9 @@ paths:
     get:
       tags:
       - plantilla
-      description: get Plantilla
+      description: Obtiene la ultima plantilla activa en base de datos, la cual es
+        un json con todas las propiedades necesarias para la interpretacion en el
+        cliente
       operationId: PlantillaController.GetAll
       parameters:
       - in: query
@@ -129,15 +131,14 @@ paths:
         type: string
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Plantilla'
+          description: '{}'
         "403":
           description: ""
     post:
       tags:
       - plantilla
-      description: create Plantilla
+      description: se crea una nueva plantilla, para esto existe un json de guia para
+        ello o se debera de crear un modulo para failitar el proceso
       operationId: PlantillaController.Create
       parameters:
       - in: body
@@ -145,12 +146,10 @@ paths:
         description: body for Plantilla content
         required: true
         schema:
-          $ref: '#/definitions/models.Plantilla'
+          $ref: '#/definitions/{}'
       responses:
         "201":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Plantilla'
+          description: '{}'
         "400":
           description: Bad Request
         "403":
@@ -159,7 +158,8 @@ paths:
     get:
       tags:
       - plantilla
-      description: get Plantilla by id
+      description: Obtiene la estructura de la platilla , segun el ID de la plnatilla
+        enviado, similar al get all
       operationId: PlantillaController.GetOne
       parameters:
       - in: path
@@ -169,9 +169,7 @@ paths:
         type: string
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Plantilla'
+          description: '{}'
         "403":
           description: :id is empty
     put:
@@ -190,12 +188,10 @@ paths:
         description: body for Plantilla content
         required: true
         schema:
-          $ref: '#/definitions/models.Plantilla'
+          $ref: '#/definitions/{}'
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Plantilla'
+          description: '{}'
         "403":
           description: :id is not int
     delete:
@@ -215,8 +211,8 @@ paths:
         "403":
           description: id is empty
 definitions:
-  models.Plantilla:
-    title: Plantilla
+  '{}':
+    title: '{}'
     type: object
 tags:
 - name: filtroContrato
@@ -230,4 +226,4 @@ tags:
     FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor
 - name: plantilla
   description: |
-    PlantillaController operations for Plantilla
+    PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones

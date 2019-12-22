@@ -9,7 +9,7 @@ import (
 	"github.com/udistrital/evaluacion_mid/models"
 )
 
-// PlantillaController operations for Plantilla
+// PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones
 type PlantillaController struct {
 	beego.Controller
 }
@@ -25,9 +25,9 @@ func (c *PlantillaController) URLMapping() {
 
 // Post ...
 // @Title Create
-// @Description create Plantilla
-// @Param	body		body 	models.Plantilla	true		"body for Plantilla content"
-// @Success 201 {object} models.Plantilla
+// @Description se crea una nueva plantilla, para esto existe un json de guia para ello o se debera de crear un modulo para failitar el proceso
+// @Param	body		body 	{}	true		"body for Plantilla content"
+// @Success 201 {}
 // @Failure 403 body is empty
 // @Failure 400 Bad Request
 // @router / [post]
@@ -68,9 +68,9 @@ func (c *PlantillaController) Post() {
 
 // GetOne ...
 // @Title GetOne
-// @Description get Plantilla by id
+// @Description Obtiene la estructura de la platilla , segun el ID de la plnatilla enviado, similar al get all
 // @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Plantilla
+// @Success 200 {}
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *PlantillaController) GetOne() {
@@ -97,14 +97,14 @@ func (c *PlantillaController) GetOne() {
 
 // GetAll ...
 // @Title GetAll
-// @Description get Plantilla
+// @Description Obtiene la ultima plantilla activa en base de datos, la cual es un json con todas las propiedades necesarias para la interpretacion en el cliente
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
 // @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
 // @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
 // @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
 // @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.Plantilla
+// @Success 200 {}
 // @Failure 403
 // @router / [get]
 func (c *PlantillaController) GetAll() {
@@ -132,8 +132,8 @@ func (c *PlantillaController) GetAll() {
 // @Title Put
 // @Description update the Plantilla
 // @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Plantilla	true		"body for Plantilla content"
-// @Success 200 {object} models.Plantilla
+// @Param	body		body 	{}	true		"body for Plantilla content"
+// @Success 200 {}
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *PlantillaController) Put() {

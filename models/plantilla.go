@@ -201,3 +201,8 @@ func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError in
 	error := CrearError("no se encontraron plantillas")
 	return nil, error
 }
+
+// ObternerPlantillaPorID ...
+func ObternerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]interface{}, outputError interface{}) {
+	return nil, nil
+}
