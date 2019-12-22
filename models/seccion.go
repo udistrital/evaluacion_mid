@@ -106,12 +106,12 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 // GetSecciones ...
 func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
 	ArraySeccionesPlantillaDB := make([]map[string]interface{}, 0)
-	query := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + "&limit=0"
+	query := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + "&sortby=Id&order=asc&limit=0"
 	seccionesPlantilla := GetTablaCrudEvaluacion("seccion", query)
 	if seccionesPlantilla != nil {
 		for i := 0; i < len(seccionesPlantilla); i++ {
 			if seccionesPlantilla[i]["SeccionPadreId"] == nil {
-				queryHija := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + ",SeccionPadreId:" + fmt.Sprintf("%v", seccionesPlantilla[i]["Id"]) + "&limit=0"
+				queryHija := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + ",SeccionPadreId:" + fmt.Sprintf("%v", seccionesPlantilla[i]["Id"]) + "&sortby=Id&order=asc&limit=0"
 				seccionesHijas := GetTablaCrudEvaluacion("seccion", queryHija)
 				for j := 0; j < len(seccionesHijas); j++ {
 					condicion, errCondicion := GetCondiciones(seccionesHijas[j])

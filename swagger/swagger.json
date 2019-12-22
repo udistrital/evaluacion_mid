@@ -140,7 +140,7 @@
                 "tags": [
                     "plantilla"
                 ],
-                "description": "get Plantilla",
+                "description": "Obtiene la ultima plantilla activa en base de datos, la cual es un json con todas las propiedades necesarias para la interpretacion en el cliente",
                 "operationId": "PlantillaController.GetAll",
                 "parameters": [
                     {
@@ -182,10 +182,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Plantilla"
-                        }
+                        "description": "{}"
                     },
                     "403": {
                         "description": ""
@@ -196,7 +193,7 @@
                 "tags": [
                     "plantilla"
                 ],
-                "description": "create Plantilla",
+                "description": "se crea una nueva plantilla, para esto existe un json de guia para ello o se debera de crear un modulo para failitar el proceso",
                 "operationId": "PlantillaController.Create",
                 "parameters": [
                     {
@@ -205,16 +202,13 @@
                         "description": "body for Plantilla content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Plantilla"
+                            "$ref": "#/definitions/{}"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Plantilla"
-                        }
+                        "description": "{}"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -230,7 +224,7 @@
                 "tags": [
                     "plantilla"
                 ],
-                "description": "get Plantilla by id",
+                "description": "Obtiene la estructura de la platilla , segun el ID de la plnatilla enviado, similar al get all",
                 "operationId": "PlantillaController.GetOne",
                 "parameters": [
                     {
@@ -243,10 +237,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Plantilla"
-                        }
+                        "description": "{}"
                     },
                     "403": {
                         "description": ":id is empty"
@@ -273,16 +264,13 @@
                         "description": "body for Plantilla content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Plantilla"
+                            "$ref": "#/definitions/{}"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Plantilla"
-                        }
+                        "description": "{}"
                     },
                     "403": {
                         "description": ":id is not int"
@@ -316,8 +304,8 @@
         }
     },
     "definitions": {
-        "models.Plantilla": {
-            "title": "Plantilla",
+        "{}": {
+            "title": "{}",
             "type": "object"
         }
     },
@@ -336,7 +324,7 @@
         },
         {
             "name": "plantilla",
-            "description": "PlantillaController operations for Plantilla\n"
+            "description": "PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones\n"
         }
     ]
 }
