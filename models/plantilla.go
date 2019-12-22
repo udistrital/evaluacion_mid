@@ -204,5 +204,25 @@ func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError in
 
 // ObternerPlantillaPorID ...
 func ObternerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]interface{}, outputError interface{}) {
-	return nil, nil
+	var plantillaConstruida map[string]interface{}
+	query := "?query=Id:" + IDPlantilla
+	plantillaBusqueda := GetTablaCrudEvaluacion("plantilla", query)
+	if plantillaBusqueda != nil {
+		plantillaConstruida = plantillaBusqueda[0]
+		fmt.Println("tenemos plantilla")
+		clasificaciones, errClasificaciones := GetClasicacionesPlntilla(plantillaConstruida)
+		if clasificaciones != nil {
+			plantillaConstruida["Clasificaciones"] = clasificaciones
+			secciones, errSecciones := GetSecciones(plantillaConstruida)
+			if secciones != nil {
+				plantillaConstruida["Secciones"] = secciones
+				return plantillaConstruida, nil
+			}
+			return nil, errSecciones
+		}
+		return nil, errClasificaciones
+	}
+	fmt.Println("no tenemos plantilla")
+	error := CrearError("no se encontro la plantilla de esta evaluacion, el id de la plantilla es: " + IDPlantilla)
+	return nil, error
 }

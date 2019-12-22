@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
-	"strconv"
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
@@ -75,19 +73,20 @@ func (c *PlantillaController) Post() {
 // @router /:id [get]
 func (c *PlantillaController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	fmt.Println(id)
+	// id, _ := strconv.Atoi(idStr)
+	// fmt.Println(id)
 	var alertErr models.Alert
 
 	alertas := append([]interface{}{"Response:"})
-	if alertas != nil {
+	plantilla, errPlantilla := models.ObternerPlantillaPorID(idStr)
+	if plantilla != nil {
 		alertErr.Type = "OK"
 		alertErr.Code = "200"
-		alertErr.Body = "hi"
+		alertErr.Body = plantilla
 	} else {
 		alertErr.Type = "error"
 		alertErr.Code = "404"
-		// alertas = append(alertas, ""err1"")
+		alertas = append(alertas, errPlantilla)
 		alertErr.Body = alertas
 		c.Ctx.Output.SetStatus(404)
 	}
