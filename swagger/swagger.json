@@ -1,0 +1,330 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "beego Test API",
+        "description": "beego has a very cool tools to autogenerate documents for your API",
+        "version": "1.0.0",
+        "termsOfService": "http://beego.me/",
+        "contact": {
+            "email": "astaxie@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "basePath": "/v1",
+    "paths": {
+        "/filtroContrato/": {
+            "get": {
+                "tags": [
+                    "filtroContrato"
+                ],
+                "description": "get Contatoscontrato",
+                "operationId": "ContatoscontratoController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "NumContrato",
+                        "description": "Numero del contrato",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Vigencia",
+                        "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "SupID",
+                        "description": "Identificacion del supervisor",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/filtroMixto/": {
+            "get": {
+                "tags": [
+                    "filtroMixto"
+                ],
+                "description": "get Filtromixto",
+                "operationId": "FiltromixtoController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "IdentProv",
+                        "description": "Identificacion del proveedor",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "NumContrato",
+                        "description": "Numero del contrato",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Vigencia",
+                        "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "SupID",
+                        "description": "Identificacion del supervisor",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/filtroProveedor/": {
+            "get": {
+                "tags": [
+                    "filtroProveedor"
+                ],
+                "description": "get ContratosProveedor",
+                "operationId": "ContratosProveedorController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ProvID",
+                        "description": "ID del Proveedor",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "SupID",
+                        "description": "Identificacion del supervisor, para evitar el filtro se debe de mandar un 0 (cero)",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
+        "/plantilla/": {
+            "get": {
+                "tags": [
+                    "plantilla"
+                ],
+                "description": "Obtiene la ultima plantilla activa en base de datos, la cual es un json con todas las propiedades necesarias para la interpretacion en el cliente",
+                "operationId": "PlantillaController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "plantilla"
+                ],
+                "description": "se crea una nueva plantilla, para esto existe un json de guia para ello o se debera de crear un modulo para failitar el proceso",
+                "operationId": "PlantillaController.Create",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Plantilla content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{}"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/plantilla/{id}": {
+            "get": {
+                "tags": [
+                    "plantilla"
+                ],
+                "description": "Obtiene la estructura de la platilla , segun el ID de la plnatilla enviado, similar al get all",
+                "operationId": "PlantillaController.GetOne",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "plantilla"
+                ],
+                "description": "update the Plantilla",
+                "operationId": "PlantillaController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Plantilla content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "plantilla"
+                ],
+                "description": "delete the Plantilla",
+                "operationId": "PlantillaController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "{}": {
+            "title": "{}",
+            "type": "object"
+        }
+    },
+    "tags": [
+        {
+            "name": "filtroContrato",
+            "description": "ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos\n"
+        },
+        {
+            "name": "filtroProveedor",
+            "description": "ContratosProveedorController ... Filtro para tener lista de contratos de un proveedor\n"
+        },
+        {
+            "name": "filtroMixto",
+            "description": "FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor\n"
+        },
+        {
+            "name": "plantilla",
+            "description": "PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones\n"
+        }
+    ]
+}
