@@ -43,7 +43,7 @@ func PostClasificacion(clasificaciones interface{}, Plantilla map[string]interfa
 // PostClasificacionParametrica ... ingresar en tabla
 func PostClasificacionParametrica(clasificacionEnviar map[string]interface{}) (clasificacionesResult map[string]interface{}, outputError interface{}) {
 	var clasificacionIngresada map[string]interface{}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion", "POST", &clasificacionIngresada, clasificacionEnviar)
+	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion", "POST", &clasificacionIngresada, clasificacionEnviar)
 	if error != nil {
 		return nil, error
 	} else {
@@ -55,7 +55,7 @@ func PostClasificacionParametrica(clasificacionEnviar map[string]interface{}) (c
 func GetClasificacionParametrica(clasificacion map[string]interface{}) (clasificacionesResult []map[string]interface{}) {
 	var clasificacionGet []map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", clasificacion["Nombre"]) + ",LimiteInferior:" + fmt.Sprintf("%v", clasificacion["LimiteInferior"]) + ",LimiteSuperior:" + fmt.Sprintf("%v", clasificacion["LimiteSuperior"]) + ",Activo:true&limit=1"
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion?query="+query, &clasificacionGet)
+	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion?query="+query, &clasificacionGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
@@ -91,7 +91,7 @@ func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Planti
 				"Id": Plantilla["Id"],
 			},
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion_plantilla", "POST", &clasificacionPlantillaIngresada, datoContruirdo)
+		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion_plantilla", "POST", &clasificacionPlantillaIngresada, datoContruirdo)
 		if error != nil {
 			logs.Error("Ocurrio un error al ingresar el dato: ", clasificaciones[i], " el error es:", error)
 			return nil, error
