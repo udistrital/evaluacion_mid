@@ -19,8 +19,8 @@ workspace:
         - master
         - test
         event:
-        - push 
-  
+        - push
+        
     - name: publish_dockerhub  
       image: plugins/docker
       settings:
@@ -70,7 +70,7 @@ workspace:
         - test
         - master
         event:
-        - push      
+        - push  
     
     - name: NotifyTelegram
       image: appleboy/drone-telegram
@@ -81,13 +81,13 @@ workspace:
           from_secret: telegram_to
         format: html
         message: >
-            {{#success build.status}}
+          {{#success build.status}}
             <code>{{repo.owner}}/{{repo.name}}</code> <a href="{{build.link}}">SUCCESS</a> 
             <code>{{commit.branch}}</code>@<a href="{{commit.link}}">{{truncate commit.sha 7}}</a><code> By:{{commit.author}} &#128526 </code>
-            {{else}}
+          {{else}}
             <code>{{repo.owner}}/{{repo.name}}</code> <a href="{{build.link}}">FAILURE</a>
             <code>{{commit.branch}}</code>@<a href="{{commit.link}}">{{truncate commit.sha 7}}</a><code> By:{{commit.author}} &#128549 </code>
-            {{/success}}
+          {{/success}}
       when:
         branch:
         - master
@@ -95,4 +95,4 @@ workspace:
         status:
         - failure
         - success
-  
+        
