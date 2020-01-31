@@ -38,7 +38,7 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 			},
 			"SeccionHijaId": nil,
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionIngresada, datoContruirdo)
+		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionIngresada, datoContruirdo)
 		if error != nil {
 			logs.Error("Ocurrio un error al ingresar el dato: ", secciones[i], " el error es:", error)
 			return nil, error
@@ -73,7 +73,7 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 					"Id": seccionPadre["Id"],
 				},
 			}
-			error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionHijaIngresada, datoContruirdo)
+			error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionHijaIngresada, datoContruirdo)
 			if error != nil {
 				logs.Error("Ocurrio un error al ingresar el dato: ", seccionMap[i], " el error es:", error)
 				return nil, error

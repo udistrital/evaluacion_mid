@@ -57,7 +57,7 @@ func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion 
 		"OpcionItemId":         opcionItem["Id"].(float64),
 		"SeccionDependenciaId": seccionCondicion["Id"].(float64),
 	}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"condicion", "POST", &condicionIngresada, datoContruirdo)
+	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/condicion", "POST", &condicionIngresada, datoContruirdo)
 	if error != nil {
 		return nil, error
 	} else {

@@ -50,7 +50,7 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 // PostPlantilla ...
 func PostPlantilla(plantilla map[string]interface{}) (plantillaResult map[string]interface{}, outputError interface{}) {
 	var plantillaPost map[string]interface{}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"plantilla", "POST", &plantillaPost, plantilla)
+	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla", "POST", &plantillaPost, plantilla)
 	if error != nil {
 		return nil, error
 	} else {
@@ -87,7 +87,7 @@ func FinalizarPlantilla(plantillaCreada map[string]interface{}) (plantillaResult
 func GetPlantillasActivas() (plantillaResult []map[string]interface{}) {
 	var plantillasGet []map[string]interface{}
 	query := "Activo:true"
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"plantilla?query="+query, &plantillasGet)
+	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillasGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
@@ -121,7 +121,7 @@ func DesactivarPlantillas(plantillasActivas []map[string]interface{}) (plantilla
 			"Id":            plantillasActivas[i]["Id"],
 			"Usuario":       plantillasActivas[i]["Usuario"],
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"plantilla/"+fmt.Sprintf("%v", plantillasActivas[i]["Id"]), "PUT", &platillaActualizada, datoContruirdo)
+		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillasActivas[i]["Id"]), "PUT", &platillaActualizada, datoContruirdo)
 		if error != nil {
 			logs.Error("Ocurrio un error al desactivar una plantilla: ", platillaActualizada, " el error es:", error)
 			return nil, error
@@ -144,7 +144,7 @@ func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasR
 			"Id":            plantillaGet[0]["Id"],
 			"Usuario":       plantillaGet[0]["Usuario"],
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"plantilla/"+fmt.Sprintf("%v", plantillaGet[0]["Id"]), "PUT", &platillaActualizada, datoContruirdo)
+		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillaGet[0]["Id"]), "PUT", &platillaActualizada, datoContruirdo)
 		if error != nil {
 			logs.Error("Ocurrio un error al activar la plantilla: ", platillaActualizada, " el error es:", error)
 			return nil, error
@@ -158,7 +158,7 @@ func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasR
 func GetPlantilla(plantilla map[string]interface{}) (plantillaResult []map[string]interface{}) {
 	var plantillaGet []map[string]interface{}
 	query := "Id:" + fmt.Sprintf("%v", plantilla["Id"])
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"plantilla?query="+query, &plantillaGet)
+	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillaGet)
 	if error != nil {
 		logs.Error(error)
 		return nil
@@ -185,6 +185,7 @@ func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError in
 	if plantillaActiva != nil {
 		plantillaConstruida = plantillaActiva[0]
 		fmt.Println("tenemos plantilla")
+		// return plantillaConstruida, nil
 		clasificaciones, errClasificaciones := GetClasicacionesPlntilla(plantillaConstruida)
 		if clasificaciones != nil {
 			plantillaConstruida["Clasificaciones"] = clasificaciones
