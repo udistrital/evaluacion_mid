@@ -35,6 +35,11 @@ func init() {
 				&controllers.PlantillaController{},
 			),
 		),
+		beego.NSNamespace("/datosContrato",
+			beego.NSInclude(
+				&controllers.DatosContratoController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
