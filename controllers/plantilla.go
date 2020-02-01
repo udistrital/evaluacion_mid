@@ -17,8 +17,6 @@ func (c *PlantillaController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("GetOne", c.GetOne)
 	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
 }
 
 // Post ...
@@ -124,28 +122,5 @@ func (c *PlantillaController) GetAll() {
 	}
 	c.Data["json"] = alertErr
 	c.ServeJSON()
-
-}
-
-// Put ...
-// @Title Put
-// @Description update the Plantilla
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	{}	true		"body for Plantilla content"
-// @Success 200 {}
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *PlantillaController) Put() {
-
-}
-
-// Delete ...
-// @Title Delete
-// @Description delete the Plantilla
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *PlantillaController) Delete() {
 
 }
