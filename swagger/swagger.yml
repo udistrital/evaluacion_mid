@@ -45,89 +45,9 @@ paths:
         type: string
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DatosContrato'
-        "403":
-          description: ""
-    post:
-      tags:
-      - datosContrato
-      description: create DatosContrato
-      operationId: DatosContratoController.Create
-      parameters:
-      - in: body
-        name: body
-        description: body for DatosContrato content
-        required: true
-        schema:
-          $ref: '#/definitions/models.DatosContrato'
-      responses:
-        "201":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DatosContrato'
-        "403":
-          description: body is empty
-  /datosContrato/{id}:
-    get:
-      tags:
-      - datosContrato
-      description: get DatosContrato by id
-      operationId: DatosContratoController.GetOne
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DatosContrato'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - datosContrato
-      description: update the DatosContrato
-      operationId: DatosContratoController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for DatosContrato content
-        required: true
-        schema:
-          $ref: '#/definitions/models.DatosContrato'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DatosContrato'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - datosContrato
-      description: delete the DatosContrato
-      operationId: DatosContratoController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
+          description: '{}'
+        "404":
+          description: not found resource
   /filtroContrato/:
     get:
       tags:
@@ -293,9 +213,6 @@ definitions:
   '{}':
     title: '{}'
     type: object
-  models.DatosContrato:
-    title: DatosContrato
-    type: object
 tags:
 - name: filtroContrato
   description: |
@@ -311,4 +228,4 @@ tags:
     PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones
 - name: datosContrato
   description: |
-    DatosContratoController operations for DatosContrato
+    DatosContratoController permite traer los datos necesarios para el contrato, dichos datos son consultados de diferentes apis

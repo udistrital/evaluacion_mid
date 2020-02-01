@@ -4,40 +4,14 @@ import (
 	"github.com/astaxie/beego"
 )
 
-// DatosContratoController operations for DatosContrato
+// DatosContratoController permite traer los datos necesarios para el contrato, dichos datos son consultados de diferentes apis
 type DatosContratoController struct {
 	beego.Controller
 }
 
 // URLMapping ...
 func (c *DatosContratoController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
 	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
-}
-
-// Post ...
-// @Title Create
-// @Description create DatosContrato
-// @Param	body		body 	models.DatosContrato	true		"body for DatosContrato content"
-// @Success 201 {object} models.DatosContrato
-// @Failure 403 body is empty
-// @router / [post]
-func (c *DatosContratoController) Post() {
-
-}
-
-// GetOne ...
-// @Title GetOne
-// @Description get DatosContrato by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.DatosContrato
-// @Failure 403 :id is empty
-// @router /:id [get]
-func (c *DatosContratoController) GetOne() {
-
 }
 
 // GetAll ...
@@ -49,32 +23,9 @@ func (c *DatosContratoController) GetOne() {
 // @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
 // @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
 // @Param	offset	query	string	false	"Start position of result set. Must be an integer"
-// @Success 200 {object} models.DatosContrato
-// @Failure 403
+// @Success 200 {}
+// @Failure 404 not found resource
 // @router / [get]
 func (c *DatosContratoController) GetAll() {
-
-}
-
-// Put ...
-// @Title Put
-// @Description update the DatosContrato
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.DatosContrato	true		"body for DatosContrato content"
-// @Success 200 {object} models.DatosContrato
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *DatosContratoController) Put() {
-
-}
-
-// Delete ...
-// @Title Delete
-// @Description delete the DatosContrato
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *DatosContratoController) Delete() {
 
 }
