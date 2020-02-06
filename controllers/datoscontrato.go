@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
 	"github.com/udistrital/utils_oas/request"
@@ -54,7 +53,8 @@ func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string
 	if resultContrato != nil {
 		infoProveedor, errProv := models.InfoProveedorID(fmt.Sprintf("%v", resultContrato[0]["Contratista"]))
 		if infoProveedor != nil {
-			infoDependencia, errDependencia := GetGependenciaSolicitante(fmt.Sprintf("%v", resultContrato[0]["DependenciaSolicitante"]))
+			lugarEjecucion := resultContrato[0]["LugarEjecucion"].(map[string]interface{})
+			infoDependencia, errDependencia := GetGependencia(fmt.Sprintf("%v", lugarEjecucion["Dependencia"]))
 			if infoDependencia != nil {
 				infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, infoDependencia)
 				return infoOrganizada, nil
@@ -69,8 +69,8 @@ func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string
 	// return nil, nil
 }
 
-// GetGependenciaSolicitante ...
-func GetGependenciaSolicitante(CodDependencia string) (Dependencia []map[string]interface{}, outputError interface{}) {
+// GetGependencia ...
+func GetGependencia(CodDependencia string) (Dependencia []map[string]interface{}, outputError interface{}) {
 	var dependencia []map[string]interface{}
 	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia)
 	if len(dependencia) < 1 {
