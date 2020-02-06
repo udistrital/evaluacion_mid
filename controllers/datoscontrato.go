@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
 	"github.com/udistrital/utils_oas/request"
@@ -56,8 +57,16 @@ func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string
 			lugarEjecucion := resultContrato[0]["LugarEjecucion"].(map[string]interface{})
 			infoDependencia, errDependencia := GetGependencia(fmt.Sprintf("%v", lugarEjecucion["Dependencia"]))
 			if infoDependencia != nil {
-				infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, infoDependencia)
-				return infoOrganizada, nil
+				documentoSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"])
+				dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
+				infoSupervisor, errSup := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
+				if infoSupervisor != nil {
+					infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, infoDependencia, infoSupervisor)
+					return infoOrganizada, nil
+
+				}
+				return nil, errSup
+
 			}
 			return nil, errDependencia
 			// return infoProveedor, nil
@@ -79,5 +88,18 @@ func GetGependencia(CodDependencia string) (Dependencia []map[string]interface{}
 		return nil, errorProv
 	} else {
 		return dependencia, nil
+	}
+}
+
+// GetSupervisorContrato ...
+func GetSupervisorContrato(numeroDocSupervisor string, dependenciaSupervisor string) (supervisorResult []map[string]interface{}, outputError interface{}) {
+	var supervisor []map[string]interface{}
+	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato?query=Documento:"+numeroDocSupervisor+"DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor)
+	if len(supervisor) < 1 {
+		fmt.Println(error)
+		errorProv := models.CrearError("no se pudo traer la info del supervisor con documento:" + numeroDocSupervisor + " de la dependencia: " + dependenciaSupervisor)
+		return nil, errorProv
+	} else {
+		return supervisor, nil
 	}
 }
