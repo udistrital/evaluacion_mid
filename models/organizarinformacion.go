@@ -89,13 +89,14 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 }
 
 // OrganizarInfoContratoArgo ...
-func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoDependencia []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
+func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoDependencia []map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	for i := 0; i < len(infoContrato); i++ {
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"contrato_general":      infoContrato[0],
 			"informacion_proveedor": infoProveedor[0],
 			"dependencia_SIC":       infoDependencia[0],
+			"supervisor_contrato":   infoSupervisor[0],
 		})
 	}
 	return InfoOrganizada
