@@ -9,15 +9,6 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContatoscontratoController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContatoscontratoController"],
         beego.ControllerComments{
-            Method: "Post",
-            Router: `/`,
-            AllowHTTPMethods: []string{"post"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContatoscontratoController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContatoscontratoController"],
-        beego.ControllerComments{
             Method: "GetAll",
             Router: `/`,
             AllowHTTPMethods: []string{"get"},
@@ -27,14 +18,14 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContratosProveedorController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContratosProveedorController"],
         beego.ControllerComments{
-            Method: "Post",
+            Method: "GetAll",
             Router: `/`,
-            AllowHTTPMethods: []string{"post"},
+            AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContratosProveedorController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ContratosProveedorController"],
+    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:DatosContratoController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:DatosContratoController"],
         beego.ControllerComments{
             Method: "GetAll",
             Router: `/`,
@@ -43,16 +34,7 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"],
-        beego.ControllerComments{
-            Method: "Post",
-            Router: `/`,
-            AllowHTTPMethods: []string{"post"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"],
+    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:FiltromixtoController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:FiltromixtoController"],
         beego.ControllerComments{
             Method: "GetAll",
             Router: `/`,
@@ -61,25 +43,7 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"],
-        beego.ControllerComments{
-            Method: "Put",
-            Router: `/:objectId`,
-            AllowHTTPMethods: []string{"put"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:ObjectController"],
-        beego.ControllerComments{
-            Method: "Delete",
-            Router: `/:objectId`,
-            AllowHTTPMethods: []string{"delete"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"],
+    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"],
         beego.ControllerComments{
             Method: "Post",
             Router: `/`,
@@ -88,7 +52,7 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"],
+    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"],
         beego.ControllerComments{
             Method: "GetAll",
             Router: `/`,
@@ -97,37 +61,10 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"],
+    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"],
         beego.ControllerComments{
-            Method: "Put",
-            Router: `/:uid`,
-            AllowHTTPMethods: []string{"put"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"],
-        beego.ControllerComments{
-            Method: "Delete",
-            Router: `/:uid`,
-            AllowHTTPMethods: []string{"delete"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"],
-        beego.ControllerComments{
-            Method: "Login",
-            Router: `/login`,
-            AllowHTTPMethods: []string{"get"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:UserController"],
-        beego.ControllerComments{
-            Method: "Logout",
-            Router: `/logout`,
+            Method: "GetOne",
+            Router: `/:id`,
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,

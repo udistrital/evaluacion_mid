@@ -15,6 +15,39 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/datosContrato/": {
+            "get": {
+                "tags": [
+                    "datosContrato"
+                ],
+                "description": "obtiene los didatos de contrato general,informacion del proveedor y dependencias del supervidor",
+                "operationId": "DatosContratoController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "NumContrato",
+                        "description": "Numero del contrato",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "VigenciaContrato",
+                        "description": "año de vigencia del contrato",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{}"
+                    },
+                    "404": {
+                        "description": "not found resource"
+                    }
+                }
+            }
+        },
         "/filtroContrato/": {
             "get": {
                 "tags": [
@@ -33,13 +66,15 @@
                     {
                         "in": "query",
                         "name": "Vigencia",
-                        "description": "Vigencia del contrato",
+                        "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
+                        "required": true,
                         "type": "string"
                     },
                     {
                         "in": "query",
                         "name": "SupID",
-                        "description": "ID del supervisor",
+                        "description": "Identificacion del supervisor",
+                        "required": true,
                         "type": "string"
                     }
                 ],
@@ -51,33 +86,51 @@
                         "description": "not found resource"
                     }
                 }
-            },
-            "post": {
+            }
+        },
+        "/filtroMixto/": {
+            "get": {
                 "tags": [
-                    "filtroContrato"
+                    "filtroMixto"
                 ],
-                "description": "create Contatoscontrato",
-                "operationId": "ContatoscontratoController.Create",
+                "description": "get Filtromixto",
+                "operationId": "FiltromixtoController.GetAll",
                 "parameters": [
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Contatoscontrato content",
+                        "in": "query",
+                        "name": "IdentProv",
+                        "description": "Identificacion del proveedor",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Contatoscontrato"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "NumContrato",
+                        "description": "Numero del contrato",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Vigencia",
+                        "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "SupID",
+                        "description": "Identificacion del supervisor",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Contatoscontrato"
-                        }
+                    "200": {
+                        "description": "{}"
                     },
-                    "403": {
-                        "description": "body is empty"
+                    "404": {
+                        "description": "not found resource"
                     }
                 }
             }
@@ -100,34 +153,9 @@
                     {
                         "in": "query",
                         "name": "SupID",
-                        "description": "ID del supervisor",
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{}"
-                    },
-                    "404": {
-                        "description": "not found resource"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "filtroProveedor"
-                ],
-                "description": "create ContratosProveedor",
-                "operationId": "ContratosProveedorController.Create",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for ContratosProveedor content",
+                        "description": "Identificacion del supervisor, para evitar el filtro se debe de mandar un 0 (cero)",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/{}"
-                        }
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -140,13 +168,13 @@
                 }
             }
         },
-        "/object/": {
+        "/plantilla/": {
             "get": {
                 "tags": [
-                    "object"
+                    "plantilla"
                 ],
-                "description": "get ContratosProveedor",
-                "operationId": "ObjectController.GetAll",
+                "description": "Obtiene la ultima plantilla activa en base de datos, la cual es un json con todas las propiedades necesarias para la interpretacion en el cliente",
+                "operationId": "PlantillaController.GetAll",
                 "parameters": [
                     {
                         "in": "query",
@@ -187,10 +215,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.ContratosProveedor"
-                        }
+                        "description": "{}"
                     },
                     "403": {
                         "description": ""
@@ -199,24 +224,27 @@
             },
             "post": {
                 "tags": [
-                    "object"
+                    "plantilla"
                 ],
-                "description": "create object",
-                "operationId": "ObjectController.Create",
+                "description": "se crea una nueva plantilla, para esto existe un json de guia para ello o se debera de crear un modulo para failitar el proceso",
+                "operationId": "PlantillaController.Create",
                 "parameters": [
                     {
                         "in": "body",
                         "name": "body",
-                        "description": "The object content",
+                        "description": "body for Plantilla content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Object"
+                            "$ref": "#/definitions/{}"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "{string} models.Object.Id"
+                    "201": {
+                        "description": "{}"
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "403": {
                         "description": "body is empty"
@@ -224,131 +252,34 @@
                 }
             }
         },
-        "/object/{objectId}": {
-            "put": {
+        "/plantilla/{id}": {
+            "get": {
                 "tags": [
-                    "object"
+                    "plantilla"
                 ],
-                "description": "update the object",
-                "operationId": "ObjectController.Update",
+                "description": "Obtiene la estructura de la platilla , segun el ID de la plnatilla enviado, similar al get all",
+                "operationId": "PlantillaController.GetOne",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "objectId",
-                        "description": "The objectid you want to update",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "The body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Object"
-                        }
-                    },
-                    "403": {
-                        "description": ":objectId is empty"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "object"
-                ],
-                "description": "delete the object",
-                "operationId": "ObjectController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "objectId",
-                        "description": "The objectId you want to delete",
+                        "name": "id",
+                        "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{string} delete success!"
+                        "description": "{}"
                     },
                     "403": {
-                        "description": "objectId is empty"
+                        "description": ":id is empty"
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.Contatoscontrato": {
-            "title": "Contatoscontrato",
-            "type": "object"
-        },
-        "models.ContratosProveedor": {
-            "title": "ContratosProveedor",
-            "type": "object"
-        },
-        "models.Object": {
-            "title": "Object",
-            "type": "object",
-            "properties": {
-                "ObjectId": {
-                    "type": "string"
-                },
-                "PlayerName": {
-                    "type": "string"
-                },
-                "Score": {
-                    "type": "integer",
-                    "format": "int64"
-                }
-            }
-        },
-        "models.Profile": {
-            "title": "Profile",
-            "type": "object",
-            "properties": {
-                "Address": {
-                    "type": "string"
-                },
-                "Age": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "Email": {
-                    "type": "string"
-                },
-                "Gender": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "title": "User",
-            "type": "object",
-            "properties": {
-                "Id": {
-                    "type": "string"
-                },
-                "Password": {
-                    "type": "string"
-                },
-                "Profile": {
-                    "$ref": "#/definitions/models.Profile"
-                },
-                "Username": {
-                    "type": "string"
-                }
-            }
-        },
         "{}": {
             "title": "{}",
             "type": "object"
@@ -356,16 +287,24 @@
     },
     "tags": [
         {
-            "name": "object",
-            "description": "Operations about object\n"
-        },
-        {
             "name": "filtroContrato",
             "description": "ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos\n"
         },
         {
             "name": "filtroProveedor",
-            "description": "ContratosProveedorController operations for ContratosProveedor\n"
+            "description": "ContratosProveedorController ... Filtro para tener lista de contratos de un proveedor\n"
+        },
+        {
+            "name": "filtroMixto",
+            "description": "FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor\n"
+        },
+        {
+            "name": "plantilla",
+            "description": "PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones\n"
+        },
+        {
+            "name": "datosContrato",
+            "description": "DatosContratoController permite traer los datos necesarios para el contrato, dichos datos son consultados de diferentes apis\n"
         }
     ]
 }
