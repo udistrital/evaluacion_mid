@@ -1,44 +1,77 @@
 # evaluacion_mid
 
-Api intermediaria entre el cliente de Evaluaciones y las apis necesarios para la gestion de la informacion de proveedores y evaluaciones para estos mismos.
+Api intermediaria entre el cliente de Evaluaciones y las apis necesarios para la gestión de la información de proveedores y evaluaciones para estos mismos.  
+El api principalmente es pensado para darle informacion a [evaluacion_cliente](https://github.com/udistrital/evaluacion_cliente). (esto no limita a su consumo desde el clinete o api que desee consumirle)  
 
-El api principalmente es pensado para darle informacion a [evaluacion_cliente](https://github.com/udistrital/evaluacion_cliente). (esto no limita a su consumo desde el clinete o api que desee consumirle)
 
+## Especificaciones Técnicas
 
-Al momento de Crear el presente Readme hace consumo de las siguientes Apis:
+### Tecnologías Implementadas y Versiones
+* [Golang](https://github.com/udistrital/introduccion_oas/blob/master/instalacion_de_herramientas/golang.md)
+* [BeeGo](https://github.com/udistrital/introduccion_oas/blob/master/instalacion_de_herramientas/beego.md)
+* [Docker](https://docs.docker.com/engine/install/ubuntu/)
+* [Docker Compose](https://docs.docker.com/compose/)
 
-- [evaluaciones_crud](https://github.com/udistrital/evaluacion_crud)
-- [administrativa_amazon_api](https://github.com/udistrital/administrativa_amazon_api)
-
-## Especificación Técnica
-
- Para instalar el proyecto de debe relizar lo siguientes pasos:
-
-Ejecutar desde la terminal 'go get repositorio':
-```shell
-go get github.com/udistrital/evaluacion_mid
-```
 
 ### Variables de Entorno
-
-- EVALUACIONES_MID_HTTP_PORT=[puerto de ejecucion del api]
-- ADMIN_AMAZON_API_URL=[direccion de api administrativa_amazon_api]
-- ADMIN_AMAZON_JBPM_URL=[direccion de administrativa_jbpm]
-- EVALUACION_CRUD_URL=[direccion del api evaluacion_crud]
-
-
-### Ejecución del proyecto
-
-- Ejecutar:
 ```shell
-EVALUACIONES_MID_HTTP_PORT=XXX ADMIN_AMAZON_API_URL=XXX ADMIN_AMAZON_JBPM_URL=XXX EVALUACION_CRUD_URL=XXX bee run
+# Ejemplo que se debe actualizar acorde al proyecto
+EVALUACIONES_MID_DB_HOST = [descripción]
+EVALUACIONES_MID_DB_NAME = [descripción]
 ```
-- O si se quiere ejecutar el swager:
+**NOTA:** Las variables se pueden ver en el fichero conf/app.conf y están identificadas con EVALUACIONES_MID_...
+
+### Ejecución del Proyecto
 ```shell
-EVALUACIONES_MID_HTTP_PORT=XXX ADMIN_AMAZON_API_URL=XXX ADMIN_AMAZON_JBPM_URL=XXX EVALUACION_CRUD_URL=XXX bee run -downdoc=true -gendoc=true
+#1. Obtener el repositorio con Go
+go get github.com/udistrital/evaluacion_mid
+
+#2. Moverse a la carpeta del repositorio
+cd $GOPATH/src/github.com/udistrital/evaluacion_mid
+
+# 3. Moverse a la rama **develop**
+git pull origin develop && git checkout develop
+
+# 4. alimentar todas las variables de entorno que utiliza el proyecto.
+EVALUACIONES_MID_PORT=8080 EVALUACIONES_MID_DB_HOST=127.0.0.1:27017 EVALUACIONES_MID_SOME_VARIABLE=some_value bee run
 ```
 
----
+### Ejecución Dockerfile
+```shell
+# docker build --tag=evaluacion_mid . --no-cache
+# docker run -p 80:80 evaluacion_mid
+```
+
+
+### Ejecución docker-compose
+```shell
+#1. Clonar el repositorio
+git clone -b develop https://github.com/udistrital/evaluacion_mid
+
+#2. Moverse a la carpeta del repositorio
+cd evaluacion_mid
+
+#3. Crear un fichero con el nombre **custom.env**
+# En windows ejecutar:* ` ni custom.env`
+touch custom.env
+
+#4. Crear la network **back_end** para los contenedores
+docker network create back_end
+
+#5. Ejecutar el compose del contenedor
+docker-compose up --build
+
+#6. Comprobar que los contenedores estén en ejecución
+docker ps
+```
+
+### Ejecución Pruebas
+
+Pruebas unitarias
+```shell
+# Not Data
+```
+
 ### Diagramas
 
 ac continuacion se visualizaran los diagramas inicialmente planteados para el manejo de informacion y funciones principales.
@@ -84,18 +117,20 @@ ac continuacion se visualizaran los diagramas inicialmente planteados para el ma
 
 </details>
 
-### EndPoints
 
-Al ejecutar el swagger se puede tener mayor apreciacion de los diferentes metodos de peticion por cada endpoint cuales son los distinpos endpoint disponibles y como usarlos.
+## Estado CI
 
+| Develop | Relese 0.0.1 | Master |
+| -- | -- | -- |
+| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) |
 
 
 ## Licencia
 
-This file is part of evaluacion_mid.
+This file is part of necesidades_crud.
 
-evaluacion_mid is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+necesidades_crud is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-Foobar is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+necesidades_crud is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with Foobar. If not, see https://www.gnu.org/licenses/.
+You should have received a copy of the GNU General Public License along with necesidades_crud. If not, see https://www.gnu.org/licenses/.
