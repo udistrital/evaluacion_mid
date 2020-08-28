@@ -122,7 +122,7 @@ ac continuacion se visualizaran los diagramas inicialmente planteados para el ma
 
 | Develop | Relese 0.0.1 | Master |
 | -- | -- | -- |
-| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) |
+| [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg?ref=refs/heads/develop)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg?ref=refs/heads/release/0.0.1)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) | [![Build Status](https://hubci.portaloas.udistrital.edu.co/api/badges/udistrital/evaluacion_mid/status.svg)](https://hubci.portaloas.udistrital.edu.co/udistrital/evaluacion_mid) |
 
 
 ## Licencia
