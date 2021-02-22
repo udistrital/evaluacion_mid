@@ -26,6 +26,21 @@ func (c *ContatoscontratoController) URLMapping() {
 // @Failure 404 not found resource
 // @router / [get]
 func (c *ContatoscontratoController) GetAll() {
+
+	defer func() {
+		if err := recover(); err != nil {
+			logs.Error(err)
+			localError := err.(map[string]interface{})
+			c.Data["mesaage"] = (beego.AppConfig.String("appname") + "/" + "ContratoscontratoController" + "/" + (localError["funcion"]).(string))
+			c.Data["data"] = (localError["err"])
+			if status, ok := localError["status"]; ok {
+				c.Abort(status.(string))
+			} else {
+				c.Abort("404")
+			}
+		}
+	}()
+
 	var alertErr models.Alert
 	alertas := append([]interface{}{"Response:"})
 	NumContrato := c.GetString("NumContrato")
@@ -33,17 +48,20 @@ func (c *ContatoscontratoController) GetAll() {
 	SupervisorIdent := c.GetString("SupID")
 	resultContratos, err1 := ListaContratosContrato(NumContrato, Vigencia, SupervisorIdent)
 	if resultContratos != nil {
-		alertErr.Type = "OK"
+		/*alertErr.Type = "OK"
 		alertErr.Code = "200"
-		alertErr.Body = resultContratos
+		alertErr.Body = resultContratos*/
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
-		alertErr.Type = "error"
+		/*alertErr.Type = "error"
 		alertErr.Code = "404"
 		alertas = append(alertas, err1)
 		alertErr.Body = alertas
-		c.Ctx.Output.SetStatus(404)
+		c.Ctx.Output.SetStatus(404)*/
+		panic(err1)
 	}
-	c.Data["json"] = alertErr
+	//c.Data["json"] = alertErr
 	c.ServeJSON()
 }
 
