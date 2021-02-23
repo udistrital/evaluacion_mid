@@ -5,6 +5,7 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/evaluacion_mid/helpers"
 )
 
 // PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones
@@ -28,36 +29,25 @@ func (c *PlantillaController) URLMapping() {
 // @Failure 400 Bad Request
 // @router / [post]
 func (c *PlantillaController) Post() {
+
+	defer helpers.ErrorControl(c.Controller, "PlantillaController")
+
 	var plantillaRecivida map[string]interface{}
-	var alertErr models.Alert
-	alertas := append([]interface{}{"Response:"})
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &plantillaRecivida); err == nil {
 
 		plantillaRespuerta, errPlantilla := models.IngresoPlantilla(plantillaRecivida)
 
 		if plantillaRespuerta != nil {
-			alertErr.Type = "OK"
-			alertErr.Code = "200"
-			// alertErr.Body = plantillaRespuerta
-			alertErr.Body = models.CrearSuccess("la plantilla se ingreso con exito")
+			c.Ctx.Output.SetStatus(200)
+			c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": models.CrearSuccess("La plantilla se ingresó con exito")}
 		} else {
-			alertErr.Type = "error"
-			alertErr.Code = "400"
-			alertas = append(alertas, errPlantilla)
-			alertErr.Body = alertas
-			c.Ctx.Output.SetStatus(400)
+			panic(errPlantilla)
 		}
 
 	} else {
-		alertErr.Type = "error"
-		alertErr.Code = "400"
-		alertas = append(alertas, err.Error())
-		alertErr.Body = alertas
-		c.Ctx.Output.SetStatus(400)
+		panic(err)
 	}
-
-	c.Data["json"] = alertErr
 	c.ServeJSON()
 
 }
@@ -70,25 +60,20 @@ func (c *PlantillaController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *PlantillaController) GetOne() {
+
+	defer helpers.ErrorControl(c.Controller, "PlantillaController")
+
 	idStr := c.Ctx.Input.Param(":id")
 	// id, _ := strconv.Atoi(idStr)
 	// fmt.Println(id)
-	var alertErr models.Alert
 
-	alertas := append([]interface{}{"Response:"})
-	plantilla, errPlantilla := models.ObternerPlantillaPorID(idStr)
+	plantilla, errPlantilla := models.ObtenerPlantillaPorID(idStr)
 	if plantilla != nil {
-		alertErr.Type = "OK"
-		alertErr.Code = "200"
-		alertErr.Body = plantilla
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": plantilla}
 	} else {
-		alertErr.Type = "error"
-		alertErr.Code = "404"
-		alertas = append(alertas, errPlantilla)
-		alertErr.Body = alertas
-		c.Ctx.Output.SetStatus(404)
+		panic(errPlantilla)
 	}
-	c.Data["json"] = alertErr
 	c.ServeJSON()
 }
 
@@ -105,22 +90,16 @@ func (c *PlantillaController) GetOne() {
 // @Failure 403
 // @router / [get]
 func (c *PlantillaController) GetAll() {
-	var alertErr models.Alert
 
-	alertas := append([]interface{}{"Response:"})
+	defer helpers.ErrorControl(c.Controller, "PlantillaController")
+
 	plantilla, errPlantilla := models.ObtenerPlantillas()
 	if plantilla != nil {
-		alertErr.Type = "OK"
-		alertErr.Code = "200"
-		alertErr.Body = plantilla
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": plantilla}
 	} else {
-		alertErr.Type = "error"
-		alertErr.Code = "404"
-		alertas = append(alertas, errPlantilla)
-		alertErr.Body = alertas
-		c.Ctx.Output.SetStatus(404)
+		panic(errPlantilla)
 	}
-	c.Data["json"] = alertErr
 	c.ServeJSON()
 
 }

@@ -204,7 +204,7 @@ func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError in
 }
 
 // ObternerPlantillaPorID ...
-func ObternerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]interface{}, outputError interface{}) {
+func ObtenerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]interface{}, outputError interface{}) {
 	var plantillaConstruida map[string]interface{}
 	query := "?query=Id:" + IDPlantilla
 	plantillaBusqueda := GetTablaCrudEvaluacion("plantilla", query)

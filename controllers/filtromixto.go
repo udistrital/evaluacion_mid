@@ -2,8 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/udistrital/evaluacion_mid/models"
-	"github.com/udistrital/utils_oas/request"
+	"github.com/udistrital/evaluacion_mid/helpers"
 )
 
 // FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor
@@ -27,71 +26,19 @@ func (c *FiltromixtoController) URLMapping() {
 // @Failure 404 not found resource
 // @router / [get]
 func (c *FiltromixtoController) GetAll() {
-	var alertErr models.Alert
-	alertas := append([]interface{}{"Response:"})
+
+	defer helpers.ErrorControl(c.Controller, "FiltromixtoController")
+
 	IdentificacionProveedor := c.GetString("IdentProv")
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("Vigencia")
 	SupervisorIdent := c.GetString("SupID")
-	resultContratos, err1 := ListaContratoMixto(IdentificacionProveedor, NumContrato, Vigencia, SupervisorIdent)
+	resultContratos, err1 := helpers.ListaContratoMixto(IdentificacionProveedor, NumContrato, Vigencia, SupervisorIdent)
 	if resultContratos != nil {
-		alertErr.Type = "OK"
-		alertErr.Code = "200"
-		alertErr.Body = resultContratos
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
-		alertErr.Type = "error"
-		alertErr.Code = "404"
-		alertas = append(alertas, err1)
-		alertErr.Body = alertas
-		c.Ctx.Output.SetStatus(404)
+		panic(err1)
 	}
-	c.Data["json"] = alertErr
 	c.ServeJSON()
-}
-
-// ListaContratoMixto ...
-func ListaContratoMixto(IdentificacionProveedor string, NumeroContrato string, vigencia string, supervidorIdent string) (contratos []map[string]interface{}, outputError interface{}) {
-	ProveedorInfo, errorProv := InfoProveedor(IdentificacionProveedor)
-	if ProveedorInfo != nil {
-		IDProveedor := models.GetElementoMaptoString(ProveedorInfo, "Id")
-		resultContrato, errContrato := ObtenerContratoProveedor(IDProveedor, NumeroContrato, vigencia)
-		if resultContrato != nil {
-			InfoOrg := models.OrganizarInfoContratos(ProveedorInfo, resultContrato)
-			resultDependencia, errDep := models.ObtenerDependencias(supervidorIdent)
-			if errDep != nil {
-				return nil, errDep
-			} else {
-				InfoFiltrada, errFiltro := models.FiltroDependencia(InfoOrg, resultDependencia)
-				if InfoFiltrada != nil {
-					return InfoFiltrada, nil
-				} else {
-					return nil, errFiltro
-				}
-			}
-
-		} else {
-			return nil, errContrato
-
-		}
-
-	} else {
-		return nil, errorProv
-	}
-}
-
-// ObtenerContratoProveedor ...
-func ObtenerContratoProveedor(ProveedorID string, NumContrato string, vigencia string) (contrato []map[string]interface{}, outputError interface{}) {
-	var ContratoProveedor []map[string]interface{}
-	var error interface{}
-	if vigencia == "0" {
-		error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID, &ContratoProveedor)
-	} else {
-		error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor)
-	}
-	if len(ContratoProveedor) < 1 {
-		error = models.CrearError("no se encontraron contratos")
-		return nil, error
-	} else {
-		return ContratoProveedor, nil
-	}
 }
