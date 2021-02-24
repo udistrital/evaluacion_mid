@@ -33,7 +33,7 @@ func GetJSONJBPM(urlp string, target interface{}) error {
 
 // GetTablaCrudEvaluacion ...
 func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[string]interface{}) {
-	var objetiGet []map[string]interface{}
+	var objetiGet map[string]interface{}
 	var url string
 	if query != "" {
 		url = beego.AppConfig.String("evaluacion_crud_url") + "v1/" + tabla + query
@@ -41,15 +41,21 @@ func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[stri
 		url = beego.AppConfig.String("evaluacion_crud_url") + "v1/" + tabla
 	}
 	error := request.GetJson(url, &objetiGet)
+	logs.Error("data: ", objetiGet)
 	if error != nil {
 		fmt.Println("error en get tabla", tabla, "con la peticion: ", url)
 		logs.Error(error)
 		return nil
 	} else {
-		aux := reflect.ValueOf(objetiGet[0])
+		aux := reflect.ValueOf(objetiGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
-				return objetiGet
+				temp, _ := json.Marshal(objetiGet["Data"].([]interface{}))
+				if err := json.Unmarshal(temp, &objetoResult); err == nil {
+					return objetoResult
+				} else {
+					return nil
+				}
 			} else {
 				return nil
 			}
