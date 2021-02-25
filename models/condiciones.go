@@ -5,16 +5,16 @@ import (
 	"reflect"
 
 	"github.com/astaxie/beego"
-	"github.com/udistrital/utils_oas/request"
+	"github.com/astaxie/beego/logs"
 )
 
 // PostCondiciones ...
-func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []map[string]interface{}) (condicionesResult map[string]interface{}, outputError interface{}) {
+func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []map[string]interface{}) (condicionesResult map[string]interface{}, outputError map[string]interface{}) {
 	if len(arraySecciones) > 0 {
 		for i := 0; i < len(condicionesMap); i++ {
 			// se verifica si la seccion penultima es la de la condicion
 			if fmt.Sprintf("%v", condicionesMap[i]["Nombre_seccion_condicion"]) == fmt.Sprintf("%v", arraySecciones[len(arraySecciones)-2]["Nombre"]) {
-				opcionDB := GetOpcionesParametrica(condicionesMap[i])
+				opcionDB, errOpcParametrica := GetOpcionesParametrica(condicionesMap[i])
 				if opcionDB != nil {
 					ItemIngresadosMap, errMapItems := GetElementoMaptoStringToMapArray(arraySecciones[len(arraySecciones)-2]["ItemsIngresados"])
 					seccionComparacion := arraySecciones[len(arraySecciones)-2]
@@ -29,14 +29,23 @@ func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []m
 											condicionIngresada, errCondicion := PostCondicionDB(seccionHijaActual, seccionComparacion, OpcionesIngresadasMap[k]["IdOpciones"].(map[string]interface{}))
 											if condicionIngresada != nil && errCondicion == nil {
 												return condicionIngresada, nil
+											} else if errCondicion != nil{
+												return nil, errCondicion
 											}
 										}
 									}
+								} else if errMapOpciones != nil{
+									return nil, errMapOpciones
 								}
 							}
 						}
+					} else if errMapItems != nil {
+						return nil , errMapItems
 					}
 
+				}
+				if errOpcParametrica != nil{
+					return nil, errOpcParametrica
 				}
 			}
 		}
@@ -46,7 +55,7 @@ func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []m
 }
 
 // PostCondicionDB ...
-func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion map[string]interface{}, opcionItem map[string]interface{}) (condicionResult map[string]interface{}, outputError interface{}) {
+func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion map[string]interface{}, opcionItem map[string]interface{}) (condicionResult map[string]interface{}, outputError map[string]interface{}) {
 	var condicionIngresada map[string]interface{}
 	datoContruirdo := make(map[string]interface{})
 	datoContruirdo = map[string]interface{}{
@@ -57,36 +66,34 @@ func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion 
 		"OpcionItemId":         opcionItem["Id"].(float64),
 		"SeccionDependenciaId": seccionCondicion["Id"].(float64),
 	}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/condicion", "POST", &condicionIngresada, datoContruirdo)
-	if error != nil {
-		return nil, error
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/condicion", "POST", &condicionIngresada, datoContruirdo); err != nil{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/PostCondicionDB", "err": err.Error(), "status": "502"}
+		return nil, outputError
 	} else {
 		return condicionIngresada, nil
 	}
 }
 
 // GetCondiciones ...
-func GetCondiciones(seccion map[string]interface{}) (condicionesResult []map[string]interface{}, outputError interface{}) {
+func GetCondiciones(seccion map[string]interface{}) (condicionesResult []map[string]interface{}, outputError map[string]interface{}) {
 	arrayCondiciones := make([]map[string]interface{}, 0)
 	query := "?query=IdSeccion:" + fmt.Sprintf("%v", seccion["Id"])
-	condicionesSeccion := GetTablaCrudEvaluacion("condicion", query)
+	condicionesSeccion, errTablaCrudEvaluacion1 := GetTablaCrudEvaluacion("condicion", query)
 	if condicionesSeccion != nil {
-
 		aux := reflect.ValueOf(condicionesSeccion[0])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
 				querySeccion := "?query=Id:" + fmt.Sprintf("%v", condicionesSeccion[0]["SeccionDependenciaId"]) + "&fields=Nombre"
 
-				seccionDeCondicion := GetTablaCrudEvaluacion("seccion", querySeccion)
+				seccionDeCondicion, errTablaCrudEvaluacion2 := GetTablaCrudEvaluacion("seccion", querySeccion)
 				if seccionDeCondicion == nil {
-					error := CrearError("no se encuentra la seccion que genera condicion, error en consulta o en base de datos")
-					return nil, error
+					return nil, errTablaCrudEvaluacion2
 				}
 				queryOpcion := "?query=Id:" + fmt.Sprintf("%v", condicionesSeccion[0]["OpcionItemId"]) + "&fields=Nombre,Valor"
-				opcionCondicion := GetTablaCrudEvaluacion("opciones", queryOpcion)
+				opcionCondicion, errTablaCrudEvaluacion3 := GetTablaCrudEvaluacion("opciones", queryOpcion)
 				if opcionCondicion == nil {
-					error := CrearError("no se encuentra la opcion que genera condicion, error en consulta o en base de datos")
-					return nil, error
+					return nil, errTablaCrudEvaluacion3
 				}
 				datoContruirdo := make(map[string]interface{})
 				datoContruirdo = map[string]interface{}{
@@ -99,6 +106,8 @@ func GetCondiciones(seccion map[string]interface{}) (condicionesResult []map[str
 			}
 		}
 
+	} else if errTablaCrudEvaluacion1 != nil{
+		return nil, errTablaCrudEvaluacion1
 	}
 	return arrayCondiciones, nil
 }

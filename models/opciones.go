@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"reflect"
 
+	"encoding/json"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/udistrital/utils_oas/request"
+	//"github.com/udistrital/utils_oas/request"
 )
 
 // PostOpcionesItem ...
-func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[string]interface{}) (ItemsResult []map[string]interface{}, outputError interface{}) {
+func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[string]interface{}) (ItemsResult []map[string]interface{}, outputError map[string]interface{}) {
 	arrayOpcionesItemsIngresados := make([]map[string]interface{}, 0)
 	for i := 0; i < len(opcionesItemMapeo); i++ {
-		opcionParametrica := GetOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
+		opcionParametrica, errOpcParametrica := GetOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
 		if opcionParametrica != nil {
 			// se puede ingresar la de rompimiento
 			opcionItemIngreso, erroOpIt := IngresoOpcionesItem(opcionParametrica[0], itemDB)
@@ -22,6 +23,9 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 			}
 			arrayOpcionesItemsIngresados = append(arrayOpcionesItemsIngresados, opcionItemIngreso)
 		} else {
+			if errOpcParametrica != nil{
+				return nil, errOpcParametrica
+			}
 			postOpcionParametrica, errOpt := PostOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
 			if postOpcionParametrica != nil {
 				opcionItemIngreso, erroOpIt := IngresoOpcionesItem(postOpcionParametrica, itemDB)
@@ -40,11 +44,34 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 }
 
 // GetOpcionesParametrica ...
-func GetOpcionesParametrica(opciones map[string]interface{}) (opcionesResult []map[string]interface{}) {
-	var opcionesGet []map[string]interface{}
+func GetOpcionesParametrica(opciones map[string]interface{}) (opcionesResult []map[string]interface{}, outputError map[string]interface{}) {
+	var opcionesGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", opciones["Nombre"]) + ",Valor:" + fmt.Sprintf("%v", opciones["Valor"]) + ",Activo:true&limit=1"
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/opciones?query="+query, &opcionesGet)
-	if error != nil {
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/opciones?query="+query, &opcionesGet); (err == nil) && (response == 200){
+		aux := reflect.ValueOf(opcionesGet["Data"])
+		if aux.IsValid() {
+			if aux.Len() > 0 {
+				temp, _ := json.Marshal(opcionesGet["Data"].([]interface{}))
+				if err := json.Unmarshal(temp, &opcionesResult); err == nil {
+					return opcionesResult, nil
+				} else {
+					outputError = map[string]interface{}{"funcion": "/GetOpcionesParametrica4", "err": err.Error(), "status": "502"}
+					return nil, outputError
+				}
+			} else {
+				outputError = map[string]interface{}{"funcion": "/GetOpcionesParametrica3", "err": "Cantidad de elementos vacia", "status": "502"}
+				return nil, outputError
+			}
+		} else {
+			outputError = map[string]interface{}{"funcion": "/GetOpcionesParametrica2", "err": "Cantidad de elementos vacia", "status": "502"}
+			return nil, outputError
+		}
+	}else{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/GetOpcionesParametrica1", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	}
+	/*if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
@@ -58,12 +85,12 @@ func GetOpcionesParametrica(opciones map[string]interface{}) (opcionesResult []m
 		} else {
 			return nil
 		}
-	}
+	}*/
 
 }
 
 // PostOpcionesParametrica ...
-func PostOpcionesParametrica(opcionEnviar map[string]interface{}) (opcionResult map[string]interface{}, outputError interface{}) {
+func PostOpcionesParametrica(opcionEnviar map[string]interface{}) (opcionResult map[string]interface{}, outputError map[string]interface{}) {
 	var opcionIngresada map[string]interface{}
 	datoContruirdo := make(map[string]interface{})
 	datoContruirdo = map[string]interface{}{
@@ -71,16 +98,17 @@ func PostOpcionesParametrica(opcionEnviar map[string]interface{}) (opcionResult 
 		"Valor":  opcionEnviar["Valor"],
 		"Nombre": opcionEnviar["Nombre"],
 	}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/opciones", "POST", &opcionIngresada, datoContruirdo)
-	if error != nil {
-		return nil, error
-	} else {
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/opciones", "POST", &opcionIngresada, datoContruirdo); err != nil {
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/PostOpcionesParametrica", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	} else{
 		return opcionIngresada, nil
 	}
 }
 
 // IngresoOpcionesItem ...
-func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]interface{}) (ItemsResult map[string]interface{}, outputError interface{}) {
+func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]interface{}) (ItemsResult map[string]interface{}, outputError map[string]interface{}) {
 	var opcionItemIngresada map[string]interface{}
 	datoContruirdo := make(map[string]interface{})
 	datoContruirdo = map[string]interface{}{
@@ -92,10 +120,11 @@ func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]inte
 			"Id": opcionDB["Id"],
 		},
 	}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/opcion_item", "POST", &opcionItemIngresada, datoContruirdo)
-	if error != nil {
-		return nil, error
-	} else {
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/opcion_item", "POST", &opcionItemIngresada, datoContruirdo); err != nil {
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/IngresoOpcionesItem", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	} else{
 		return opcionItemIngresada, nil
 	}
 }
@@ -104,9 +133,11 @@ func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]inte
 func GetOpciones(item map[string]interface{}) (condicionesResult []map[string]interface{}) {
 	arrayVacio := make([]map[string]interface{}, 0)
 	query := "?query=IdItem:" + fmt.Sprintf("%v", item["Id"]) + "&limit=0&fields=IdOpciones&sortby=Id&order=asc"
-	opciones := GetTablaCrudEvaluacion("opcion_item", query)
+	opciones, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("opcion_item", query)
 	if opciones != nil {
 		return opciones
+	} else{
+		logs.Error(errTablaCrudEvaluacion)
 	}
 	return arrayVacio
 }

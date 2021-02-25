@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"reflect"
 
+	"encoding/json"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/udistrital/utils_oas/request"
+	//"github.com/udistrital/utils_oas/request"
 )
 
 // PostItems ...
-func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]interface{}) (ItemsResult []map[string]interface{}, outputError interface{}) {
+func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]interface{}) (ItemsResult []map[string]interface{}, outputError map[string]interface{}) {
 	itemsMap, errMap := GetElementoMaptoStringToMapArray(seccionConDatos["Item"])
 
 	if itemsMap != nil {
@@ -27,16 +28,16 @@ func PostItems(seccionConDatos map[string]interface{}, seccionHijaDB map[string]
 }
 
 // IngresoItems ...
-func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
+func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface{}) (itemsResult []map[string]interface{}, outputError map[string]interface{}) {
 	arrayitemsIngresados := make([]map[string]interface{}, 0)
 
 	for i := 0; i < len(items); i++ {
 		var itemIngresado map[string]interface{}
 		tipoItemMap, errTipoMap := GetElementoMaptoStringToMapArray(items[i]["Id_tipo_item"])
 		if tipoItemMap != nil {
-			tipoItemDB := GetTipoItemParametrica(tipoItemMap[0])
+			tipoItemDB, errorTipoItem := GetTipoItemParametrica(tipoItemMap[0])
 			if tipoItemDB != nil {
-				pipeDB := GetEstiloPipeParametrica(items[i]["Estilo_pipe_id"].(map[string]interface{}))
+				pipeDB, errorPipeDB := GetEstiloPipeParametrica(items[i]["Estilo_pipe_id"].(map[string]interface{}))
 				if pipeDB != nil {
 					datoContruirdo := make(map[string]interface{})
 
@@ -56,11 +57,11 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						},
 						"SeccionHijaId": nil,
 					}
-					error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/item", "POST", &itemIngresado, datoContruirdo)
-					if error != nil {
-						logs.Error("Ocurrio un error al ingresar el dato: ", itemIngresado, " el error es:", error)
-						return nil, error
-					} else {
+					if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/item", "POST", &itemIngresado, datoContruirdo); err != nil{
+						logs.Error(err)
+						outputError = map[string]interface{}{"funcion": "/IngresoItems", "err": err.Error(), "status": "502"}
+						return nil, outputError
+					} else{
 						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
 						if opcionesItemsMap != nil && errMapOpciones == nil {
 							opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresado)
@@ -72,14 +73,13 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 							itemIngresado["OpcionesIngresadas"] = nil
 						}
 						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
-
 					}
 				} else {
-					errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
+					//errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
 					return nil, errorPipeDB
 				}
 			} else {
-				errorTipoItem := CrearError("no se pudo obtener el tipo de item para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
+				//errorTipoItem := CrearError("no se pudo obtener el tipo de item para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
 				return nil, errorTipoItem
 			}
 
@@ -92,11 +92,34 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 }
 
 // GetTipoItemParametrica ...
-func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []map[string]interface{}) {
-	var tipoItemGet []map[string]interface{}
+func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []map[string]interface{}, outputError map[string]interface{}) {
+	var tipoItemGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", tipoItem["Nombre"]) + ",CodigoAbreviacion:" + fmt.Sprintf("%v", tipoItem["CodigoAbreviacion"]) + ",Activo:true&limit=1"
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/tipo_item?query="+query, &tipoItemGet)
-	if error != nil {
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/tipo_item?query="+query, &tipoItemGet); (err == nil) && (response == 200) {
+		aux := reflect.ValueOf(tipoItemGet["Data"])
+		if aux.IsValid() {
+			if aux.Len() > 0 {
+				temp, _ := json.Marshal(tipoItemGet["Data"].([]interface{}))
+				if err := json.Unmarshal(temp, &tipoItemResult); err == nil {
+					return tipoItemResult, nil
+				} else {
+					outputError = map[string]interface{}{"funcion": "/GetTipoItemParametrica4", "err": err.Error(), "status": "502"}
+					return nil, outputError
+				}
+			} else {
+				outputError = map[string]interface{}{"funcion": "/GetTipoItemParametrica3", "err": "Cantidad de elementos vacia", "status": "502"}
+				return nil, outputError
+			}
+		} else {
+			outputError = map[string]interface{}{"funcion": "/GetTipoItemParametrica2", "err": "Los valores no son validos", "status": "502"}
+			return nil, outputError
+		}
+	}else{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/GetTipoItemParametrica1", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	}
+	/*if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
@@ -110,16 +133,39 @@ func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []m
 		} else {
 			return nil
 		}
-	}
+	}*/
 
 }
 
 // GetEstiloPipeParametrica ...
-func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map[string]interface{}) {
-	var estiloPipeGet []map[string]interface{}
+func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map[string]interface{}, outputError map[string]interface{}) {
+	var estiloPipeGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", pipe["Nombre"]) + ",CodigoAbreviacion:" + fmt.Sprintf("%v", pipe["CodigoAbreviacion"]) + ",Activo:true&limit=1"
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/estilo_pipe?query="+query, &estiloPipeGet)
-	if error != nil {
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/estilo_pipe?query="+query, &estiloPipeGet); (err == nil) && (response == 200){
+		aux := reflect.ValueOf(estiloPipeGet["Data"])
+		if aux.IsValid() {
+			if aux.Len() > 0 {
+				temp, _ := json.Marshal(estiloPipeGet["Data"].([]interface{}))
+				if err := json.Unmarshal(temp, &tipoItemResult); err == nil {
+					return tipoItemResult, nil
+				} else {
+					outputError = map[string]interface{}{"funcion": "/GetEstiloPipeParametrica4", "err": err.Error(), "status": "502"}
+					return nil, outputError
+				}
+			} else {
+				outputError = map[string]interface{}{"funcion": "/GetEstiloPipeParametrica3", "err": "Cantidad de elementos vacia", "status": "502"}
+				return nil, outputError
+			}
+		} else {
+			outputError = map[string]interface{}{"funcion": "/GetEstiloPipeParametrica2", "err": "Los valores no son validos", "status": "502"}
+			return nil, outputError
+		}
+	}else{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/GetEstiloPipeParametrica1", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	}
+	/*if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
@@ -133,15 +179,15 @@ func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map
 		} else {
 			return nil
 		}
-	}
+	}*/
 
 }
 
 // GetItems ...
-func GetItems(seccion map[string]interface{}) (itemsResult []map[string]interface{}, outputError interface{}) {
+func GetItems(seccion map[string]interface{}) (itemsResult []map[string]interface{}, outputError map[string]interface{}) {
 	campos := "&fields=IdEstiloPipe,IdTipoItem,Nombre,Tamano,Valor,Id&sortby=Id&order=asc&limit=0"
 	query := "?query=IdSeccion:" + fmt.Sprintf("%v", seccion["Id"]) + campos
-	items := GetTablaCrudEvaluacion("item", query)
+	items, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("item", query)
 	if items != nil {
 		for i := 0; i < len(items); i++ {
 			opcionesItem := GetOpciones(items[i])
@@ -149,6 +195,5 @@ func GetItems(seccion map[string]interface{}) (itemsResult []map[string]interfac
 		}
 		return items, nil
 	}
-	error := CrearError("no se encontraron los items de la seccion")
-	return nil, error
+	return nil, errTablaCrudEvaluacion
 }
