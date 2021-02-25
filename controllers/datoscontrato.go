@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
+	"strconv"
 )
 
 // DatosContratoController permite traer los datos necesarios para el contrato, dichos datos son consultados de diferentes apis
@@ -29,12 +30,20 @@ func (c *DatosContratoController) GetAll() {
 
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("VigenciaContrato")
-	resultContratos, err1 := helpers.InfoContrato(NumContrato, Vigencia)
+
+	_, err1 := strconv.Atoi(NumContrato)
+	_, err2 := strconv.Atoi(Vigencia)
+
+	if (err1 != nil) || (err2 != nil) {
+		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
+	}
+
+	resultContratos, err3 := helpers.InfoContrato(NumContrato, Vigencia)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
-		panic(err1)
+		panic(err3)
 	}
 	c.ServeJSON()
 

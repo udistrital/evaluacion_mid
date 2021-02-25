@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
 	"github.com/udistrital/evaluacion_mid/helpers"
+	"strconv"
 )
 
 // PlantillaController maneja el ingreso y optencion de plantillas para las evaluaciones
@@ -64,8 +65,13 @@ func (c *PlantillaController) GetOne() {
 	defer helpers.ErrorControl(c.Controller, "PlantillaController")
 
 	idStr := c.Ctx.Input.Param(":id")
+	_, err := strconv.Atoi(idStr)
 	// id, _ := strconv.Atoi(idStr)
 	// fmt.Println(id)
+
+	if err != nil {
+		panic(map[string]interface{}{"funcion": "GetOne", "err": "Error en los parametros de ingreso", "status": "400"})
+	}
 
 	plantilla, errPlantilla := models.ObtenerPlantillaPorID(idStr)
 	if plantilla != nil {

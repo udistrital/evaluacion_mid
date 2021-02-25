@@ -5,9 +5,9 @@ import (
 	"reflect"
 
 	"github.com/astaxie/beego/logs"
+	"encoding/json"
 
 	"github.com/astaxie/beego"
-	"github.com/udistrital/utils_oas/request"
 )
 
 // IngresoPlantilla ...
@@ -50,17 +50,18 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 // PostPlantilla ...
 func PostPlantilla(plantilla map[string]interface{}) (plantillaResult map[string]interface{}, outputError interface{}) {
 	var plantillaPost map[string]interface{}
-	error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla", "POST", &plantillaPost, plantilla)
-	if error != nil {
-		return nil, error
-	} else {
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla", "POST", &plantillaPost, plantilla); err != nil{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/PostPlantilla", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	}else {
 		return plantillaPost, nil
 	}
 }
 
 // FinalizarPlantilla ... proceso en el cual todas las   plantillas anteriores pasan a estar inactivas y la creada actual quedara activa, es el paso final
-func FinalizarPlantilla(plantillaCreada map[string]interface{}) (plantillaResult map[string]interface{}, outputError interface{}) {
-	plantillasObtenidas := GetPlantillasActivas()
+func FinalizarPlantilla(plantillaCreada map[string]interface{}) (plantillaResult map[string]interface{}, outputError map[string]interface{}) {
+	plantillasObtenidas, errPlantActivas := GetPlantillasActivas()
 	if plantillasObtenidas != nil {
 		plantillasDesactivadas, errDesactivar := DesactivarPlantillas(plantillasObtenidas)
 		if plantillasDesactivadas != nil {
@@ -74,6 +75,9 @@ func FinalizarPlantilla(plantillaCreada map[string]interface{}) (plantillaResult
 			return nil, errDesactivar
 		}
 	} else {
+		if errPlantActivas != nil {
+			return nil, errPlantActivas
+		}
 		plantillaActivada, errActivar := ActivarPlantilla(plantillaCreada)
 		if plantillaActivada != nil {
 			return plantillaActivada, nil
@@ -84,11 +88,34 @@ func FinalizarPlantilla(plantillaCreada map[string]interface{}) (plantillaResult
 }
 
 // GetPlantillasActivas ...
-func GetPlantillasActivas() (plantillaResult []map[string]interface{}) {
-	var plantillasGet []map[string]interface{}
+func GetPlantillasActivas() (plantillaResult []map[string]interface{}, outputError map[string]interface{}) {
+	var plantillasGet map[string]interface{}
 	query := "Activo:true"
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillasGet)
-	if error != nil {
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillasGet); (err == nil) && (response == 200){
+		aux := reflect.ValueOf(plantillasGet["Data"])
+		if aux.IsValid() {
+			if aux.Len() > 0 {
+				temp, _ := json.Marshal(plantillasGet["Data"].([]interface{}))
+				if err := json.Unmarshal(temp, &plantillaResult); err == nil {
+					return plantillaResult, nil
+				} else {
+					outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas4", "err": err.Error(), "status": "502"}
+					return nil, outputError
+				}
+			} else {
+				outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas3", "err": "Cantidad de elementos vacia", "status": "502"}
+				return nil, outputError
+			}
+		} else {
+			outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas2", "err": "Los valores no son validos", "status": "502"}
+			return nil, outputError
+		}
+	}else{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas1", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	}
+	/*if error != nil {
 		logs.Error(error)
 		return nil
 	} else {
@@ -102,12 +129,12 @@ func GetPlantillasActivas() (plantillaResult []map[string]interface{}) {
 		} else {
 			return nil
 		}
-	}
+	}*/
 
 }
 
 // DesactivarPlantillas ...
-func DesactivarPlantillas(plantillasActivas []map[string]interface{}) (plantillasResult []map[string]interface{}, outputError interface{}) {
+func DesactivarPlantillas(plantillasActivas []map[string]interface{}) (plantillasResult []map[string]interface{}, outputError map[string]interface{}) {
 	arrayPlantillasIngresadas := make([]map[string]interface{}, 0)
 
 	for i := 0; i < len(plantillasActivas); i++ {
@@ -121,20 +148,21 @@ func DesactivarPlantillas(plantillasActivas []map[string]interface{}) (plantilla
 			"Id":            plantillasActivas[i]["Id"],
 			"Usuario":       plantillasActivas[i]["Usuario"],
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillasActivas[i]["Id"]), "PUT", &platillaActualizada, datoContruirdo)
-		if error != nil {
-			logs.Error("Ocurrio un error al desactivar una plantilla: ", platillaActualizada, " el error es:", error)
-			return nil, error
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillasActivas[i]["Id"]), "PUT", &platillaActualizada, datoContruirdo); err != nil{
+			logs.Error(err)
+			outputError = map[string]interface{}{"funcion": "/DesactivarPlantillas", "err": err.Error(), "status": "502"}
+			return nil, outputError
+		} else{
+			arrayPlantillasIngresadas = append(arrayPlantillasIngresadas, platillaActualizada)
 		}
-		arrayPlantillasIngresadas = append(arrayPlantillasIngresadas, platillaActualizada)
 	}
 	return arrayPlantillasIngresadas, nil
 }
 
 // ActivarPlantilla ...
-func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasResult map[string]interface{}, outputError interface{}) {
+func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasResult map[string]interface{}, outputError map[string]interface{}) {
 	var platillaActualizada map[string]interface{}
-	plantillaGet := GetPlantilla(plantillasParaActivar)
+	plantillaGet, errGetPlantilla := GetPlantilla(plantillasParaActivar)
 	if plantillaGet != nil {
 		datoContruirdo := make(map[string]interface{})
 		datoContruirdo = map[string]interface{}{
@@ -144,44 +172,55 @@ func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasR
 			"Id":            plantillaGet[0]["Id"],
 			"Usuario":       plantillaGet[0]["Usuario"],
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillaGet[0]["Id"]), "PUT", &platillaActualizada, datoContruirdo)
-		if error != nil {
-			logs.Error("Ocurrio un error al activar la plantilla: ", platillaActualizada, " el error es:", error)
-			return nil, error
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillaGet[0]["Id"]), "PUT", &platillaActualizada, datoContruirdo); err != nil{
+			logs.Error(err)
+			outputError = map[string]interface{}{"funcion": "/ActivarPlantilla", "err": err.Error(), "status": "502"}
+			return nil, outputError
+		} else{
+			return platillaActualizada, nil
 		}
-		return platillaActualizada, nil
+	}else{
+		return nil, errGetPlantilla
 	}
 	return nil, nil
 }
 
 // GetPlantilla ...
-func GetPlantilla(plantilla map[string]interface{}) (plantillaResult []map[string]interface{}) {
-	var plantillaGet []map[string]interface{}
+func GetPlantilla(plantilla map[string]interface{}) (plantillaResult []map[string]interface{}, outputError map[string]interface{}) {
+	var plantillaGet map[string]interface{}
 	query := "Id:" + fmt.Sprintf("%v", plantilla["Id"])
-	error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillaGet)
-	if error != nil {
-		logs.Error(error)
-		return nil
-	} else {
-		aux := reflect.ValueOf(plantillaGet[0])
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillaGet); (err == nil) && (response == 200){
+		aux := reflect.ValueOf(plantillaGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
-				return plantillaGet
+				temp, _ := json.Marshal(plantillaGet["Data"].([]interface{}))
+				if err := json.Unmarshal(temp, &plantillaResult); err == nil {
+					return plantillaResult, nil
+				} else {
+					outputError = map[string]interface{}{"funcion": "/GetPlantilla4", "err": err.Error(), "status": "502"}
+					return nil, outputError
+				}
 			} else {
-				return nil
+				outputError = map[string]interface{}{"funcion": "/GetPlantilla3", "err": "Cantidad de elementos vacia", "status": "502"}
+				return nil, outputError
 			}
 		} else {
-			return nil
+			outputError = map[string]interface{}{"funcion": "/GetPlantilla2", "err": "Los valores no son validos", "status": "502"}
+			return nil, outputError
 		}
+	} else{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/GetPlantilla1", "err": err.Error(), "status": "502"}
+		return nil, outputError
 	}
 
 }
 
 // ObtenerPlantillas ...
-func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError interface{}) {
+func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError map[string]interface{}) {
 	var plantillaConstruida map[string]interface{}
 	query := "?query=Activo:true"
-	plantillaActiva := GetTablaCrudEvaluacion("plantilla", query)
+	plantillaActiva, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("plantilla", query)
 	if plantillaActiva != nil {
 		plantillaConstruida = plantillaActiva[0]
 		fmt.Println("tenemos plantilla")
@@ -199,16 +238,21 @@ func ObtenerPlantillas() (plantillaResult map[string]interface{}, outputError in
 		return nil, errClasificaciones
 	}
 	fmt.Println("no tenemos plantilla")
-	error := CrearError("no se encontraron plantillas")
-	return nil, error
+	return nil, errTablaCrudEvaluacion
 }
 
 // ObternerPlantillaPorID ...
-func ObtenerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]interface{}, outputError interface{}) {
+func ObtenerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]interface{}, outputError map[string]interface{}) {
 	var plantillaConstruida map[string]interface{}
 	query := "?query=Id:" + IDPlantilla
-	plantillaBusqueda := GetTablaCrudEvaluacion("plantilla", query)
+	plantillaBusqueda, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("plantilla", query)
 	if plantillaBusqueda != nil {
+		if len(plantillaBusqueda[0]) == 0{
+			texto_error := "La plantilla con id " + IDPlantilla + " no existe"
+			fmt.Println(texto_error)
+			outputError = map[string]interface{}{"funcion": "/ObtenerPlantillaPorID", "err": texto_error, "status": "204"}
+			return nil, outputError
+		}
 		plantillaConstruida = plantillaBusqueda[0]
 		fmt.Println("tenemos plantilla")
 		clasificaciones, errClasificaciones := GetClasicacionesPlntilla(plantillaConstruida)
@@ -222,8 +266,7 @@ func ObtenerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]inter
 			return nil, errSecciones
 		}
 		return nil, errClasificaciones
+	} else{
+		return nil, errTablaCrudEvaluacion
 	}
-	fmt.Println("no tenemos plantilla")
-	error := CrearError("no se encontro la plantilla de esta evaluacion, el id de la plantilla es: " + IDPlantilla)
-	return nil, error
 }

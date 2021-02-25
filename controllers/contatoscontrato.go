@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
 	_ "github.com/udistrital/utils_oas/request"
+	"strconv"
 )
 
 // ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos
@@ -32,12 +33,21 @@ func (c *ContatoscontratoController) GetAll() {
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("Vigencia")
 	SupervisorIdent := c.GetString("SupID")
-	resultContratos, err1 := helpers.ListaContratosContrato(NumContrato, Vigencia, SupervisorIdent)
+
+	_, err1 := strconv.Atoi(NumContrato)
+	_, err2 := strconv.Atoi(Vigencia)
+	_, err3 := strconv.Atoi(SupervisorIdent)
+
+	if (err1 != nil) || (err2 != nil) || (err3 != nil) {
+		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
+	}
+
+	resultContratos, err := helpers.ListaContratosContrato(NumContrato, Vigencia, SupervisorIdent)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
-		panic(err1)
+		panic(err)
 	}
 	c.ServeJSON()
 }

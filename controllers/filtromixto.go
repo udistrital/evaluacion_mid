@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
+	"strconv"
 )
 
 // FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor
@@ -33,12 +34,22 @@ func (c *FiltromixtoController) GetAll() {
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("Vigencia")
 	SupervisorIdent := c.GetString("SupID")
-	resultContratos, err1 := helpers.ListaContratoMixto(IdentificacionProveedor, NumContrato, Vigencia, SupervisorIdent)
+
+	_, err1 := strconv.Atoi(IdentificacionProveedor)
+	_, err2 := strconv.Atoi(NumContrato)
+	_, err3 := strconv.Atoi(Vigencia)
+	_, err4 := strconv.Atoi(SupervisorIdent)
+
+	if (err1 != nil) || (err2 != nil) || (err3 != nil) || (err4 != nil) {
+		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
+	}
+
+	resultContratos, err5 := helpers.ListaContratoMixto(IdentificacionProveedor, NumContrato, Vigencia, SupervisorIdent)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
-		panic(err1)
+		panic(err5)
 	}
 	c.ServeJSON()
 }

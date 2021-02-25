@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
+	"strconv"
 )
 
 // ContratosProveedorController ... Filtro para tener lista de contratos de un proveedor
@@ -29,12 +30,20 @@ func (c *ContratosProveedorController) GetAll() {
 
 	ProveedorIdent := c.GetString("ProvID")
 	SupervisorIdent := c.GetString("SupID")
-	resultContratos, err1 := helpers.ListaContratosProveedor(ProveedorIdent, SupervisorIdent)
+
+	_, err1 := strconv.Atoi(ProveedorIdent)
+	_, err2 := strconv.Atoi(SupervisorIdent)
+
+	if (err1 != nil) || (err2 != nil) {
+		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
+	}
+
+	resultContratos, err3 := helpers.ListaContratosProveedor(ProveedorIdent, SupervisorIdent)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
-		panic(err1)
+		panic(err3)
 	}
 	c.ServeJSON()
 }
