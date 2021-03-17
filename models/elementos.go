@@ -28,7 +28,7 @@ func GetElementoMaptoString(objeto interface{}, item string) string {
 }
 
 // GetElementoMaptoStringToArray ...
-func GetElementoMaptoStringToArray(objeto interface{}, item string) (ElementosArray []string, outputError interface{}) {
+func GetElementoMaptoStringToArray(objeto interface{}, item string) (ElementosArray []string, outputError map[string]interface{}) {
 	value := reflect.ValueOf(objeto)
 	ArrayRespuesta := make([]string, 0)
 	var resuesta string
@@ -41,20 +41,24 @@ func GetElementoMaptoStringToArray(objeto interface{}, item string) (ElementosAr
 			}
 		}
 		if value.Len() == 0 {
-			errorElementos := CrearError("Longitud cero de elmentos")
-			return nil, errorElementos
+			//errorElementos := CrearError("Longitud cero de elmentos")
+			//return nil, errorElementos
+			outputError = map[string]interface{}{"funcion": "/GetElementoMaptoStringToArray1", "err": "Longitud cero de elmentos", "status": "502"}
+			return nil, outputError
 		}
 		return ArrayRespuesta, nil
 
 	} else {
-		errorElementos := CrearError("No se obtivueron dependencias para el documento de identificacion")
-		return nil, errorElementos
+		//errorElementos := CrearError("No se obtivueron dependencias para el documento de identificacion")
+		//return nil, errorElementos
+		outputError = map[string]interface{}{"funcion": "/GetElementoMaptoStringToArray2", "err": "No se obtivueron dependencias para el documento de identificacion", "status": "204"}
+		return nil, outputError
 	}
 
 }
 
 // GetElementoMaptoStringToMapArray ...
-func GetElementoMaptoStringToMapArray(objeto interface{}) (ElementosMapArray []map[string]interface{}, outputError interface{}) {
+func GetElementoMaptoStringToMapArray(objeto interface{}) (ElementosMapArray []map[string]interface{}, outputError map[string]interface{}) {
 	value := reflect.ValueOf(objeto)
 	// ArrayRespuesta := make([]string, 0)
 	// var resuesta string
@@ -70,14 +74,18 @@ func GetElementoMaptoStringToMapArray(objeto interface{}) (ElementosMapArray []m
 			}
 		}
 		if value.Len() == 0 {
-			errorElementos := CrearError("Longitud cero de elmentos")
-			return nil, errorElementos
+			//errorElementos := CrearError("Longitud cero de elmentos")
+			//return nil, errorElementos
+			outputError = map[string]interface{}{"funcion": "/GetElementoMaptoStringToMapArray1", "err": "Longitud cero de elmentos", "status": "502"}
+			return nil, outputError
 		}
 		return ArrayElementos, nil
 
 	} else {
-		errorElementos := CrearError("json con datos incompletos")
-		return nil, errorElementos
+		//errorElementos := CrearError("json con datos incompletos")
+		//return nil, errorElementos
+		outputError = map[string]interface{}{"funcion": "/GetElementoMaptoStringToMapArray2", "err": "json con datos incompletos", "status": "502"}
+		return nil, outputError
 	}
 
 }

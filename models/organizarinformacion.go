@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
-	"github.com/udistrital/utils_oas/request"
+	"github.com/astaxie/beego/logs"
 )
 
 // OrganizarInfoContratos ...
@@ -24,7 +24,7 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 }
 
 // OrganizarInfoContratosMultipleProv ...
-func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{}) {
+func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{},  outputError map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	NomProveedor := []map[string]interface{}{}
 	for i := 0; i < len(infoContratos); i++ {
@@ -34,7 +34,7 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 			NomProveedor = resultProv
 
 		} else {
-			fmt.Println("entro a si nil contrato", err)
+			return nil, err
 		}
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":           infoContratos[i]["Contratista"],
@@ -44,30 +44,35 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 			"DependenciaSupervisor": GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
 		})
 	}
-	return InfoOrganizada
+	return InfoOrganizada, nil
 }
 
 // InfoProveedorID ...
-func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputError interface{}) {
+func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputError map[string]interface{}) {
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
-	error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor)
+	//error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor)
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
+	}else{
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/InfoProveedorID1", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	}
 	if len(infoProveedor) < 1 {
-		fmt.Println(error)
-		errorProv := CrearError("no se pudo traer la info del proveedor")
-		return nil, errorProv
+		outputError = map[string]interface{}{"funcion": "/InfoProveedorID2", "err": "No se pudo traer la info del proveedor", "status": "502"}
+		return nil, outputError
 	} else {
 		return infoProveedor, nil
 	}
 }
 
 // FiltroDependencia ...
-func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError interface{}) {
+func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError map[string]interface{}) {
 	DependenciasSic := make([]map[string]interface{}, 0)
 	InfoFiltrada := make([]map[string]interface{}, 0)
 	DependenciasSic = append(DependenciasSic, dependencias)
 	Dependencia := GetElemento(DependenciasSic[0]["DependenciasSic"], "Dependencia")
-	ArrayDependencia, errElmento := GetElementoMaptoStringToArray(Dependencia, "ESFCODIGODEP")
+	ArrayDependencia, errElemento := GetElementoMaptoStringToArray(Dependencia, "ESFCODIGODEP")
 	if ArrayDependencia != nil {
 		for i := 0; i < len(infoContratos); i++ {
 			for _, Dep := range ArrayDependencia {
@@ -79,11 +84,13 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 		if len(InfoFiltrada) > 0 {
 			return InfoFiltrada, nil
 		} else {
-			errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene contratos disponibles")
-			return nil, errorContratos
+			outputError = map[string]interface{}{"funcion": "/FiltroDependencia1", "err": "Segun las dependencias de las que es supervisor no tiene contratos disponibles", "status": "204"}
+			return nil, outputError
+		//	errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene contratos disponibles")
+		//	return nil, errorContratos
 		}
 	} else {
-		return nil, errElmento
+		return nil, errElemento
 	}
 
 }

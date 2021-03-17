@@ -9,7 +9,7 @@ import (
 )
 
 // PostSecciones ...
-func PostSecciones(secciones interface{}, Plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
+func PostSecciones(secciones interface{}, Plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError map[string]interface{}) {
 	seccionesMap, errMap := GetElementoMaptoStringToMapArray(secciones)
 	if seccionesMap != nil {
 		seccionesPadre, errSecPadre := IngresarSeccionesPadre(seccionesMap, Plantilla)
@@ -24,7 +24,7 @@ func PostSecciones(secciones interface{}, Plantilla map[string]interface{}) (sec
 }
 
 // IngresarSeccionesPadre ...
-func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
+func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError map[string]interface{}) {
 	arraySeccionesIngresadas := make([]map[string]interface{}, 0)
 	for i := 0; i < len(secciones); i++ {
 		var seccionIngresada map[string]interface{}
@@ -38,10 +38,10 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 			},
 			"SeccionHijaId": nil,
 		}
-		error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionIngresada, datoContruirdo)
-		if error != nil {
-			logs.Error("Ocurrio un error al ingresar el dato: ", secciones[i], " el error es:", error)
-			return nil, error
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionIngresada, datoContruirdo); err != nil{
+			logs.Error(err)
+			outputError = map[string]interface{}{"funcion": "/IngresarSeccionesPadre", "err": err.Error(), "status": "502"}
+			return nil, outputError
 		} else {
 			seccionesHijasResult, errSecHija := IngresoSeccionHija(secciones[i], seccionIngresada, Plantilla)
 			seccionIngresada["seccionesHijasIngresadas"] = seccionesHijasResult
@@ -55,7 +55,7 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 }
 
 // IngresoSeccionHija ...
-func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]interface{}, Plantilla map[string]interface{}) (seccionesHijasResult []map[string]interface{}, outputError interface{}) {
+func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]interface{}, Plantilla map[string]interface{}) (seccionesHijasResult []map[string]interface{}, outputError map[string]interface{}) {
 	seccionMap, errMap := GetElementoMaptoStringToMapArray(seccion["Seccion_hija_id"])
 	arraySeccionesHijasIngresadas := make([]map[string]interface{}, 0)
 
@@ -73,11 +73,12 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 					"Id": seccionPadre["Id"],
 				},
 			}
-			error := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionHijaIngresada, datoContruirdo)
-			if error != nil {
-				logs.Error("Ocurrio un error al ingresar el dato: ", seccionMap[i], " el error es:", error)
-				return nil, error
-			} // else {
+			if err := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionHijaIngresada, datoContruirdo); err != nil{
+				logs.Error(err)
+				outputError = map[string]interface{}{"funcion": "/IngresoSeccionHija", "err": err.Error(), "status": "502"}
+				return nil, outputError
+			}
+
 			itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
 			if (itemsResult == nil) && (errItems != nil) {
 				return nil, errItems
@@ -104,37 +105,43 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 }
 
 // GetSecciones ...
-func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError interface{}) {
+func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[string]interface{}, outputError map[string]interface{}) {
 	ArraySeccionesPlantillaDB := make([]map[string]interface{}, 0)
 	query := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + "&sortby=Id&order=asc&limit=0"
-	seccionesPlantilla := GetTablaCrudEvaluacion("seccion", query)
+	seccionesPlantilla, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("seccion", query)
 	if seccionesPlantilla != nil {
 		for i := 0; i < len(seccionesPlantilla); i++ {
 			if seccionesPlantilla[i]["SeccionPadreId"] == nil {
 				queryHija := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + ",SeccionPadreId:" + fmt.Sprintf("%v", seccionesPlantilla[i]["Id"]) + "&sortby=Id&order=asc&limit=0"
-				seccionesHijas := GetTablaCrudEvaluacion("seccion", queryHija)
-				for j := 0; j < len(seccionesHijas); j++ {
-					condicion, errCondicion := GetCondiciones(seccionesHijas[j])
-					if condicion != nil {
-						seccionesHijas[j]["Condicion"] = condicion
-					} else {
-						return nil, errCondicion
+				seccionesHijas, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("seccion", queryHija)
+				if errTablaCrudEvaluacion == nil{
+					for j := 0; j < len(seccionesHijas); j++ {
+						condicion, errCondicion := GetCondiciones(seccionesHijas[j])
+						if condicion != nil {
+							seccionesHijas[j]["Condicion"] = condicion
+						} else {
+							return nil, errCondicion
+						}
+						itemSeccion, errItems := GetItems(seccionesHijas[j])
+						if itemSeccion != nil {
+							seccionesHijas[j]["Item"] = itemSeccion
+						} else {
+							return nil, errItems
+						}
 					}
-					itemSeccion, errItems := GetItems(seccionesHijas[j])
-					if itemSeccion != nil {
-						seccionesHijas[j]["Item"] = itemSeccion
-					} else {
-						return nil, errItems
-					}
+					seccionesPlantilla[i]["Seccion_hija_id"] = seccionesHijas
+					ArraySeccionesPlantillaDB = append(ArraySeccionesPlantillaDB, seccionesPlantilla[i])
+				} else{
+					return nil, errTablaCrudEvaluacion
 				}
-				seccionesPlantilla[i]["Seccion_hija_id"] = seccionesHijas
-				ArraySeccionesPlantillaDB = append(ArraySeccionesPlantillaDB, seccionesPlantilla[i])
 			}
 		}
 		// return seccionesPlantilla, nil
 		return ArraySeccionesPlantillaDB, nil
+	} else{
+		return nil, errTablaCrudEvaluacion
 	}
-	error := CrearError("no se encontraron secciones para la plantilla")
-	return nil, error
+	/*error := CrearError("no se encontraron secciones para la plantilla")
+	return nil, error*/
 	// return nil, nil
 }
