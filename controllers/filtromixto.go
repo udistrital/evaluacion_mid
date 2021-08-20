@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
-	"strconv"
 )
 
 // FiltromixtoController ...  Filtro para tener lista de contratos segun el numero de contrato su vigencia y la identificacion del proveedor

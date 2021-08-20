@@ -23,7 +23,9 @@ func main() {
 			"accept",
 			"origin",
 			"authorization",
-			"x-csrftoken"},
+			"x-csrftoken",
+			"pragma",
+			"cache-control"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
