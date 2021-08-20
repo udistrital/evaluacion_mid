@@ -1,37 +1,42 @@
 package helpers
 
 import (
-	"github.com/udistrital/evaluacion_mid/models"
+	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"fmt"
+	"github.com/udistrital/evaluacion_mid/models"
 )
 
 // InfoContrato ...
 func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
 	if resultContrato != nil {
-		infoProveedor, errProv := models.InfoProveedorID(fmt.Sprintf("%v", resultContrato[0]["Contratista"]))
-		if infoProveedor != nil {
-			lugarEjecucion := resultContrato[0]["LugarEjecucion"].(map[string]interface{})
-			infoDependencia, errDependencia := GetGependencia(fmt.Sprintf("%v", lugarEjecucion["Dependencia"]))
-			if infoDependencia != nil {
-				documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
-				dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
-				infoSupervisor, errSup := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
-				if infoSupervisor != nil {
-					infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, infoDependencia, infoSupervisor)
-					return infoOrganizada, nil
+		resultActividades, err2 := ObtenerActividadContrato(NumeroContrato, vigencia)
+		if resultActividades != nil {
+			infoProveedor, errProv := models.InfoProveedorID(fmt.Sprintf("%v", resultContrato[0]["Contratista"]))
+			if infoProveedor != nil {
+				lugarEjecucion := resultContrato[0]["LugarEjecucion"].(map[string]interface{})
+				infoDependencia, errDependencia := GetGependencia(fmt.Sprintf("%v", lugarEjecucion["Dependencia"]))
+				if infoDependencia != nil {
+					documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
+					dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
+					infoSupervisor, errSup := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
+					if infoSupervisor != nil {
+						infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, resultActividades, infoDependencia, infoSupervisor)
+						return infoOrganizada, nil
+
+					}
+					return nil, errSup
 
 				}
-				return nil, errSup
-
+				return nil, errDependencia
+				// return infoProveedor, nil
 			}
-			return nil, errDependencia
-			// return infoProveedor, nil
+			return nil, errProv
+			// return resultContrato, nil
 		}
-		return nil, errProv
-		// return resultContrato, nil
+		return nil, err2
 	}
 	return nil, err1
 	// return nil, nil
@@ -42,7 +47,7 @@ func GetGependencia(CodDependencia string) (Dependencia []map[string]interface{}
 	var dependencia []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia)
 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia); (err == nil) && (response == 200) {
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetGependencia1", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -63,7 +68,7 @@ func GetSupervisorContrato(numeroDocSupervisor string, dependenciaSupervisor str
 	var supervisor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato/?query=Documento:"+numeroDocSupervisor+"&DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor)
 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato/?query=Documento:"+numeroDocSupervisor+"&DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor); (err == nil) && (response == 200) {
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetSupervisorContrato1", "err": err.Error(), "status": "502"}
 		return nil, outputError

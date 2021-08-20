@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
 	_ "github.com/udistrital/utils_oas/request"
-	"strconv"
 )
 
 // ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos

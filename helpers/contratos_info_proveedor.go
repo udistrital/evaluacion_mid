@@ -1,10 +1,9 @@
 package helpers
 
 import (
-	"github.com/udistrital/evaluacion_mid/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"fmt"
+	"github.com/udistrital/evaluacion_mid/models"
 )
 
 // ListaContratosProveedor ...
@@ -45,7 +44,7 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 	var infoProveedor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor)
 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/InfoProveedor1", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -57,7 +56,6 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 		outputError = map[string]interface{}{"funcion": "/InfoProveedor2", "err": "No se pudo traer la info del proveedor", "status": "204"}
 		return nil, outputError
 	} else {
-		fmt.Println("Terminó Info Proveedor")
 		return infoProveedor, nil
 	}
 }
@@ -67,7 +65,7 @@ func ObtenerContratosProveedor(IDProv string) (contrato []map[string]interface{}
 	var ContratosProveedor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor); (err == nil) && (response == 200) {
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor1", "err": err.Error(), "status": "502"}
 		return nil, outputError
