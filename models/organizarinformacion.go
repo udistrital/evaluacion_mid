@@ -24,7 +24,7 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 }
 
 // OrganizarInfoContratosMultipleProv ...
-func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{},  outputError map[string]interface{}) {
+func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	NomProveedor := []map[string]interface{}{}
 	for i := 0; i < len(infoContratos); i++ {
@@ -53,7 +53,7 @@ func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputE
 	var infoProveedor []map[string]interface{}
 	//error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor)
 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/InfoProveedorID1", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -86,8 +86,8 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 		} else {
 			outputError = map[string]interface{}{"funcion": "/FiltroDependencia1", "err": "Segun las dependencias de las que es supervisor no tiene contratos disponibles", "status": "204"}
 			return nil, outputError
-		//	errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene contratos disponibles")
-		//	return nil, errorContratos
+			//	errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene contratos disponibles")
+			//	return nil, errorContratos
 		}
 	} else {
 		return nil, errElemento
@@ -96,7 +96,7 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 }
 
 // OrganizarInfoContratoArgo ...
-func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoDependencia []map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
+func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoActividades map[string]interface{}, infoDependencia []map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	for i := 0; i < len(infoContrato); i++ {
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
@@ -104,6 +104,7 @@ func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContr
 			"informacion_proveedor": infoProveedor[0],
 			"dependencia_SIC":       infoDependencia[0],
 			"supervisor_contrato":   infoSupervisor[0],
+			"actividades_contrato":  infoActividades,
 		})
 	}
 	return InfoOrganizada

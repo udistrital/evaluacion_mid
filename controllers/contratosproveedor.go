@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
-	"strconv"
 )
 
 // ContratosProveedorController ... Filtro para tener lista de contratos de un proveedor
@@ -47,5 +48,3 @@ func (c *ContratosProveedorController) GetAll() {
 	}
 	c.ServeJSON()
 }
-
-
