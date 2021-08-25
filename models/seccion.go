@@ -38,7 +38,7 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 			},
 			"SeccionHijaId": nil,
 		}
-		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionIngresada, datoContruirdo); err != nil{
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionIngresada, datoContruirdo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/IngresarSeccionesPadre", "err": err.Error(), "status": "502"}
 			return nil, outputError
@@ -73,7 +73,7 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 					"Id": seccionPadre["Id"],
 				},
 			}
-			if err := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionHijaIngresada, datoContruirdo); err != nil{
+			if err := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionHijaIngresada, datoContruirdo); err != nil {
 				logs.Error(err)
 				outputError = map[string]interface{}{"funcion": "/IngresoSeccionHija", "err": err.Error(), "status": "502"}
 				return nil, outputError
@@ -114,7 +114,7 @@ func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[strin
 			if seccionesPlantilla[i]["SeccionPadreId"] == nil {
 				queryHija := "?query=IdPlantilla:" + fmt.Sprintf("%v", plantilla["Id"]) + ",SeccionPadreId:" + fmt.Sprintf("%v", seccionesPlantilla[i]["Id"]) + "&sortby=Id&order=asc&limit=0"
 				seccionesHijas, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("seccion", queryHija)
-				if errTablaCrudEvaluacion == nil{
+				if errTablaCrudEvaluacion == nil {
 					for j := 0; j < len(seccionesHijas); j++ {
 						condicion, errCondicion := GetCondiciones(seccionesHijas[j])
 						if condicion != nil {
@@ -131,14 +131,14 @@ func GetSecciones(plantilla map[string]interface{}) (seccionesResult []map[strin
 					}
 					seccionesPlantilla[i]["Seccion_hija_id"] = seccionesHijas
 					ArraySeccionesPlantillaDB = append(ArraySeccionesPlantillaDB, seccionesPlantilla[i])
-				} else{
+				} else {
 					return nil, errTablaCrudEvaluacion
 				}
 			}
 		}
 		// return seccionesPlantilla, nil
 		return ArraySeccionesPlantillaDB, nil
-	} else{
+	} else {
 		return nil, errTablaCrudEvaluacion
 	}
 	/*error := CrearError("no se encontraron secciones para la plantilla")

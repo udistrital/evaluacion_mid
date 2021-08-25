@@ -3,11 +3,11 @@ package models
 import (
 	"bytes"
 	"encoding/json"
-	//"fmt"
 	"net/http"
 	"reflect"
-	"github.com/astaxie/beego/logs"
+
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	//"github.com/udistrital/utils_oas/request"
 )
 
@@ -35,11 +35,11 @@ func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[stri
 	var objetiGet map[string]interface{}
 	var url string
 	if query != "" {
-		url = beego.AppConfig.String("evaluacion_crud_url") + "v1/" + tabla + query
+		url = beego.AppConfig.String("evaluacion_crud_url") + tabla + query
 	} else {
-		url = beego.AppConfig.String("evaluacion_crud_url") + "v1/" + tabla
+		url = beego.AppConfig.String("evaluacion_crud_url") + tabla
 	}
-	if response, err := getJsonTest(url, &objetiGet); (response == 200) && (err == nil){
+	if response, err := getJsonTest(url, &objetiGet); (response == 200) && (err == nil) {
 		aux := reflect.ValueOf(objetiGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -58,7 +58,7 @@ func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[stri
 			outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas2", "err": "Los valores no son validos", "status": "502"}
 			return nil, outputError
 		}
-	} else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas1", "err": err.Error(), "status": "502"}
 		return nil, outputError

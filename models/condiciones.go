@@ -29,22 +29,22 @@ func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []m
 											condicionIngresada, errCondicion := PostCondicionDB(seccionHijaActual, seccionComparacion, OpcionesIngresadasMap[k]["IdOpciones"].(map[string]interface{}))
 											if condicionIngresada != nil && errCondicion == nil {
 												return condicionIngresada, nil
-											} else if errCondicion != nil{
+											} else if errCondicion != nil {
 												return nil, errCondicion
 											}
 										}
 									}
-								} else if errMapOpciones != nil{
+								} else if errMapOpciones != nil {
 									return nil, errMapOpciones
 								}
 							}
 						}
 					} else if errMapItems != nil {
-						return nil , errMapItems
+						return nil, errMapItems
 					}
 
 				}
-				if errOpcParametrica != nil{
+				if errOpcParametrica != nil {
 					return nil, errOpcParametrica
 				}
 			}
@@ -66,7 +66,7 @@ func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion 
 		"OpcionItemId":         opcionItem["Id"].(float64),
 		"SeccionDependenciaId": seccionCondicion["Id"].(float64),
 	}
-	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/condicion", "POST", &condicionIngresada, datoContruirdo); err != nil{
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"condicion", "POST", &condicionIngresada, datoContruirdo); err != nil {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/PostCondicionDB", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -106,7 +106,7 @@ func GetCondiciones(seccion map[string]interface{}) (condicionesResult []map[str
 			}
 		}
 
-	} else if errTablaCrudEvaluacion1 != nil{
+	} else if errTablaCrudEvaluacion1 != nil {
 		return nil, errTablaCrudEvaluacion1
 	}
 	return arrayCondiciones, nil
