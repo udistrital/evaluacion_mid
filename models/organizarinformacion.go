@@ -51,8 +51,8 @@ func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) 
 func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputError map[string]interface{}) {
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
-	//error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
+	//error := request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor)
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"informacion_proveedor?query=Id:"+IDProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
 	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/InfoProveedorID1", "err": err.Error(), "status": "502"}

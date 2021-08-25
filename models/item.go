@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"encoding/json"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	//"github.com/udistrital/utils_oas/request"
@@ -57,11 +58,11 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 						},
 						"SeccionHijaId": nil,
 					}
-					if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/item", "POST", &itemIngresado, datoContruirdo); err != nil{
+					if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"item", "POST", &itemIngresado, datoContruirdo); err != nil {
 						logs.Error(err)
 						outputError = map[string]interface{}{"funcion": "/IngresoItems", "err": err.Error(), "status": "502"}
 						return nil, outputError
-					} else{
+					} else {
 						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
 						if opcionesItemsMap != nil && errMapOpciones == nil {
 							opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresado)
@@ -95,7 +96,7 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []map[string]interface{}, outputError map[string]interface{}) {
 	var tipoItemGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", tipoItem["Nombre"]) + ",CodigoAbreviacion:" + fmt.Sprintf("%v", tipoItem["CodigoAbreviacion"]) + ",Activo:true&limit=1"
-	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/tipo_item?query="+query, &tipoItemGet); (err == nil) && (response == 200) {
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"tipo_item?query="+query, &tipoItemGet); (err == nil) && (response == 200) {
 		aux := reflect.ValueOf(tipoItemGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -114,7 +115,7 @@ func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []m
 			outputError = map[string]interface{}{"funcion": "/GetTipoItemParametrica2", "err": "Los valores no son validos", "status": "502"}
 			return nil, outputError
 		}
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetTipoItemParametrica1", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -141,7 +142,7 @@ func GetTipoItemParametrica(tipoItem map[string]interface{}) (tipoItemResult []m
 func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map[string]interface{}, outputError map[string]interface{}) {
 	var estiloPipeGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", pipe["Nombre"]) + ",CodigoAbreviacion:" + fmt.Sprintf("%v", pipe["CodigoAbreviacion"]) + ",Activo:true&limit=1"
-	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/estilo_pipe?query="+query, &estiloPipeGet); (err == nil) && (response == 200){
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"estilo_pipe?query="+query, &estiloPipeGet); (err == nil) && (response == 200) {
 		aux := reflect.ValueOf(estiloPipeGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -160,7 +161,7 @@ func GetEstiloPipeParametrica(pipe map[string]interface{}) (tipoItemResult []map
 			outputError = map[string]interface{}{"funcion": "/GetEstiloPipeParametrica2", "err": "Los valores no son validos", "status": "502"}
 			return nil, outputError
 		}
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetEstiloPipeParametrica1", "err": err.Error(), "status": "502"}
 		return nil, outputError

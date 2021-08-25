@@ -40,22 +40,22 @@ func ListaContratoMixto(IdentificacionProveedor string, NumeroContrato string, v
 func ObtenerContratoProveedor(ProveedorID string, NumContrato string, vigencia string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	var ContratoProveedor []map[string]interface{}
 	if vigencia == "0" {
-		//error = getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID, &ContratoProveedor)
-		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID, &ContratoProveedor); (err == nil) && (response == 200) {
+		//error = getJson(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID, &ContratoProveedor)
+		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID, &ContratoProveedor); (err == nil) && (response == 200) {
 		} else {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/ObtenerContratoProveedor1", "err": err.Error(), "status": "502"}
 			return nil, outputError
 		}
 	} else if NumContrato == "0" {
-		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor); (err == nil) && (response == 200) {
+		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor); (err == nil) && (response == 200) {
 		} else {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/ObtenerContratoProveedor2", "err": err.Error(), "status": "502"}
 		}
 	} else {
-		//error = getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor)
-		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor); (err == nil) && (response == 200) {
+		//error = getJson(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor)
+		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",Contratista:"+ProveedorID+",VigenciaContrato:"+vigencia, &ContratoProveedor); (err == nil) && (response == 200) {
 		} else {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/ObtenerContratoProveedor3", "err": err.Error(), "status": "502"}
