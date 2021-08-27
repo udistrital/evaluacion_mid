@@ -48,7 +48,7 @@ func PostClasificacion(clasificaciones interface{}, Plantilla map[string]interfa
 // PostClasificacionParametrica ... ingresar en tabla
 func PostClasificacionParametrica(clasificacionEnviar map[string]interface{}) (clasificacionesResult map[string]interface{}, outputError map[string]interface{}) {
 	var clasificacionIngresada map[string]interface{}
-	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion", "POST", &clasificacionIngresada, clasificacionEnviar); err != nil {
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion", "POST", &clasificacionIngresada, clasificacionEnviar); err != nil {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/PostClasificacionParametrica", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -61,8 +61,8 @@ func PostClasificacionParametrica(clasificacionEnviar map[string]interface{}) (c
 func GetClasificacionParametrica(clasificacion map[string]interface{}) (clasificacionesResult []map[string]interface{}, outputError map[string]interface{}) {
 	var clasificacionGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", clasificacion["Nombre"]) + ",LimiteInferior:" + fmt.Sprintf("%v", clasificacion["LimiteInferior"]) + ",LimiteSuperior:" + fmt.Sprintf("%v", clasificacion["LimiteSuperior"]) + ",Activo:true&limit=1"
-	//error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion?query="+query, &clasificacionGet)
-	if response, err1 := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion?query="+query, &clasificacionGet); (err1 == nil) && (response == 200) {
+	//error := request.GetJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion?query="+query, &clasificacionGet)
+	if response, err1 := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion?query="+query, &clasificacionGet); (err1 == nil) && (response == 200) {
 		aux := reflect.ValueOf(clasificacionGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -122,7 +122,7 @@ func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Planti
 				"Id": Plantilla["Id"],
 			},
 		}
-		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"clasificacion_plantilla", "POST", &clasificacionPlantillaIngresada, datoContruirdo); err != nil {
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/clasificacion_plantilla", "POST", &clasificacionPlantillaIngresada, datoContruirdo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/PostClasificacionPlantilla", "err": err.Error(), "status": "502"}
 			return nil, outputError

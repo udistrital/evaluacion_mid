@@ -66,7 +66,7 @@ func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion 
 		"OpcionItemId":         opcionItem["Id"].(float64),
 		"SeccionDependenciaId": seccionCondicion["Id"].(float64),
 	}
-	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"condicion", "POST", &condicionIngresada, datoContruirdo); err != nil {
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/condicion", "POST", &condicionIngresada, datoContruirdo); err != nil {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/PostCondicionDB", "err": err.Error(), "status": "502"}
 		return nil, outputError

@@ -48,7 +48,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 func GetOpcionesParametrica(opciones map[string]interface{}) (opcionesResult []map[string]interface{}, outputError map[string]interface{}) {
 	var opcionesGet map[string]interface{}
 	query := "Nombre:" + fmt.Sprintf("%v", opciones["Nombre"]) + ",Valor:" + fmt.Sprintf("%v", opciones["Valor"]) + ",Activo:true&limit=1"
-	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"opciones?query="+query, &opcionesGet); (err == nil) && (response == 200) {
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/opciones?query="+query, &opcionesGet); (err == nil) && (response == 200) {
 		aux := reflect.ValueOf(opcionesGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -121,7 +121,7 @@ func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]inte
 			"Id": opcionDB["Id"],
 		},
 	}
-	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"opcion_item", "POST", &opcionItemIngresada, datoContruirdo); err != nil {
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/opcion_item", "POST", &opcionItemIngresada, datoContruirdo); err != nil {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/IngresoOpcionesItem", "err": err.Error(), "status": "502"}
 		return nil, outputError

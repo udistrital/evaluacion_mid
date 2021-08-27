@@ -42,8 +42,8 @@ func ListaContratosProveedor(IdentProv string, Idsuper string) (contratos []map[
 func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, outputError map[string]interface{}) {
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
-	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
+	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor)
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
 	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/InfoProveedor1", "err": err.Error(), "status": "502"}
@@ -63,8 +63,8 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 // ObtenerContratosProveedor ...
 func ObtenerContratosProveedor(IDProv string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	var ContratosProveedor []map[string]interface{}
-	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor); (err == nil) && (response == 200) {
+	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor); (err == nil) && (response == 200) {
 	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor1", "err": err.Error(), "status": "502"}

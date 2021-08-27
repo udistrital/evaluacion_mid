@@ -35,9 +35,9 @@ func GetTablaCrudEvaluacion(tabla string, query string) (objetoResult []map[stri
 	var objetiGet map[string]interface{}
 	var url string
 	if query != "" {
-		url = beego.AppConfig.String("evaluacion_crud_url") + tabla + query
+		url = beego.AppConfig.String("evaluacion_crud_url") + "v1/" + tabla + query
 	} else {
-		url = beego.AppConfig.String("evaluacion_crud_url") + tabla
+		url = beego.AppConfig.String("evaluacion_crud_url") + "v1/" + tabla
 	}
 	if response, err := getJsonTest(url, &objetiGet); (response == 200) && (err == nil) {
 		aux := reflect.ValueOf(objetiGet["Data"])
