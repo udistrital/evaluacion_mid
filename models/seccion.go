@@ -38,7 +38,7 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 			},
 			"SeccionHijaId": nil,
 		}
-		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionIngresada, datoContruirdo); err != nil {
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionIngresada, datoContruirdo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/IngresarSeccionesPadre", "err": err.Error(), "status": "502"}
 			return nil, outputError
@@ -73,7 +73,7 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 					"Id": seccionPadre["Id"],
 				},
 			}
-			if err := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"seccion", "POST", &seccionHijaIngresada, datoContruirdo); err != nil {
+			if err := request.SendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionHijaIngresada, datoContruirdo); err != nil {
 				logs.Error(err)
 				outputError = map[string]interface{}{"funcion": "/IngresoSeccionHija", "err": err.Error(), "status": "502"}
 				return nil, outputError
