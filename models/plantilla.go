@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/astaxie/beego/logs"
 	"encoding/json"
+
+	"github.com/astaxie/beego/logs"
 
 	"github.com/astaxie/beego"
 )
@@ -50,11 +51,11 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 // PostPlantilla ...
 func PostPlantilla(plantilla map[string]interface{}) (plantillaResult map[string]interface{}, outputError interface{}) {
 	var plantillaPost map[string]interface{}
-	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla", "POST", &plantillaPost, plantilla); err != nil{
+	if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla", "POST", &plantillaPost, plantilla); err != nil {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/PostPlantilla", "err": err.Error(), "status": "502"}
 		return nil, outputError
-	}else {
+	} else {
 		return plantillaPost, nil
 	}
 }
@@ -91,7 +92,7 @@ func FinalizarPlantilla(plantillaCreada map[string]interface{}) (plantillaResult
 func GetPlantillasActivas() (plantillaResult []map[string]interface{}, outputError map[string]interface{}) {
 	var plantillasGet map[string]interface{}
 	query := "Activo:true"
-	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillasGet); (err == nil) && (response == 200){
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillasGet); (err == nil) && (response == 200) {
 		aux := reflect.ValueOf(plantillasGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -110,7 +111,7 @@ func GetPlantillasActivas() (plantillaResult []map[string]interface{}, outputErr
 			outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas2", "err": "Los valores no son validos", "status": "502"}
 			return nil, outputError
 		}
-	}else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetPlantillasActivas1", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -148,11 +149,11 @@ func DesactivarPlantillas(plantillasActivas []map[string]interface{}) (plantilla
 			"Id":            plantillasActivas[i]["Id"],
 			"Usuario":       plantillasActivas[i]["Usuario"],
 		}
-		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillasActivas[i]["Id"]), "PUT", &platillaActualizada, datoContruirdo); err != nil{
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillasActivas[i]["Id"]), "PUT", &platillaActualizada, datoContruirdo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/DesactivarPlantillas", "err": err.Error(), "status": "502"}
 			return nil, outputError
-		} else{
+		} else {
 			arrayPlantillasIngresadas = append(arrayPlantillasIngresadas, platillaActualizada)
 		}
 	}
@@ -172,14 +173,14 @@ func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasR
 			"Id":            plantillaGet[0]["Id"],
 			"Usuario":       plantillaGet[0]["Usuario"],
 		}
-		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillaGet[0]["Id"]), "PUT", &platillaActualizada, datoContruirdo); err != nil{
+		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla/"+fmt.Sprintf("%v", plantillaGet[0]["Id"]), "PUT", &platillaActualizada, datoContruirdo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/ActivarPlantilla", "err": err.Error(), "status": "502"}
 			return nil, outputError
-		} else{
+		} else {
 			return platillaActualizada, nil
 		}
-	}else{
+	} else {
 		return nil, errGetPlantilla
 	}
 	return nil, nil
@@ -189,7 +190,7 @@ func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasR
 func GetPlantilla(plantilla map[string]interface{}) (plantillaResult []map[string]interface{}, outputError map[string]interface{}) {
 	var plantillaGet map[string]interface{}
 	query := "Id:" + fmt.Sprintf("%v", plantilla["Id"])
-	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillaGet); (err == nil) && (response == 200){
+	if response, err := getJsonTest(beego.AppConfig.String("evaluacion_crud_url")+"v1/plantilla?query="+query, &plantillaGet); (err == nil) && (response == 200) {
 		aux := reflect.ValueOf(plantillaGet["Data"])
 		if aux.IsValid() {
 			if aux.Len() > 0 {
@@ -208,7 +209,7 @@ func GetPlantilla(plantilla map[string]interface{}) (plantillaResult []map[strin
 			outputError = map[string]interface{}{"funcion": "/GetPlantilla2", "err": "Los valores no son validos", "status": "502"}
 			return nil, outputError
 		}
-	} else{
+	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetPlantilla1", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -247,7 +248,7 @@ func ObtenerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]inter
 	query := "?query=Id:" + IDPlantilla
 	plantillaBusqueda, errTablaCrudEvaluacion := GetTablaCrudEvaluacion("plantilla", query)
 	if plantillaBusqueda != nil {
-		if len(plantillaBusqueda[0]) == 0{
+		if len(plantillaBusqueda[0]) == 0 {
 			texto_error := "La plantilla con id " + IDPlantilla + " no existe"
 			fmt.Println(texto_error)
 			outputError = map[string]interface{}{"funcion": "/ObtenerPlantillaPorID", "err": texto_error, "status": "204"}
@@ -266,7 +267,7 @@ func ObtenerPlantillaPorID(IDPlantilla string) (plantillaResult map[string]inter
 			return nil, errSecciones
 		}
 		return nil, errClasificaciones
-	} else{
+	} else {
 		return nil, errTablaCrudEvaluacion
 	}
 }
