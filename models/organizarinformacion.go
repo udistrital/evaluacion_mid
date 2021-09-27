@@ -66,8 +66,8 @@ func InfoProveedorID(IDProv string) (proveedor []map[string]interface{}, outputE
 	}
 }
 
-// FiltroDependencia ...
-func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError map[string]interface{}) {
+// FiltroDependenciaSic ...
+func FiltroDependenciaSic(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError map[string]interface{}) {
 	DependenciasSic := make([]map[string]interface{}, 0)
 	InfoFiltrada := make([]map[string]interface{}, 0)
 	DependenciasSic = append(DependenciasSic, dependencias)
@@ -84,10 +84,37 @@ func FiltroDependencia(infoContratos []map[string]interface{}, dependencias map[
 		if len(InfoFiltrada) > 0 {
 			return InfoFiltrada, nil
 		} else {
-			outputError = map[string]interface{}{"funcion": "/FiltroDependencia1", "err": "Segun las dependencias de las que es supervisor no tiene contratos disponibles", "status": "204"}
+			outputError = map[string]interface{}{"funcion": "/FiltroDependenciaSic", "err": "Segun las dependencias de las que es supervisor no tiene contratos disponibles", "status": "204"}
 			return nil, outputError
 			//	errorContratos := CrearError("Segun las dependencias de las que es supervisor no tiene contratos disponibles")
 			//	return nil, errorContratos
+		}
+	} else {
+		return nil, errElemento
+	}
+
+}
+
+// FiltroDependenciaSup ...
+func FiltroDependenciaSup(infoContratos []map[string]interface{}, dependencias map[string]interface{}) (listaFiltrada []map[string]interface{}, outputError map[string]interface{}) {
+	DependenciasSup := make([]map[string]interface{}, 0)
+	InfoFiltrada := make([]map[string]interface{}, 0)
+	DependenciasSup = append(DependenciasSup, dependencias)
+	Dependencia := GetElemento(DependenciasSup[0]["dependencias"], "dependencia")
+	ArrayDependencia, errElemento := GetElementoMaptoStringToArray(Dependencia, "codigo")
+	if ArrayDependencia != nil {
+		for i := 0; i < len(infoContratos); i++ {
+			for _, Dep := range ArrayDependencia {
+				if Dep == infoContratos[i]["DependenciaSupervisor"] {
+					InfoFiltrada = append(InfoFiltrada, infoContratos[i])
+				}
+			}
+		}
+		if len(InfoFiltrada) > 0 {
+			return InfoFiltrada, nil
+		} else {
+			outputError = map[string]interface{}{"funcion": "/FiltroDependenciaSup", "err": "Segun las dependencias de las que es supervisor no tiene contratos disponibles", "status": "204"}
+			return nil, outputError
 		}
 	} else {
 		return nil, errElemento
@@ -103,6 +130,19 @@ func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContr
 			"contrato_general":      infoContrato[0],
 			"informacion_proveedor": infoProveedor[0],
 			"dependencia_SIC":       infoDependencia[0],
+			"supervisor_contrato":   infoSupervisor[0],
+			"actividades_contrato":  infoActividades,
+		})
+	}
+	return InfoOrganizada
+}
+
+func OrganizarInfoContratoSinDep(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoActividades map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
+	InfoOrganizada := []map[string]interface{}{}
+	for i := 0; i < len(infoContrato); i++ {
+		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
+			"contrato_general":      infoContrato[0],
+			"informacion_proveedor": infoProveedor[0],
 			"supervisor_contrato":   infoSupervisor[0],
 			"actividades_contrato":  infoActividades,
 		})

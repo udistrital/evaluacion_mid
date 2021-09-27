@@ -28,7 +28,15 @@ func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string
 
 					}
 					return nil, errSup
-
+				} else if lugarEjecucion["Dependencia"] == "" {
+					documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
+					dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
+					infoSupervisor, errSup2 := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
+					if infoSupervisor != nil {
+						infoOrganizadaSinDep := models.OrganizarInfoContratoSinDep(infoProveedor, resultContrato, resultActividades, infoSupervisor)
+						return infoOrganizadaSinDep, nil
+					}
+					return nil, errSup2
 				}
 				return nil, errDependencia
 				// return infoProveedor, nil
