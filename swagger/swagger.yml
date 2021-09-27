@@ -15,8 +15,7 @@ paths:
     get:
       tags:
       - datosContrato
-      description: obtiene los didatos de contrato general,informacion del proveedor
-        y dependencias del supervidor
+      description: obtiene los didatos de contrato general,informacion del proveedor y dependencias del supervidor
       operationId: DatosContratoController.GetAll
       parameters:
       - in: query
@@ -48,8 +47,7 @@ paths:
         type: string
       - in: query
         name: Vigencia
-        description: Vigencia del contrato,, para evitar el filtro se debe de mandar
-          un 0 (cero)
+        description: Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)
         required: true
         type: string
       - in: query
@@ -81,8 +79,7 @@ paths:
         type: string
       - in: query
         name: Vigencia
-        description: Vigencia del contrato,, para evitar el filtro se debe de mandar
-          un 0 (cero)
+        description: Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)
         required: true
         type: string
       - in: query
@@ -109,8 +106,7 @@ paths:
         type: string
       - in: query
         name: SupID
-        description: Identificacion del supervisor, para evitar el filtro se debe
-          de mandar un 0 (cero)
+        description: Identificacion del supervisor, para evitar el filtro se debe de mandar un 0 (cero)
         required: true
         type: string
       responses:
@@ -122,9 +118,7 @@ paths:
     get:
       tags:
       - plantilla
-      description: Obtiene la ultima plantilla activa en base de datos, la cual es
-        un json con todas las propiedades necesarias para la interpretacion en el
-        cliente
+      description: Obtiene la ultima plantilla activa en base de datos, la cual es un json con todas las propiedades necesarias para la interpretacion en el cliente
       operationId: PlantillaController.GetAll
       parameters:
       - in: query
@@ -141,8 +135,7 @@ paths:
         type: string
       - in: query
         name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
+        description: Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...
         type: string
       - in: query
         name: limit
@@ -160,8 +153,7 @@ paths:
     post:
       tags:
       - plantilla
-      description: se crea una nueva plantilla, para esto existe un json de guia para
-        ello o se debera de crear un modulo para failitar el proceso
+      description: se crea una nueva plantilla, para esto existe un json de guia para ello o se debera de crear un modulo para failitar el proceso
       operationId: PlantillaController.Create
       parameters:
       - in: body
@@ -181,8 +173,7 @@ paths:
     get:
       tags:
       - plantilla
-      description: Obtiene la estructura de la platilla , segun el ID de la plnatilla
-        enviado, similar al get all
+      description: Obtiene la estructura de la platilla , segun el ID de la plnatilla enviado, similar al get all
       operationId: PlantillaController.GetOne
       parameters:
       - in: path

@@ -17,15 +17,27 @@ func ListaContratosProveedor(IdentProv string, Idsuper string) (contratos []map[
 			if Idsuper == "0" {
 				return InfoOrg, nil
 			} else {
-				resultDependencia, errDep := models.ObtenerDependencias(Idsuper)
+				resultDependenciaSic, errDep := models.ObtenerDependenciasSic(Idsuper)
 				if errDep != nil {
 					return nil, errDep
+				} else if models.GetElemento(resultDependenciaSic["DependenciasSic"], "Dependencia") == nil {
+					resultDependenciaSup, errDep2 := models.ObtenerDependenciasSup(Idsuper)
+					if errDep2 != nil {
+						return nil, errDep2
+					} else {
+						InfoFiltrada, err3 := models.FiltroDependenciaSup(InfoOrg, resultDependenciaSup)
+						if err3 != nil {
+							return nil, err3
+						} else {
+							return InfoFiltrada, nil
+						}
+					}
 				} else {
-					InfoFiltrada, err3 := models.FiltroDependencia(InfoOrg, resultDependencia)
+					InfoFiltrada, err4 := models.FiltroDependenciaSic(InfoOrg, resultDependenciaSic)
 					if InfoFiltrada != nil {
 						return InfoFiltrada, nil
 					} else {
-						return nil, err3
+						return nil, err4
 					}
 				}
 			}

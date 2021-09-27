@@ -164,8 +164,6 @@ func diff(a, b time.Time) (year, month, day int) {
 	return
 }
 
-
-
 func FormatMoney(value interface{}, Precision int) string {
 	formattedNumber := FormatNumber(value, Precision, ",", ".")
 	return FormatMoneyString(formattedNumber, Precision)

@@ -14,17 +14,29 @@ func ListaContratosContrato(NumeroContrato string, vigencia string, supervidorId
 		if err2 != nil {
 			return nil, err2
 		}
-		resultDependencia, errDep := models.ObtenerDependencias(supervidorIdent)
+		resultDependenciaSic, errDep := models.ObtenerDependenciasSic(supervidorIdent)
 		if errDep != nil {
 			return nil, errDep
+		} else if models.GetElemento(resultDependenciaSic["DependenciasSic"], "Dependencia") == nil {
+			resultDependenciaSup, errDep2 := models.ObtenerDependenciasSup(supervidorIdent)
+			if errDep2 != nil {
+				return nil, errDep2
+			} else {
+				InfoFiltrada, err3 := models.FiltroDependenciaSup(InfoOrg, resultDependenciaSup)
+				if InfoFiltrada != nil {
+					return InfoFiltrada, nil
+				} else {
+					return nil, err3
+				}
+			}
 		} else {
-			InfoFiltrada, err3 := models.FiltroDependencia(InfoOrg, resultDependencia)
+			InfoFiltrada, err4 := models.FiltroDependenciaSic(InfoOrg, resultDependenciaSic)
 
 			if InfoFiltrada != nil {
 				return InfoFiltrada, nil
 
 			} else {
-				return nil, err3
+				return nil, err4
 			}
 		}
 
