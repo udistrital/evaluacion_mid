@@ -14,15 +14,27 @@ func ListaContratoMixto(IdentificacionProveedor string, NumeroContrato string, v
 		resultContrato, errContrato := ObtenerContratoProveedor(IDProveedor, NumeroContrato, vigencia)
 		if resultContrato != nil {
 			InfoOrg := models.OrganizarInfoContratos(ProveedorInfo, resultContrato)
-			resultDependencia, errDep := models.ObtenerDependencias(supervidorIdent)
+			resultDependenciaSic, errDep := models.ObtenerDependenciasSic(supervidorIdent)
 			if errDep != nil {
 				return nil, errDep
+			} else if models.GetElemento(resultDependenciaSic["DependenciasSic"], "Dependencia") == nil {
+				resultDependenciaSup, errDep2 := models.ObtenerDependenciasSup(supervidorIdent)
+				if errDep2 != nil {
+					return nil, errDep2
+				} else {
+					InfoFiltrada, errFiltro := models.FiltroDependenciaSup(InfoOrg, resultDependenciaSup)
+					if errFiltro != nil {
+						return nil, errFiltro
+					} else {
+						return InfoFiltrada, nil
+					}
+				}
 			} else {
-				InfoFiltrada, errFiltro := models.FiltroDependencia(InfoOrg, resultDependencia)
+				InfoFiltrada, errFiltro2 := models.FiltroDependenciaSic(InfoOrg, resultDependenciaSic)
 				if InfoFiltrada != nil {
 					return InfoFiltrada, nil
 				} else {
-					return nil, errFiltro
+					return nil, errFiltro2
 				}
 			}
 
