@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
-	"strconv"
 )
 
 // DatosContratoController permite traer los datos necesarios para el contrato, dichos datos son consultados de diferentes apis
