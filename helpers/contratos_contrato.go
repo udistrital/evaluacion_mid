@@ -76,15 +76,3 @@ func ObtenerContratosContrato(NumContrato string, vigencia string) (contrato []m
 		return ContratosProveedor, nil
 	}
 }
-
-// ObtenerActividadContrato
-func ObtenerActividadContrato(NumContrato string, vigencia string) (contrato map[string]interface{}, outputError map[string]interface{}) {
-	var ActividadesContrato map[string]interface{}
-	_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"informacion_contrato/"+NumContrato+"/"+vigencia, &ActividadesContrato)
-	if err != nil {
-		outputError = map[string]interface{}{"funcion": "/ObtenerActividadContrato", "err": err.Error(), "status": "502"}
-		return nil, outputError
-	} else {
-		return ActividadesContrato, nil
-	}
-}
