@@ -7,34 +7,38 @@ import (
 )
 
 // ListaContratoMixto ...
-func ListaContratoMixto(IdentificacionProveedor string, NumeroContrato string, vigencia string, supervidorIdent string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
+func ListaContratoMixto(IdentificacionProveedor string, NumeroContrato string, vigencia string, supervisorIdent string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	ProveedorInfo, errorProv := InfoProveedor(IdentificacionProveedor)
 	if ProveedorInfo != nil {
 		IDProveedor := models.GetElementoMaptoString(ProveedorInfo, "Id")
 		resultContrato, errContrato := ObtenerContratoProveedor(IDProveedor, NumeroContrato, vigencia)
 		if resultContrato != nil {
 			InfoOrg := models.OrganizarInfoContratos(ProveedorInfo, resultContrato)
-			resultDependenciaSic, errDep := models.ObtenerDependenciasSic(supervidorIdent)
-			if errDep != nil {
-				return nil, errDep
-			} else if models.GetElemento(resultDependenciaSic["DependenciasSic"], "Dependencia") == nil {
-				resultDependenciaSup, errDep2 := models.ObtenerDependenciasSup(supervidorIdent)
-				if errDep2 != nil {
-					return nil, errDep2
-				} else {
-					InfoFiltrada, errFiltro := models.FiltroDependenciaSup(InfoOrg, resultDependenciaSup)
-					if errFiltro != nil {
-						return nil, errFiltro
-					} else {
-						return InfoFiltrada, nil
-					}
-				}
+			if supervisorIdent == "0" {
+				return InfoOrg, nil
 			} else {
-				InfoFiltrada, errFiltro2 := models.FiltroDependenciaSic(InfoOrg, resultDependenciaSic)
-				if InfoFiltrada != nil {
-					return InfoFiltrada, nil
+				resultDependenciaSic, errDep := models.ObtenerDependenciasSic(supervisorIdent)
+				if errDep != nil {
+					return nil, errDep
+				} else if models.GetElemento(resultDependenciaSic["DependenciasSic"], "Dependencia") == nil {
+					resultDependenciaSup, errDep2 := models.ObtenerDependenciasSup(supervisorIdent)
+					if errDep2 != nil {
+						return nil, errDep2
+					} else {
+						InfoFiltrada, errFiltro := models.FiltroDependenciaSup(InfoOrg, resultDependenciaSup)
+						if errFiltro != nil {
+							return nil, errFiltro
+						} else {
+							return InfoFiltrada, nil
+						}
+					}
 				} else {
-					return nil, errFiltro2
+					InfoFiltrada, errFiltro2 := models.FiltroDependenciaSic(InfoOrg, resultDependenciaSic)
+					if InfoFiltrada != nil {
+						return InfoFiltrada, nil
+					} else {
+						return nil, errFiltro2
+					}
 				}
 			}
 
