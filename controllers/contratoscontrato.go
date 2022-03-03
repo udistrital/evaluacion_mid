@@ -9,12 +9,12 @@ import (
 )
 
 // ContatoscontratoController ... Filtro para tener lista de contratos segun su vigencia y los proveedores de estos
-type ContatoscontratoController struct {
+type ContratoscontratoController struct {
 	beego.Controller
 }
 
 // URLMapping ...
-func (c *ContatoscontratoController) URLMapping() {
+func (c *ContratoscontratoController) URLMapping() {
 	c.Mapping("GetAll", c.GetAll)
 }
 
@@ -26,7 +26,7 @@ func (c *ContatoscontratoController) URLMapping() {
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]
-func (c *ContatoscontratoController) GetAll() {
+func (c *ContratoscontratoController) GetAll() {
 
 	defer helpers.ErrorControl(c.Controller, "ContratoscontratoController")
 

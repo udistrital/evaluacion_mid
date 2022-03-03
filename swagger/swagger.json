@@ -54,7 +54,7 @@
                     "filtroContrato"
                 ],
                 "description": "get Contatoscontrato",
-                "operationId": "ContatoscontratoController.GetAll",
+                "operationId": "ContratoscontratoController.GetAll",
                 "parameters": [
                     {
                         "in": "query",
@@ -67,13 +67,6 @@
                         "in": "query",
                         "name": "Vigencia",
                         "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "SupID",
-                        "description": "Identificacion del supervisor",
                         "required": true,
                         "type": "string"
                     }
@@ -116,13 +109,6 @@
                         "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
                         "required": true,
                         "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "SupID",
-                        "description": "Identificacion del supervisor",
-                        "required": true,
-                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -147,13 +133,6 @@
                         "in": "query",
                         "name": "ProvID",
                         "description": "ID del Proveedor",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "SupID",
-                        "description": "Identificacion del supervisor, para evitar el filtro se debe de mandar un 0 (cero)",
                         "required": true,
                         "type": "string"
                     }
