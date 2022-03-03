@@ -7,43 +7,15 @@ import (
 )
 
 // ListaContratosContrato ...
-func ListaContratosContrato(NumeroContrato string, vigencia string, supervisorIdent string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
+func ListaContratosContrato(NumeroContrato string, vigencia string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
 	if resultContrato != nil {
 		InfoOrg, err2 := models.OrganizarInfoContratosMultipleProv(resultContrato)
 		if err2 != nil {
 			return nil, err2
-		}
-		if supervisorIdent == "0" {
-			return InfoOrg, nil
 		} else {
-			resultDependenciaSic, errDep := models.ObtenerDependenciasSic(supervisorIdent)
-			if errDep != nil {
-				return nil, errDep
-			} else if models.GetElemento(resultDependenciaSic["DependenciasSic"], "Dependencia") == nil {
-				resultDependenciaSup, errDep2 := models.ObtenerDependenciasSup(supervisorIdent)
-				if errDep2 != nil {
-					return nil, errDep2
-				} else {
-					InfoFiltrada, err3 := models.FiltroDependenciaSup(InfoOrg, resultDependenciaSup)
-					if InfoFiltrada != nil {
-						return InfoFiltrada, nil
-					} else {
-						return nil, err3
-					}
-				}
-			} else {
-				InfoFiltrada, err4 := models.FiltroDependenciaSic(InfoOrg, resultDependenciaSic)
-
-				if InfoFiltrada != nil {
-					return InfoFiltrada, nil
-
-				} else {
-					return nil, err4
-				}
-			}
+			return InfoOrg, nil
 		}
-
 		// return resultContrato, nil
 	} else {
 		return nil, err1
