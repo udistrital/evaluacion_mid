@@ -12,37 +12,41 @@ import (
 func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
 	if resultContrato != nil {
-		resultActividades, err2 := ObtenerActividadContrato(NumeroContrato, vigencia)
-		if resultActividades != nil {
-			infoProveedor, errProv := models.InfoProveedorID(fmt.Sprintf("%v", resultContrato[0]["Contratista"]))
-			if infoProveedor != nil {
-				lugarEjecucion := resultContrato[0]["LugarEjecucion"].(map[string]interface{})
-				infoDependencia, errDependencia := GetGependencia(fmt.Sprintf("%v", lugarEjecucion["Dependencia"]))
-				if infoDependencia != nil {
-					documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
-					dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
-					infoSupervisor, errSup := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
-					if infoSupervisor != nil {
-						infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, resultActividades, infoDependencia, infoSupervisor)
-						return infoOrganizada, nil
+		estadoContrato, err2 := ObtenerEstadoContrato(NumeroContrato, vigencia)
+		if estadoContrato != nil {
+			resultActividades, err3 := ObtenerActividadContrato(NumeroContrato, vigencia)
+			if resultActividades != nil {
+				infoProveedor, errProv := models.InfoProveedorID(fmt.Sprintf("%v", resultContrato[0]["Contratista"]))
+				if infoProveedor != nil {
+					lugarEjecucion := resultContrato[0]["LugarEjecucion"].(map[string]interface{})
+					infoDependencia, errDependencia := GetGependencia(fmt.Sprintf("%v", lugarEjecucion["Dependencia"]))
+					if infoDependencia != nil {
+						documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
+						dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
+						infoSupervisor, errSup := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
+						if infoSupervisor != nil {
+							infoOrganizada := models.OrganizarInfoContratoArgo(infoProveedor, resultContrato, estadoContrato, resultActividades, infoDependencia, infoSupervisor)
+							return infoOrganizada, nil
 
+						}
+						return nil, errSup
+					} else if lugarEjecucion["Dependencia"] == "" {
+						documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
+						dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
+						infoSupervisor, errSup2 := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
+						if infoSupervisor != nil {
+							infoOrganizadaSinDep := models.OrganizarInfoContratoSinDep(infoProveedor, resultContrato, estadoContrato, resultActividades, infoSupervisor)
+							return infoOrganizadaSinDep, nil
+						}
+						return nil, errSup2
 					}
-					return nil, errSup
-				} else if lugarEjecucion["Dependencia"] == "" {
-					documentoSupervisor := fmt.Sprintf("%d", (resultContrato[0]["Supervisor"].(map[string]interface{})["Documento"]).(float64))
-					dependencuaSupervisor := fmt.Sprintf("%v", resultContrato[0]["Supervisor"].(map[string]interface{})["DependenciaSupervisor"])
-					infoSupervisor, errSup2 := GetSupervisorContrato(documentoSupervisor, dependencuaSupervisor)
-					if infoSupervisor != nil {
-						infoOrganizadaSinDep := models.OrganizarInfoContratoSinDep(infoProveedor, resultContrato, resultActividades, infoSupervisor)
-						return infoOrganizadaSinDep, nil
-					}
-					return nil, errSup2
+					return nil, errDependencia
+					// return infoProveedor, nil
 				}
-				return nil, errDependencia
-				// return infoProveedor, nil
+				return nil, errProv
+				// return resultContrato, nil
 			}
-			return nil, errProv
-			// return resultContrato, nil
+			return nil, err3
 		}
 		return nil, err2
 	}
@@ -90,5 +94,29 @@ func GetSupervisorContrato(numeroDocSupervisor string, dependenciaSupervisor str
 		return nil, outputError
 	} else {
 		return supervisor, nil
+	}
+}
+
+// ObtenerActividadContrato
+func ObtenerActividadContrato(NumContrato string, vigencia string) (contrato map[string]interface{}, outputError map[string]interface{}) {
+	var ActividadesContrato map[string]interface{}
+	_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"informacion_contrato/"+NumContrato+"/"+vigencia, &ActividadesContrato)
+	if err != nil {
+		outputError = map[string]interface{}{"funcion": "/ObtenerActividadContrato", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	} else {
+		return ActividadesContrato, nil
+	}
+}
+
+// ObtenerEstadoContrato
+func ObtenerEstadoContrato(NumContrato string, vigencia string) (res map[string]interface{}, outputError map[string]interface{}) {
+	var EstadoContrato map[string]interface{}
+	_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"contrato_estado/"+NumContrato+"/"+vigencia, &EstadoContrato)
+	if err != nil {
+		outputError = map[string]interface{}{"funcion": "/ObtenerEstadoContrato", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	} else {
+		return EstadoContrato, nil
 	}
 }

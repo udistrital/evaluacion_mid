@@ -123,7 +123,7 @@ func FiltroDependenciaSup(infoContratos []map[string]interface{}, dependencias m
 }
 
 // OrganizarInfoContratoArgo ...
-func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoActividades map[string]interface{}, infoDependencia []map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
+func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, estadoContrato map[string]interface{}, infoActividades map[string]interface{}, infoDependencia []map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	for i := 0; i < len(infoContrato); i++ {
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
@@ -132,12 +132,13 @@ func OrganizarInfoContratoArgo(infoProveedor []map[string]interface{}, infoContr
 			"dependencia_SIC":       infoDependencia[0],
 			"supervisor_contrato":   infoSupervisor[0],
 			"actividades_contrato":  infoActividades,
+			"estado_contrato":       estadoContrato,
 		})
 	}
 	return InfoOrganizada
 }
 
-func OrganizarInfoContratoSinDep(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, infoActividades map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
+func OrganizarInfoContratoSinDep(infoProveedor []map[string]interface{}, infoContrato []map[string]interface{}, estadoContrato map[string]interface{}, infoActividades map[string]interface{}, infoSupervisor []map[string]interface{}) (infoOrganizada []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	for i := 0; i < len(infoContrato); i++ {
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
@@ -145,6 +146,7 @@ func OrganizarInfoContratoSinDep(infoProveedor []map[string]interface{}, infoCon
 			"informacion_proveedor": infoProveedor[0],
 			"supervisor_contrato":   infoSupervisor[0],
 			"actividades_contrato":  infoActividades,
+			"estado_contrato":       estadoContrato,
 		})
 	}
 	return InfoOrganizada
