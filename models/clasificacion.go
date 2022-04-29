@@ -128,7 +128,6 @@ func PostClasificacionPlantilla(clasificaciones []map[string]interface{}, Planti
 			return nil, outputError
 		} else {
 			ArrayClasificacionesPlantillaDB = append(ArrayClasificacionesPlantillaDB, clasificacionPlantillaIngresada)
-			// return clasificacionPlantillaIngresada, nil
 		}
 	}
 

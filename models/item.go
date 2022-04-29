@@ -34,60 +34,53 @@ func IngresoItems(items []map[string]interface{}, SeccionDB map[string]interface
 
 	for i := 0; i < len(items); i++ {
 		var itemIngresado map[string]interface{}
-		tipoItemMap, errTipoMap := GetElementoMaptoStringToMapArray(items[i]["Id_tipo_item"])
-		if tipoItemMap != nil {
-			tipoItemDB, errorTipoItem := GetTipoItemParametrica(tipoItemMap[0])
-			if tipoItemDB != nil {
-				pipeDB, errorPipeDB := GetEstiloPipeParametrica(items[i]["Estilo_pipe_id"].(map[string]interface{}))
-				if pipeDB != nil {
-					datoContruirdo := make(map[string]interface{})
+		tipoItemDB, errorTipoItem := GetTipoItemParametrica(items[i]["IdTipoItem"].(map[string]interface{}))
+		if tipoItemDB != nil {
+			pipeDB, errorPipeDB := GetEstiloPipeParametrica(items[i]["IdEstiloPipe"].(map[string]interface{}))
+			if pipeDB != nil {
+				datoContruirdo := make(map[string]interface{})
 
-					datoContruirdo = map[string]interface{}{
-						"Activo": true,
-						"Valor":  items[i]["Valor"],
-						"Tamano": items[i]["Tamano"],
-						"Nombre": items[i]["Nombre"],
-						"IdTipoItem": map[string]interface{}{
-							"Id": tipoItemDB[0]["Id"],
-						},
-						"IdEstiloPipe": map[string]interface{}{
-							"Id": pipeDB[0]["Id"],
-						},
-						"IdSeccion": map[string]interface{}{
-							"Id": SeccionDB["Id"],
-						},
-						"SeccionHijaId": nil,
-					}
-					if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/item", "POST", &itemIngresado, datoContruirdo); err != nil {
-						logs.Error(err)
-						outputError = map[string]interface{}{"funcion": "/IngresoItems", "err": err.Error(), "status": "502"}
-						return nil, outputError
-					} else {
-						opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
-						if opcionesItemsMap != nil && errMapOpciones == nil {
-							opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresado)
-							if opcionesIngresadas == nil && errOp != nil {
-								return nil, errOp
-							}
-							itemIngresado["OpcionesIngresadas"] = opcionesIngresadas
-						} else {
-							itemIngresado["OpcionesIngresadas"] = nil
-						}
-						arrayitemsIngresados = append(arrayitemsIngresados, itemIngresado)
-					}
+				datoContruirdo = map[string]interface{}{
+					"Activo": true,
+					"Valor":  items[i]["Valor"],
+					"Tamano": items[i]["Tamano"],
+					"Nombre": items[i]["Nombre"],
+					"IdTipoItem": map[string]interface{}{
+						"Id": tipoItemDB[0]["Id"],
+					},
+					"IdEstiloPipe": map[string]interface{}{
+						"Id": pipeDB[0]["Id"],
+					},
+					"IdSeccion": map[string]interface{}{
+						"Id": SeccionDB["Id"],
+					},
+				}
+				if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/item", "POST", &itemIngresado, datoContruirdo); err != nil {
+					logs.Error(err)
+					outputError = map[string]interface{}{"funcion": "/IngresoItems", "err": err.Error(), "status": "502"}
+					return nil, outputError
 				} else {
-					//errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
-					return nil, errorPipeDB
+					itemIngresadoData := itemIngresado["Data"].(map[string]interface{})
+					opcionesItemsMap, errMapOpciones := GetElementoMaptoStringToMapArray(items[i]["Opcion_item"])
+					if opcionesItemsMap != nil && errMapOpciones == nil && len(opcionesItemsMap[0]) != 0 {
+						opcionesIngresadas, errOp := PostOpcionesItem(opcionesItemsMap, itemIngresadoData)
+						if opcionesIngresadas == nil && errOp != nil {
+							return nil, errOp
+						}
+						itemIngresadoData["OpcionesIngresadas"] = opcionesIngresadas
+					} else {
+						itemIngresadoData["OpcionesIngresadas"] = nil
+					}
+					arrayitemsIngresados = append(arrayitemsIngresados, itemIngresadoData)
 				}
 			} else {
-				//errorTipoItem := CrearError("no se pudo obtener el tipo de item para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
-				return nil, errorTipoItem
+				//errorPipeDB := CrearError("no se pudo obtener el Pipe de estilo para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
+				return nil, errorPipeDB
 			}
-
 		} else {
-			return nil, errTipoMap
+			//errorTipoItem := CrearError("no se pudo obtener el tipo de item para el item" + fmt.Sprintf("%v", items[i]["Nombre"]))
+			return nil, errorTipoItem
 		}
-
 	}
 	return arrayitemsIngresados, nil
 }

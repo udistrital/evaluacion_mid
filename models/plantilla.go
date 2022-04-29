@@ -21,23 +21,23 @@ func IngresoPlantilla(plantilla map[string]interface{}) (plantillaResult map[str
 		"Descripcion": plantillaArray[0]["Descripcion"],
 		"Usuario":     plantillaArray[0]["Usuario"],
 	}
+
 	plantillaBase, errPlantilla := PostPlantilla(plantillaIngresada)
 	if errPlantilla != nil {
 		return nil, errPlantilla
 	} else {
 		clasificacionesResult, errClasificaciones := PostClasificacion(plantillaArray[0]["Clasificacion"], plantillaBase)
 		if clasificacionesResult != nil {
-			// aqui ira el ingreso de la secciones
+			// Ingreso de las secciones
 			seccionesResult, errSecciones := PostSecciones(plantillaArray[0]["Secciones"], plantillaBase)
 			if seccionesResult != nil {
 				plantillaBase["SeccionesIngresadas"] = seccionesResult
-				platillaRetono, errRetorno := FinalizarPlantilla(plantillaBase)
-				if platillaRetono != nil {
-					return platillaRetono, nil
+				plantillaRetorno, errRetorno := FinalizarPlantilla(plantillaBase)
+				if plantillaRetorno != nil {
+					return plantillaRetorno, nil
 				} else {
 					return nil, errRetorno
 				}
-				// return seccionesResult, nil
 			} else {
 				return nil, errSecciones
 			}
@@ -56,7 +56,8 @@ func PostPlantilla(plantilla map[string]interface{}) (plantillaResult map[string
 		outputError = map[string]interface{}{"funcion": "/PostPlantilla", "err": err.Error(), "status": "502"}
 		return nil, outputError
 	} else {
-		return plantillaPost, nil
+		plantillaResultante := plantillaPost["Data"].(map[string]interface{})
+		return plantillaResultante, nil
 	}
 }
 
@@ -154,7 +155,8 @@ func DesactivarPlantillas(plantillasActivas []map[string]interface{}) (plantilla
 			outputError = map[string]interface{}{"funcion": "/DesactivarPlantillas", "err": err.Error(), "status": "502"}
 			return nil, outputError
 		} else {
-			arrayPlantillasIngresadas = append(arrayPlantillasIngresadas, platillaActualizada)
+			platillaActualizadaData := platillaActualizada["Data"].(map[string]interface{})
+			arrayPlantillasIngresadas = append(arrayPlantillasIngresadas, platillaActualizadaData)
 		}
 	}
 	return arrayPlantillasIngresadas, nil
@@ -178,7 +180,8 @@ func ActivarPlantilla(plantillasParaActivar map[string]interface{}) (plantillasR
 			outputError = map[string]interface{}{"funcion": "/ActivarPlantilla", "err": err.Error(), "status": "502"}
 			return nil, outputError
 		} else {
-			return platillaActualizada, nil
+			platillaActualizadaData := platillaActualizada["Data"].(map[string]interface{})
+			return platillaActualizadaData, nil
 		}
 	} else {
 		return nil, errGetPlantilla

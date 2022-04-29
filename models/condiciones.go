@@ -25,7 +25,9 @@ func PostCondiciones(condicionesMap []map[string]interface{}, arraySecciones []m
 								OpcionesIngresadasMap, errMapOpciones := GetElementoMaptoStringToMapArray(ItemIngresadosMap[j]["OpcionesIngresadas"])
 								if OpcionesIngresadasMap != nil && errMapOpciones == nil {
 									for k := 0; k < len(OpcionesIngresadasMap); k++ {
-										if OpcionesIngresadasMap[k]["IdOpciones"].(map[string]interface{})["Id"] == opcionDB[0]["Id"] {
+										fmt.Println("OpcionesIngresadasMap", OpcionesIngresadasMap)
+										opcionesIngresadas := OpcionesIngresadasMap[k]["IdOpciones"].(map[string]interface{})
+										if opcionesIngresadas["Id"] == opcionDB[0]["Id"] {
 											condicionIngresada, errCondicion := PostCondicionDB(seccionHijaActual, seccionComparacion, OpcionesIngresadasMap[k]["IdOpciones"].(map[string]interface{}))
 											if condicionIngresada != nil && errCondicion == nil {
 												return condicionIngresada, nil
@@ -71,7 +73,8 @@ func PostCondicionDB(seccionHijaActual map[string]interface{}, seccionCondicion 
 		outputError = map[string]interface{}{"funcion": "/PostCondicionDB", "err": err.Error(), "status": "502"}
 		return nil, outputError
 	} else {
-		return condicionIngresada, nil
+		condicionIngresadaData := condicionIngresada["Data"].(map[string]interface{})
+		return condicionIngresadaData, nil
 	}
 }
 

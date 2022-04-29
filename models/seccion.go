@@ -36,16 +36,17 @@ func IngresarSeccionesPadre(secciones []map[string]interface{}, Plantilla map[st
 			"IdPlantilla": map[string]interface{}{
 				"Id": Plantilla["Id"],
 			},
-			"SeccionHijaId": nil,
+			"SeccionPadreId": nil,
 		}
 		if err := sendJson(beego.AppConfig.String("evaluacion_crud_url")+"v1/seccion", "POST", &seccionIngresada, datoContruirdo); err != nil {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/IngresarSeccionesPadre", "err": err.Error(), "status": "502"}
 			return nil, outputError
 		} else {
-			seccionesHijasResult, errSecHija := IngresoSeccionHija(secciones[i], seccionIngresada, Plantilla)
-			seccionIngresada["seccionesHijasIngresadas"] = seccionesHijasResult
-			arraySeccionesIngresadas = append(arraySeccionesIngresadas, seccionIngresada)
+			seccionIngresadaData := seccionIngresada["Data"].(map[string]interface{})
+			seccionesHijasResult, errSecHija := IngresoSeccionHija(secciones[i], seccionIngresadaData, Plantilla)
+			seccionIngresadaData["seccionesHijasIngresadas"] = seccionesHijasResult
+			arraySeccionesIngresadas = append(arraySeccionesIngresadas, seccionIngresadaData)
 			if (seccionesHijasResult == nil) && (errSecHija != nil) {
 				return nil, errSecHija
 			}
@@ -79,18 +80,19 @@ func IngresoSeccionHija(seccion map[string]interface{}, seccionPadre map[string]
 				return nil, outputError
 			}
 
-			itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresada)
+			seccionHijaIngresadaData := seccionHijaIngresada["Data"].(map[string]interface{})
+			itemsResult, errItems := PostItems(seccionMap[i], seccionHijaIngresadaData)
 			if (itemsResult == nil) && (errItems != nil) {
 				return nil, errItems
 			}
-			seccionHijaIngresada["ItemsIngresados"] = itemsResult
-			arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresada)
+			seccionHijaIngresadaData["ItemsIngresados"] = itemsResult
+			arraySeccionesHijasIngresadas = append(arraySeccionesHijasIngresadas, seccionHijaIngresadaData)
 
 			condicionesMap, errMapcondiciones := GetElementoMaptoStringToMapArray(seccionMap[i]["Condicion"])
-			if condicionesMap != nil && errMapcondiciones == nil {
+			if condicionesMap != nil && errMapcondiciones == nil && len(condicionesMap[0]) != 0 {
 				condicionesIngresadas, errCondiciones := PostCondiciones(condicionesMap, arraySeccionesHijasIngresadas)
 				if condicionesIngresadas != nil {
-					seccionHijaIngresada["CondicionesIngresadas"] = condicionesIngresadas
+					seccionHijaIngresadaData["CondicionesIngresadas"] = condicionesIngresadas
 				} else {
 					return nil, errCondiciones
 				}
