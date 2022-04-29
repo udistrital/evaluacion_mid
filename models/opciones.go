@@ -15,7 +15,7 @@ import (
 func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[string]interface{}) (ItemsResult []map[string]interface{}, outputError map[string]interface{}) {
 	arrayOpcionesItemsIngresados := make([]map[string]interface{}, 0)
 	for i := 0; i < len(opcionesItemMapeo); i++ {
-		opcionParametrica, errOpcParametrica := GetOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
+		opcionParametrica, errOpcParametrica := GetOpcionesParametrica(opcionesItemMapeo[i]["IdOpciones"].(map[string]interface{}))
 		if opcionParametrica != nil {
 			// se puede ingresar la de rompimiento
 			opcionItemIngreso, erroOpIt := IngresoOpcionesItem(opcionParametrica[0], itemDB)
@@ -27,7 +27,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 			if errOpcParametrica != nil {
 				return nil, errOpcParametrica
 			}
-			postOpcionParametrica, errOpt := PostOpcionesParametrica(opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
+			postOpcionParametrica, errOpt := PostOpcionesParametrica(opcionesItemMapeo[i]["IdOpciones"].(map[string]interface{}))
 			if postOpcionParametrica != nil {
 				opcionItemIngreso, erroOpIt := IngresoOpcionesItem(postOpcionParametrica, itemDB)
 				if opcionItemIngreso == nil && erroOpIt != nil {
@@ -36,7 +36,7 @@ func PostOpcionesItem(opcionesItemMapeo []map[string]interface{}, itemDB map[str
 				arrayOpcionesItemsIngresados = append(arrayOpcionesItemsIngresados, opcionItemIngreso)
 
 			} else {
-				logs.Error("hubo error en ingresar la opcion:", opcionesItemMapeo[i]["Id_opciones"].(map[string]interface{}))
+				logs.Error("hubo error en ingresar la opcion:", opcionesItemMapeo[i]["IdOpciones"].(map[string]interface{}))
 				logs.Error("el error presentado es: ", errOpt)
 			}
 		}
@@ -104,7 +104,8 @@ func PostOpcionesParametrica(opcionEnviar map[string]interface{}) (opcionResult 
 		outputError = map[string]interface{}{"funcion": "/PostOpcionesParametrica", "err": err.Error(), "status": "502"}
 		return nil, outputError
 	} else {
-		return opcionIngresada, nil
+		opcionIngresadaData := opcionIngresada["Data"].(map[string]interface{})
+		return opcionIngresadaData, nil
 	}
 }
 
@@ -126,7 +127,8 @@ func IngresoOpcionesItem(opcionDB map[string]interface{}, itemDB map[string]inte
 		outputError = map[string]interface{}{"funcion": "/IngresoOpcionesItem", "err": err.Error(), "status": "502"}
 		return nil, outputError
 	} else {
-		return opcionItemIngresada, nil
+		opcionItemIngresadaData := opcionItemIngresada["Data"].(map[string]interface{})
+		return opcionItemIngresadaData, nil
 	}
 }
 
