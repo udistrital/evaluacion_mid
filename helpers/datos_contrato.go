@@ -10,7 +10,7 @@ import (
 
 // InfoContrato ...
 func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
-	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
+	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia, "0")
 	if resultContrato != nil {
 		estadoContrato, err2 := ObtenerEstadoContrato(NumeroContrato, vigencia)
 		if estadoContrato != nil {

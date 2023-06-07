@@ -69,6 +69,13 @@
                         "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Supervisor",
+                        "description": "Supervisor del contrato. Para evitar el filtro se debe enviar un 0",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -109,6 +116,13 @@
                         "description": "Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Supervisor",
+                        "description": "Supervisor del contrato. Para evitar el filtro se debe enviar un 0",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -133,6 +147,13 @@
                         "in": "query",
                         "name": "ProvID",
                         "description": "ID del Proveedor",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "Supervisor",
+                        "description": "Supervisor del contrato. Para evitar el filtro se debe enviar un 0",
                         "required": true,
                         "type": "string"
                     }

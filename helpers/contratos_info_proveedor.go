@@ -7,11 +7,11 @@ import (
 )
 
 // ListaContratosProveedor ...
-func ListaContratosProveedor(IdentProv string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
+func ListaContratosProveedor(IdentProv, supervisor string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	resultProv, err1 := InfoProveedor(IdentProv)
 	if resultProv != nil {
 		IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
-		resultContrato, err2 := ObtenerContratosProveedor(IDProveedor)
+		resultContrato, err2 := ObtenerContratosProveedor(IDProveedor, supervisor)
 		if resultContrato != nil {
 			InfoOrg := models.OrganizarInfoContratos(resultProv, resultContrato)
 			return InfoOrg, nil
@@ -47,19 +47,22 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 }
 
 // ObtenerContratosProveedor ...
-func ObtenerContratosProveedor(IDProv string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
+func ObtenerContratosProveedor(IDProv, supervisor string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	var ContratosProveedor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor); (err == nil) && (response == 200) {
-	} else {
+	urlCRUD := beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query=Contratista:" + IDProv
+	if supervisor != "0" {
+		urlCRUD += ",Supervisor__Documento:" + supervisor
+	}
+
+	response, err := getJsonTest(urlCRUD, &ContratosProveedor)
+	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor1", "err": err.Error(), "status": "502"}
 		return nil, outputError
 	}
+
 	if len(ContratosProveedor) < 1 {
-		///fmt.Println(error)
-		//errorContrato := models.CrearError("no se encontraron contratos")
-		//return nil, errorContrato
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor2", "err": "No se encontraron contratos", "status": "204"}
 		return nil, outputError
 	} else {

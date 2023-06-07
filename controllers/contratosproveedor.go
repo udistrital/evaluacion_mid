@@ -20,7 +20,8 @@ func (c *ContratosProveedorController) URLMapping() {
 // GetAll ...
 // @Title GetAll
 // @Description get ContratosProveedor
-// @Param	ProvID	query	string	true		"ID del Proveedor"
+// @Param	ProvID		query	string	true	"ID del Proveedor"
+// @Param	Supervisor	query	string	true	"Supervisor del contrato. Para evitar el filtro se debe enviar un 0"
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]
@@ -29,6 +30,7 @@ func (c *ContratosProveedorController) GetAll() {
 	defer helpers.ErrorControl(c.Controller, "ContratosProveedorController")
 
 	ProveedorIdent := c.GetString("ProvID")
+	Supervisor := c.GetString("Supervisor", "0")
 
 	_, err1 := strconv.Atoi(ProveedorIdent)
 
@@ -36,7 +38,7 @@ func (c *ContratosProveedorController) GetAll() {
 		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
 	}
 
-	resultContratos, err3 := helpers.ListaContratosProveedor(ProveedorIdent)
+	resultContratos, err3 := helpers.ListaContratosProveedor(ProveedorIdent, Supervisor)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
