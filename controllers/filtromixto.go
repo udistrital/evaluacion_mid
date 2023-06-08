@@ -20,10 +20,11 @@ func (c *FiltromixtoController) URLMapping() {
 // GetAll ...
 // @Title GetAll
 // @Description get Filtromixto
-// @Param	IdentProv	query	string	true	"Identificacion del proveedor"
-// @Param	NumContrato	query	string	true	"Numero del contrato"
-// @Param	Vigencia	query	string	true	"Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)"
-// @Param	Supervisor	query	string	true	"Supervisor del contrato. Para evitar el filtro se debe enviar un 0"
+// @Param	IdentProv		query	string	true	"Identificacion del proveedor"
+// @Param	NumContrato		query	string	true	"Numero del contrato"
+// @Param	Vigencia		query	string	true	"Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)"
+// @Param	Supervisor		query	string	false	"Supervisor del contrato. Para evitar el filtro se debe enviar un 0"
+// @Param	TipoContrato	query	string	false	"Tipo de contrato."
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]
@@ -35,6 +36,7 @@ func (c *FiltromixtoController) GetAll() {
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("Vigencia")
 	Supervisor := c.GetString("Supervisor", "0")
+	TipoContrato := c.GetString("TipoContrato")
 
 	_, err1 := strconv.Atoi(IdentificacionProveedor)
 	_, err2 := strconv.Atoi(NumContrato)
@@ -44,7 +46,7 @@ func (c *FiltromixtoController) GetAll() {
 		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
 	}
 
-	resultContratos, err5 := helpers.ListaContratoMixto(IdentificacionProveedor, NumContrato, Vigencia, Supervisor)
+	resultContratos, err5 := helpers.ListaContratoMixto(IdentificacionProveedor, NumContrato, Vigencia, Supervisor, TipoContrato)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}

@@ -1,16 +1,14 @@
 package helpers
 
 import (
-	"strings"
-
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
 )
 
 // ListaContratosContrato ...
-func ListaContratosContrato(NumeroContrato, vigencia, supervisor string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
-	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia, supervisor)
+func ListaContratosContrato(NumeroContrato, vigencia, supervisor, tipo string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
+	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia, supervisor, tipo)
 	if resultContrato != nil {
 		InfoOrg, err2 := models.OrganizarInfoContratosMultipleProv(resultContrato)
 		if err2 != nil {
@@ -26,25 +24,12 @@ func ListaContratosContrato(NumeroContrato, vigencia, supervisor string) (contra
 }
 
 // ObtenerContratosContrato ...
-func ObtenerContratosContrato(NumContrato string, vigencia, supervisor string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
+func ObtenerContratosContrato(NumContrato, vigencia, supervisor, tipo string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	var ContratosProveedor []map[string]interface{}
 	var urlCRUD = beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query="
-	var query []string
+	query := CrearQueryContratoGeneral("0", NumContrato, vigencia, supervisor, tipo)
 
-	if NumContrato != "0" {
-		query = append(query, "ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato)
-	}
-
-	if vigencia != "0" {
-		query = append(query, "VigenciaContrato:"+vigencia)
-	}
-
-	if supervisor != "0" {
-		query = append(query, "Supervisor__Documento:"+supervisor)
-	}
-
-	query_ := strings.Join(query, ",")
-	response, err := getJsonTest(urlCRUD+query_, &ContratosProveedor)
+	response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
 	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato1", "err": err.Error(), "status": "502"}

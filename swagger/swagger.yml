@@ -52,8 +52,11 @@ paths:
         type: string
       - in: query
         name: Supervisor
-        description: Supervisor del contrato. Para evitar el filtro se debe enviar un 0
-        required: true
+        description: Supervisor del contrato.
+        type: string
+      - in: query
+        name: TipoContrato
+        description: Tipo de contrato.
         type: string
       responses:
         "200":
@@ -85,7 +88,10 @@ paths:
       - in: query
         name: Supervisor
         description: Supervisor del contrato. Para evitar el filtro se debe enviar un 0
-        required: true
+        type: string
+      - in: query
+        name: TipoContrato
+        description: Tipo de contrato.
         type: string
       responses:
         "200":
@@ -107,7 +113,10 @@ paths:
       - in: query
         name: Supervisor
         description: Supervisor del contrato. Para evitar el filtro se debe enviar un 0
-        required: true
+        type: string
+      - in: query
+        name: TipoContrato
+        description: Tipo de contrato.
         type: string
       responses:
         "200":

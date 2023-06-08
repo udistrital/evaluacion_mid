@@ -7,11 +7,11 @@ import (
 )
 
 // ListaContratosProveedor ...
-func ListaContratosProveedor(IdentProv, supervisor string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
+func ListaContratosProveedor(IdentProv, supervisor, tipo string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	resultProv, err1 := InfoProveedor(IdentProv)
 	if resultProv != nil {
 		IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
-		resultContrato, err2 := ObtenerContratosProveedor(IDProveedor, supervisor)
+		resultContrato, err2 := ObtenerContratosProveedor(IDProveedor, supervisor, tipo)
 		if resultContrato != nil {
 			InfoOrg := models.OrganizarInfoContratos(resultProv, resultContrato)
 			return InfoOrg, nil
@@ -47,15 +47,13 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 }
 
 // ObtenerContratosProveedor ...
-func ObtenerContratosProveedor(IDProv, supervisor string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
+func ObtenerContratosProveedor(IDProv, supervisor, tipo string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	var ContratosProveedor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=Contratista:"+IDProv, &ContratosProveedor)
-	urlCRUD := beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query=Contratista:" + IDProv
-	if supervisor != "0" {
-		urlCRUD += ",Supervisor__Documento:" + supervisor
-	}
+	urlCRUD := beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query="
+	query := CrearQueryContratoGeneral(IDProv, "0", "0", supervisor, tipo)
 
-	response, err := getJsonTest(urlCRUD, &ContratosProveedor)
+	response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
 	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor1", "err": err.Error(), "status": "502"}

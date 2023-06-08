@@ -21,9 +21,10 @@ func (c *ContratoscontratoController) URLMapping() {
 // GetAll ...
 // @Title GetAll
 // @Description get Contatoscontrato
-// @Param	NumContrato	query	string	true	"Numero del contrato"
-// @Param	Vigencia	query	string	true	"Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)"
-// @Param	Supervisor	query	string	true	"Supervisor del contrato. Para evitar el filtro se debe enviar un 0"
+// @Param	NumContrato		query	string	true	"Numero del contrato"
+// @Param	Vigencia		query	string	true	"Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)"
+// @Param	Supervisor		query	string	false	"Supervisor del contrato."
+// @Param	TipoContrato	query	string	false	"Tipo de contrato."
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]
@@ -34,6 +35,7 @@ func (c *ContratoscontratoController) GetAll() {
 	NumContrato := c.GetString("NumContrato")
 	Vigencia := c.GetString("Vigencia")
 	Supervisor := c.GetString("Supervisor", "0")
+	TipoContrato := c.GetString("TipoContrato")
 
 	_, err1 := strconv.Atoi(NumContrato)
 	_, err2 := strconv.Atoi(Vigencia)
@@ -42,7 +44,7 @@ func (c *ContratoscontratoController) GetAll() {
 		panic(map[string]interface{}{"funcion": "GetAll", "err": "Error en los parametros de ingreso", "status": "400"})
 	}
 
-	resultContratos, err := helpers.ListaContratosContrato(NumContrato, Vigencia, Supervisor)
+	resultContratos, err := helpers.ListaContratosContrato(NumContrato, Vigencia, Supervisor, TipoContrato)
 	if resultContratos != nil {
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
