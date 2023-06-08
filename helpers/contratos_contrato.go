@@ -7,8 +7,8 @@ import (
 )
 
 // ListaContratosContrato ...
-func ListaContratosContrato(NumeroContrato string, vigencia string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
-	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia)
+func ListaContratosContrato(NumeroContrato, vigencia, supervisor, tipo string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
+	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia, supervisor, tipo)
 	if resultContrato != nil {
 		InfoOrg, err2 := models.OrganizarInfoContratosMultipleProv(resultContrato)
 		if err2 != nil {
@@ -24,30 +24,21 @@ func ListaContratosContrato(NumeroContrato string, vigencia string) (contratos [
 }
 
 // ObtenerContratosContrato ...
-func ObtenerContratosContrato(NumContrato string, vigencia string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
+func ObtenerContratosContrato(NumContrato, vigencia, supervisor, tipo string) (contrato []map[string]interface{}, outputError map[string]interface{}) {
 	var ContratosProveedor []map[string]interface{}
-	//var err interface{}
-	if vigencia == "0" {
-		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato, &ContratosProveedor); (err == nil) && (response == 200) {
-		} else {
-			logs.Error(err)
-			outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato1", "err": err.Error(), "status": "502"}
-			return nil, outputError
-		}
-		//error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato, &ContratosProveedor)
-	} else {
-		if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",VigenciaContrato:"+vigencia, &ContratosProveedor); (err == nil) && (response == 200) {
-		} else {
-			logs.Error(err)
-			outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato2", "err": err.Error(), "status": "502"}
-			return nil, outputError
-		}
-		//error = request.GetJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"contrato_general?query=ContratoSuscrito.NumeroContratoSuscrito:"+NumContrato+",VigenciaContrato:"+vigencia, &ContratosProveedor)
+	var urlCRUD = beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query="
+	query := CrearQueryContratoGeneral("0", NumContrato, vigencia, supervisor, tipo)
+
+	response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
+	if err != nil || response != 200 {
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato1", "err": err.Error(), "status": "502"}
+		return nil, outputError
 	}
+
 	if len(ContratosProveedor) < 1 {
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato3", "err": "No se encontraron contratos", "status": "204"}
 		return nil, outputError
-		//err = models.CrearError("no se encontraron contratos")
 	} else {
 		return ContratosProveedor, nil
 	}
