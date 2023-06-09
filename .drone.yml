@@ -48,9 +48,8 @@ steps:
     - push
 
 - name: go_build
-  image: golang:1.14
+  image: golang:1.18
   commands:
-  # - go mod init
   - go get -t
   - GOOS=linux GOARCH=amd64 go build -o main
   when:
@@ -62,7 +61,7 @@ steps:
     - push
 
 - name: go_run_test
-  image: golang:1.14
+  image: golang:1.18
   commands:
   - go get -t
   - go get github.com/smartystreets/goconvey/convey
@@ -95,27 +94,6 @@ steps:
     - master
     event:
     - push
-
-# - name: beego_rollback
-#   image: golang:1.14
-#   environment:
-#     PG_MIGRATION_USER:
-#       from_secret: PG_MIGRATION_USER
-#     PG_MIGRATION_PASS:
-#       from_secret: PG_MIGRATION_PASS
-#     PG_MIGRATION_URL:
-#       from_secret: PG_MIGRATION_URL
-#     PG_MIGRATION_DBNAME:
-#       from_secret: PG_MIGRATION_DBNAME
-#   commands:
-#   - go get -t
-#   - go get -u github.com/beego/bee
-#   - bee migrate rollback -driver=postgres -conn="postgres://$${PG_MIGRATION_USER}:$${PG_MIGRATION_PASS}@$${PG_MIGRATION_URL}:5432/$${PG_MIGRATION_DBNAME}?sslmode=disable"
-#   when:
-#     branch:
-#     - release/*
-#     status:
-#     - failure
 
 - name: publish_to_ecr_release
   image: plugins/ecr
@@ -156,7 +134,7 @@ steps:
     - push
 
 - name: update_aws_ecs
-  image: golang:1.9
+  image: golang:1.18
   environment:
     AWS_ACCESS_KEY_ID:
       from_secret: AWS_ACCESS_KEY_ID
