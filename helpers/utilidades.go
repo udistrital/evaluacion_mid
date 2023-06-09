@@ -273,8 +273,14 @@ func CrearQueryContratoGeneral(proveedor, numeroContrato, vigencia, supervisor, 
 	}
 
 	if tipoContrato != "" {
-		tipoContrato = url.QueryEscape(tipoContrato)
-		query = append(query, "TipoContrato__TipoContrato:"+tipoContrato)
+		if strings.HasPrefix(tipoContrato, "notin:") || strings.HasPrefix(tipoContrato, "in:") {
+			prefix := strings.SplitN(tipoContrato, ":", 2)
+			tipoContrato = "__" + prefix[0] + ":" + url.QueryEscape(prefix[1])
+		} else {
+			tipoContrato = ":" + url.QueryEscape(tipoContrato)
+		}
+
+		query = append(query, "TipoContrato__TipoContrato"+tipoContrato)
 	}
 
 	query_ := strings.Join(query, ",")

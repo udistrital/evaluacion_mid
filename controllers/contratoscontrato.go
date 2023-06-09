@@ -24,7 +24,7 @@ func (c *ContratoscontratoController) URLMapping() {
 // @Param	NumContrato		query	string	true	"Numero del contrato"
 // @Param	Vigencia		query	string	true	"Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)"
 // @Param	Supervisor		query	string	false	"Supervisor del contrato."
-// @Param	TipoContrato	query	string	false	"Tipo de contrato."
+// @Param	TipoContrato	query	string	false	"Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |"
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]
