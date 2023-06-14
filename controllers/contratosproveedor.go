@@ -22,7 +22,7 @@ func (c *ContratosProveedorController) URLMapping() {
 // @Description get ContratosProveedor
 // @Param	ProvID			query	string	true	"ID del Proveedor"
 // @Param	Supervisor		query	string	false	"Supervisor del contrato. Para evitar el filtro se debe enviar un 0"
-// @Param	TipoContrato	query	string	false	"Tipo de contrato."
+// @Param	TipoContrato	query	string	false	"Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |"
 // @Success 200 {}
 // @Failure 404 not found resource
 // @router / [get]

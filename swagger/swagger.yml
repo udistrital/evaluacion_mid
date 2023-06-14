@@ -56,7 +56,7 @@ paths:
         type: string
       - in: query
         name: TipoContrato
-        description: Tipo de contrato.
+        description: Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |
         type: string
       responses:
         "200":
@@ -91,7 +91,7 @@ paths:
         type: string
       - in: query
         name: TipoContrato
-        description: Tipo de contrato.
+        description: Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |
         type: string
       responses:
         "200":
@@ -116,7 +116,7 @@ paths:
         type: string
       - in: query
         name: TipoContrato
-        description: Tipo de contrato.
+        description: Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |
         type: string
       responses:
         "200":
