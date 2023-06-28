@@ -8,19 +8,19 @@ import (
 
 // ListaContratosProveedor ...
 func ListaContratosProveedor(IdentProv, supervisor, tipo string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
-	resultProv, err1 := InfoProveedor(IdentProv)
-	if resultProv != nil {
-		IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
-		resultContrato, err2 := ObtenerContratosProveedor(IDProveedor, supervisor, tipo)
-		if resultContrato != nil {
-			InfoOrg := models.OrganizarInfoContratos(resultProv, resultContrato)
-			return InfoOrg, nil
-		} else {
-			return nil, err2
-		}
-	} else {
-		return nil, err1
+	resultProv, outputError := InfoProveedor(IdentProv)
+	if resultProv == nil || outputError != nil {
+		return
 	}
+
+	IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
+	resultContrato, outputError := ObtenerContratosProveedor(IDProveedor, supervisor, tipo)
+	if resultContrato == nil || outputError != nil {
+		return
+	}
+
+	contratos = models.OrganizarInfoContratos(resultProv, resultContrato)
+	return
 
 }
 
