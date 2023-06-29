@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strings"
 	"time"
@@ -250,4 +251,38 @@ func formatNumberString(x string, precision int, thousand string, decimal string
 	}
 
 	return result + extra
+}
+
+func CrearQueryContratoGeneral(proveedor, numeroContrato, vigencia, supervisor, tipoContrato string) string {
+
+	var query []string
+	if proveedor != "0" {
+		query = append(query, "Contratista:"+proveedor)
+	}
+
+	if numeroContrato != "0" {
+		query = append(query, "ContratoSuscrito__NumeroContratoSuscrito:"+numeroContrato)
+	}
+
+	if vigencia != "0" {
+		query = append(query, "VigenciaContrato:"+vigencia)
+	}
+
+	if supervisor != "0" {
+		query = append(query, "Supervisor__Documento:"+supervisor)
+	}
+
+	if tipoContrato != "" {
+		if strings.HasPrefix(tipoContrato, "notin:") || strings.HasPrefix(tipoContrato, "in:") {
+			prefix := strings.SplitN(tipoContrato, ":", 2)
+			tipoContrato = "__" + prefix[0] + ":" + url.QueryEscape(prefix[1])
+		} else {
+			tipoContrato = ":" + url.QueryEscape(tipoContrato)
+		}
+
+		query = append(query, "TipoContrato__TipoContrato"+tipoContrato)
+	}
+
+	query_ := strings.Join(query, ",")
+	return query_
 }

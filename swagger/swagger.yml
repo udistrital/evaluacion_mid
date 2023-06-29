@@ -50,6 +50,14 @@ paths:
         description: Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)
         required: true
         type: string
+      - in: query
+        name: Supervisor
+        description: Supervisor del contrato.
+        type: string
+      - in: query
+        name: TipoContrato
+        description: Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |
+        type: string
       responses:
         "200":
           description: '{}'
@@ -77,6 +85,14 @@ paths:
         description: Vigencia del contrato,, para evitar el filtro se debe de mandar un 0 (cero)
         required: true
         type: string
+      - in: query
+        name: Supervisor
+        description: Supervisor del contrato. Para evitar el filtro se debe enviar un 0
+        type: string
+      - in: query
+        name: TipoContrato
+        description: Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |
+        type: string
       responses:
         "200":
           description: '{}'
@@ -93,6 +109,14 @@ paths:
         name: ProvID
         description: ID del Proveedor
         required: true
+        type: string
+      - in: query
+        name: Supervisor
+        description: Supervisor del contrato. Para evitar el filtro se debe enviar un 0
+        type: string
+      - in: query
+        name: TipoContrato
+        description: Tipo de contrato. Soporta prefijo in y notin para indicar múltiples valores separados por |
         type: string
       responses:
         "200":

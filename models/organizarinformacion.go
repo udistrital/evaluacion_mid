@@ -11,10 +11,15 @@ import (
 func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContratos []map[string]interface{}) (contratos []map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
 	for i := 0; i < len(infoContratos); i++ {
+		numeroContrato := GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito")
+		if numeroContrato == "Objeto de longitud cero" {
+			continue
+		}
+
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":      infoContratos[i]["Contratista"],
 			"NombreProveedor":  infoProveedor[0]["NomProveedor"],
-			"ContratoSuscrito": GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
+			"ContratoSuscrito": numeroContrato,
 			"Vigencia":         infoContratos[i]["VigenciaContrato"],
 			// "Cotizacion":            infoContratos[i],
 			"DependenciaSupervisor": GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
@@ -26,20 +31,24 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 // OrganizarInfoContratosMultipleProv ...
 func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}
-	NomProveedor := []map[string]interface{}{}
+	var NomProveedor []map[string]interface{}
 	for i := 0; i < len(infoContratos); i++ {
 		IDProv := fmt.Sprintf("%v", infoContratos[i]["Contratista"])
 		resultProv, err := InfoProveedorID(IDProv)
-		if resultProv != nil {
-			NomProveedor = resultProv
-
-		} else {
+		if resultProv == nil || err != nil {
 			return nil, err
 		}
+
+		NomProveedor = resultProv
+		numeroContrato := GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito")
+		if numeroContrato == "Objeto de longitud cero" {
+			continue
+		}
+
 		InfoOrganizada = append(InfoOrganizada, map[string]interface{}{
 			"IdProveedor":           infoContratos[i]["Contratista"],
 			"NombreProveedor":       NomProveedor[0]["NomProveedor"],
-			"ContratoSuscrito":      GetElementoMaptoString(infoContratos[i]["ContratoSuscrito"], "NumeroContratoSuscrito"),
+			"ContratoSuscrito":      numeroContrato,
 			"Vigencia":              infoContratos[i]["VigenciaContrato"],
 			"DependenciaSupervisor": GetElemento(infoContratos[i]["Supervisor"], "DependenciaSupervisor"),
 		})
