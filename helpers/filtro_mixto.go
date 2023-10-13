@@ -15,11 +15,20 @@ func ListaContratoMixto(IdentificacionProveedor, NumeroContrato, vigencia, super
 
 	IDProveedor := models.GetElementoMaptoString(ProveedorInfo, "Id")
 	resultContrato, outputError := ObtenerContratoProveedor(IDProveedor, NumeroContrato, vigencia, supervisor, tipo)
-	if resultContrato == nil || outputError != nil {
+	if outputError != nil {
+		return
+	}
+
+	cesiones, outputError := cesionesProveedorContrato(IDProveedor, NumeroContrato, vigencia)
+	if outputError != nil {
 		return
 	}
 
 	contratos = models.OrganizarInfoContratos(ProveedorInfo, resultContrato)
+	cesiones_ := models.OrganizarInfoCesionesProveedor(ProveedorInfo, cesiones)
+
+	contratos = append(contratos, cesiones_...)
+
 	return
 
 }
@@ -34,11 +43,6 @@ func ObtenerContratoProveedor(ProveedorID, NumContrato, vigencia, supervisor, ti
 	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratoProveedor1", "err": err.Error(), "status": "502"}
-		return nil, outputError
-	}
-
-	if len(ContratoProveedor) < 1 {
-		outputError = map[string]interface{}{"funcion": "/ObtenerContratoProveedor2", "err": "No se encontraron contratos", "status": "204"}
 		return nil, outputError
 	}
 

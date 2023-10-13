@@ -28,6 +28,22 @@ func OrganizarInfoContratos(infoProveedor []map[string]interface{}, infoContrato
 	return InfoOrganizada
 }
 
+// OrganizarInfoCesionesProveedor ...
+func OrganizarInfoCesionesProveedor(infoProveedor []map[string]interface{}, infoCesiones []map[string]interface{}) (cesiones []map[string]interface{}) {
+
+	cesiones = []map[string]interface{}{}
+	for _, cesion := range infoCesiones {
+		cesiones = append(cesiones, map[string]interface{}{
+			"ContratoSuscrito": cesion["ContratoSuscrito"],
+			"IdProveedor":      infoProveedor[0]["Id"],
+			"NombreProveedor":  infoProveedor[0]["NomProveedor"],
+			"Vigencia":         cesion["Vigencia"],
+		})
+	}
+
+	return
+}
+
 // OrganizarInfoContratosMultipleProv ...
 func OrganizarInfoContratosMultipleProv(infoContratos []map[string]interface{}) (contratos []map[string]interface{}, outputError map[string]interface{}) {
 	InfoOrganizada := []map[string]interface{}{}

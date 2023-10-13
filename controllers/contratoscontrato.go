@@ -45,11 +45,14 @@ func (c *ContratoscontratoController) GetAll() {
 	}
 
 	resultContratos, err := helpers.ListaContratosContrato(NumContrato, Vigencia, Supervisor, TipoContrato)
-	if resultContratos != nil {
+	if err != nil {
+		panic(err)
+	} else {
+		if len(resultContratos) == 0 {
+			resultContratos = []map[string]interface{}{}
+		}
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
-	} else {
-		panic(err)
 	}
 	c.ServeJSON()
 }

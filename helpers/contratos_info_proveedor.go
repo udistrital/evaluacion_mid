@@ -18,10 +18,51 @@ func ListaContratosProveedor(IdentProv, supervisor, tipo string) (contratos []ma
 	if resultContrato == nil || outputError != nil {
 		return
 	}
+	cesiones, outputError := cesionesProveedorContrato(IDProveedor, "0", "0")
+	if outputError != nil {
+		return
+	}
 
 	contratos = models.OrganizarInfoContratos(resultProv, resultContrato)
+	cesiones_ := models.OrganizarInfoCesionesProveedor(resultProv, cesiones)
+
+	contratos = append(contratos, cesiones_...)
+
 	return
 
+}
+
+func cesionesProveedorContrato(idProveedor, contrato, vigencia string) (cesiones []map[string]interface{}, outputError map[string]interface{}) {
+
+	basePath := beego.AppConfig.String("novedades_crud_url") + beego.AppConfig.String("novedades_crud_version")
+	query := "propiedad/?sortby=Id&order=asc&query=" + CrearQueryNovedadesCesion(idProveedor, contrato, vigencia)
+
+	var detalleCesiones []map[string]interface{}
+	response, err := getJsonTest(basePath+query, &detalleCesiones)
+
+	if err != nil || response != 200 {
+		logs.Error(err)
+		outputError = map[string]interface{}{"funcion": "/cesionesProveedor", "err": err.Error(), "status": "502"}
+		return nil, outputError
+	} else if len(detalleCesiones) == 0 || detalleCesiones[0]["Id"] == nil {
+		return
+	}
+
+	for _, cesion := range detalleCesiones {
+		novedad, ok := cesion["IdNovedadesPoscontractuales"].(map[string]interface{})
+		if novedad == nil || !ok {
+			continue
+		}
+
+		contrato := map[string]interface{}{
+			"ContratoSuscrito": novedad["ContratoId"],
+			"Vigencia":         novedad["Vigencia"],
+		}
+
+		cesiones = append(cesiones, contrato)
+	}
+
+	return
 }
 
 // InfoProveedor ...
@@ -60,10 +101,5 @@ func ObtenerContratosProveedor(IDProv, supervisor, tipo string) (contrato []map[
 		return nil, outputError
 	}
 
-	if len(ContratosProveedor) < 1 {
-		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor2", "err": "No se encontraron contratos", "status": "204"}
-		return nil, outputError
-	} else {
-		return ContratosProveedor, nil
-	}
+	return ContratosProveedor, nil
 }
