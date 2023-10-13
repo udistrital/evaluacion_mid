@@ -286,3 +286,22 @@ func CrearQueryContratoGeneral(proveedor, numeroContrato, vigencia, supervisor, 
 	query_ := strings.Join(query, ",")
 	return query_
 }
+
+func CrearQueryNovedadesCesion(proveedor, numeroContrato, vigencia string) string {
+
+	var query = []string{"IdTipoPropiedad__Nombre:Cesionario", "IdNovedadesPoscontractuales__TipoNovedad:2"}
+	if proveedor != "0" {
+		query = append(query, "Propiedad:"+proveedor)
+	}
+
+	if numeroContrato != "0" {
+		query = append(query, "IdNovedadesPoscontractuales__ContratoId:"+fmt.Sprint(numeroContrato))
+	}
+
+	if vigencia != "0" {
+		query = append(query, "IdNovedadesPoscontractuales__Vigencia:"+fmt.Sprint(vigencia))
+	}
+
+	query_ := strings.Join(query, ",")
+	return query_
+}
