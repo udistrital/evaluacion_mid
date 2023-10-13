@@ -45,7 +45,17 @@ func (c *ContratoscontratoController) GetAll() {
 	}
 
 	resultContratos, err := helpers.ListaContratosContrato(NumContrato, Vigencia, Supervisor, TipoContrato)
-	if resultContratos != nil {
+	if len(resultContratos) == 0 {
+		resultContratos = []map[string]interface{}{}
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
+	} else if err != nil {
+		panic(err)
+	}
+
+	cesiones, err := helpers.CesionesContratos(resultContratos)
+	if err == nil {
+		resultContratos = append(resultContratos, cesiones...)
 		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": "200", "Message": "successful", "Data": resultContratos}
 	} else {
