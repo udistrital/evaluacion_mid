@@ -20,10 +20,7 @@ func CesionesContratos(contratos []map[string]interface{}) (cesiones []map[strin
 		}
 
 		var detalleCesion []map[string]interface{}
-		query := "propiedad/?sortby=Id&order=desc&query=IdTipoPropiedad__Nombre:Cesionario" +
-			",IdNovedadesPoscontractuales__TipoNovedad:2" +
-			",IdNovedadesPoscontractuales__Vigencia:" + fmt.Sprint(vigencia) +
-			",IdNovedadesPoscontractuales__ContratoId:" + fmt.Sprint(contratoSuscrito)
+		query := "propiedad/?sortby=Id&order=desc&query=" + CrearQueryNovedadesCesion("0", fmt.Sprint(contratoSuscrito), fmt.Sprint(vigencia))
 
 		response, err := getJsonTest(basePath+query, &detalleCesion)
 		if err != nil || response != 200 {

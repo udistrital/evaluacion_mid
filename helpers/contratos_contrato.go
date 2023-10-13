@@ -8,19 +8,23 @@ import (
 
 // ListaContratosContrato ...
 func ListaContratosContrato(NumeroContrato, vigencia, supervisor, tipo string) (contratos []map[string]interface{}, outputError map[string]interface{}) {
-	resultContrato, err1 := ObtenerContratosContrato(NumeroContrato, vigencia, supervisor, tipo)
-	if resultContrato != nil {
-		InfoOrg, err2 := models.OrganizarInfoContratosMultipleProv(resultContrato)
-		if err2 != nil {
-			return nil, err2
-		} else {
-			return InfoOrg, nil
-		}
-		// return resultContrato, nil
-	} else {
-		return nil, err1
+	resultContrato, outputError := ObtenerContratosContrato(NumeroContrato, vigencia, supervisor, tipo)
+	if outputError != nil || resultContrato == nil {
+		return
 	}
-	// return nil, nil
+
+	InfoOrg, outputError := models.OrganizarInfoContratosMultipleProv(resultContrato)
+	if outputError != nil {
+		return
+	}
+
+	cesiones, outputError := CesionesContratos(InfoOrg)
+	if outputError != nil {
+		return
+	}
+
+	contratos = append(InfoOrg, cesiones...)
+	return contratos, nil
 }
 
 // ObtenerContratosContrato ...
@@ -36,10 +40,5 @@ func ObtenerContratosContrato(NumContrato, vigencia, supervisor, tipo string) (c
 		return nil, outputError
 	}
 
-	if len(ContratosProveedor) < 1 {
-		outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato3", "err": "No se encontraron contratos", "status": "204"}
-		return nil, outputError
-	} else {
-		return ContratosProveedor, nil
-	}
+	return ContratosProveedor, nil
 }

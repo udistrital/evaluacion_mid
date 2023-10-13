@@ -18,7 +18,7 @@ func ListaContratosProveedor(IdentProv, supervisor, tipo string) (contratos []ma
 	if resultContrato == nil || outputError != nil {
 		return
 	}
-	cesiones, outputError := cesionesProveedor(IDProveedor)
+	cesiones, outputError := cesionesProveedorContrato(IDProveedor, "0", "0")
 	if outputError != nil {
 		return
 	}
@@ -32,13 +32,10 @@ func ListaContratosProveedor(IdentProv, supervisor, tipo string) (contratos []ma
 
 }
 
-func cesionesProveedor(idProveedor string) (cesiones []map[string]interface{}, outputError map[string]interface{}) {
+func cesionesProveedorContrato(idProveedor, contrato, vigencia string) (cesiones []map[string]interface{}, outputError map[string]interface{}) {
 
 	basePath := beego.AppConfig.String("novedades_crud_url") + beego.AppConfig.String("novedades_crud_version")
-	query := "propiedad/?sortby=Id&order=asc&" +
-		"query=IdTipoPropiedad__Nombre:Cesionario" +
-		",IdNovedadesPoscontractuales__TipoNovedad:2" +
-		",Propiedad:" + idProveedor
+	query := "propiedad/?sortby=Id&order=asc&query=" + CrearQueryNovedadesCesion(idProveedor, contrato, vigencia)
 
 	var detalleCesiones []map[string]interface{}
 	response, err := getJsonTest(basePath+query, &detalleCesiones)
@@ -104,10 +101,5 @@ func ObtenerContratosProveedor(IDProv, supervisor, tipo string) (contrato []map[
 		return nil, outputError
 	}
 
-	if len(ContratosProveedor) < 1 {
-		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor2", "err": "No se encontraron contratos", "status": "204"}
-		return nil, outputError
-	} else {
-		return ContratosProveedor, nil
-	}
+	return ContratosProveedor, nil
 }
