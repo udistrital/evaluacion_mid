@@ -295,11 +295,11 @@ func CrearQueryNovedadesCesion(proveedor, numeroContrato, vigencia string) strin
 	}
 
 	if numeroContrato != "0" {
-		query = append(query, "IdNovedadesPoscontractuales__ContratoId:"+fmt.Sprint(numeroContrato))
+		query = append(query, "IdNovedadesPoscontractuales__ContratoId:"+numeroContrato)
 	}
 
 	if vigencia != "0" {
-		query = append(query, "IdNovedadesPoscontractuales__Vigencia:"+fmt.Sprint(vigencia))
+		query = append(query, "IdNovedadesPoscontractuales__Vigencia:"+vigencia)
 	}
 
 	query_ := strings.Join(query, ",")
