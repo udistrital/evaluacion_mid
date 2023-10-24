@@ -15,7 +15,7 @@ func ListaContratosProveedor(IdentProv, supervisor, tipo string) (contratos []ma
 
 	IDProveedor := models.GetElementoMaptoString(resultProv, "Id")
 	resultContrato, outputError := ObtenerContratosProveedor(IDProveedor, supervisor, tipo)
-	if resultContrato == nil || outputError != nil {
+	if outputError != nil {
 		return
 	}
 	cesiones, outputError := cesionesProveedorContrato(IDProveedor, "0", "0")
