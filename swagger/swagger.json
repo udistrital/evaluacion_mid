@@ -183,6 +183,68 @@
                 }
             }
         },
+        "/informacion_certificacion_dve/": {
+            "post": {
+                "tags": [
+                    "informacion_certificacion_dve"
+                ],
+                "description": "get certification information by various parameters",
+                "operationId": "InformacionCertificacionDveController.PostInformacionCertificacionDve",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "numero_documento",
+                        "description": "List of document numbers",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "periodo_inicial",
+                        "description": "List of initial periods",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "periodo_final",
+                        "description": "List of final periods",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "vinculaciones",
+                        "description": "List of linkages",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.InformacionCertificacionDve"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/plantilla/": {
             "get": {
                 "tags": [
@@ -295,6 +357,72 @@
         }
     },
     "definitions": {
+        "models.InformacionCertificacionDve": {
+            "title": "InformacionCertificacionDve",
+            "type": "object",
+            "properties": {
+                "informacion_dve": {
+                    "$ref": "#/definitions/models.InformacionDVE"
+                },
+                "intensidad_horaria": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.IntensidadHorariaDVE"
+                    }
+                }
+            }
+        },
+        "models.InformacionDVE": {
+            "title": "InformacionDVE",
+            "type": "object",
+            "properties": {
+                "activo": {
+                    "type": "string"
+                },
+                "facultad": {
+                    "type": "string"
+                },
+                "nivel_academico": {
+                    "type": "string"
+                },
+                "nombre_docente": {
+                    "type": "string"
+                },
+                "numero_documento": {
+                    "type": "string"
+                },
+                "proyecto_curricular": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.IntensidadHorariaDVE": {
+            "title": "IntensidadHorariaDVE",
+            "type": "object",
+            "properties": {
+                "ano": {
+                    "type": "string"
+                },
+                "horas_semanales": {
+                    "type": "string"
+                },
+                "horas_semestrales": {
+                    "type": "string"
+                },
+                "nombre_asignatura": {
+                    "type": "string"
+                },
+                "numero_semanas": {
+                    "type": "string"
+                },
+                "periodo": {
+                    "type": "string"
+                },
+                "salario_docente": {
+                    "type": "string"
+                }
+            }
+        },
         "{}": {
             "title": "{}",
             "type": "object"

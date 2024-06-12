@@ -305,3 +305,24 @@ func CrearQueryNovedadesCesion(proveedor, numeroContrato, vigencia string) strin
 	query_ := strings.Join(query, ",")
 	return query_
 }
+
+// Funcion para agregar los datos a un slice
+func StringToSlice(cadena string) (slice []string) {
+	parts := strings.Split(cadena, ",")
+
+	if cadena != "" {
+		for _, part := range parts {
+			slice = append(slice, part)
+		}
+	}
+	return slice
+}
+
+func LimpiezaRespuestaRefactor(respuesta map[string]interface{}, v interface{}) {
+	b, err := json.Marshal(respuesta["Data"])
+	if err != nil {
+		panic(err)
+	}
+
+	json.Unmarshal(b, v)
+}

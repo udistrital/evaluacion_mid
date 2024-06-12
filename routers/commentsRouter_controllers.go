@@ -43,6 +43,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:InformacionCertificacionDveController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:InformacionCertificacionDveController"],
+        beego.ControllerComments{
+            Method: "PostInformacionCertificacionDve",
+            Router: "/",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"] = append(beego.GlobalControllerRouter["github.com/udistrital/evaluacion_mid/controllers:PlantillaController"],
         beego.ControllerComments{
             Method: "Post",
