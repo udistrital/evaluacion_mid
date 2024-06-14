@@ -3,6 +3,8 @@ package helpers
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/models"
@@ -25,56 +27,102 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 	var respuesta_peticion []map[string]interface{}
 	var informacion_proveedor models.InformacionProveedor
 
+	// Solicitud para obtener los datos del proveedor
 	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/informacion_proveedor/?query=NumDocumento:"+numeroDocumento, &respuesta_peticion); err == nil && response == 200 {
-
-		if len(respuesta_peticion) == 0 {
-			return docente, map[string]interface{}{
-				"Succes":  false,
-				"Status":  204,
-				"Message": "No se encontro el docente",
-				"Funcion": "InformacionDve",
-			}
-		} else {
-
+		if len(respuesta_peticion) > 0 {
+			// Deserializar la información obtenida
 			proveedorJson, err := json.Marshal(respuesta_peticion[0])
 			if err != nil {
-				return docente, map[string]interface{}{
-					"Succes":  false,
-					"Status":  502,
-					"Message": "Error al obtener los datos del docente",
-					"Funcion": "InformacionDve",
-				}
+				return docente, outputError
 			} else {
-				err = json.Unmarshal(proveedorJson, &informacion_proveedor)
-				if err != nil {
-					return docente, map[string]interface{}{
-						"Succes":  false,
-						"Status":  502,
-						"Message": "Error al obtener los datos del docente",
-						"Funcion": "InformacionDve",
-					}
+				// Convertir los datos al modelo de información proveedor
+				if err = json.Unmarshal(proveedorJson, &informacion_proveedor); err != nil {
+					return docente, outputError
 				} else {
-					docente = models.InformacionDVE{
-						Activo:             "Activo",
-						NombreDocente:      informacion_proveedor.NomProveedor,
-						NumeroDocumento:    informacion_proveedor.NumDocumento,
-						NivelAcademico:     "Titular",
-						Facultad:           "Tecnologica",
-						ProyectoCurricular: "Ingenieria en telemática",
+					var respuesta_contrato []map[string]interface{}
+					var informacion_contrato models.ContratoGeneral
+					// Validar que el docente sea de vinculación especial y tenga un contrato de prestación de servicios
+					if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id), &respuesta_contrato); err == nil && response == 200 {
+						if len(respuesta_contrato) > 0 {
+							contratoJson, err := json.Marshal(respuesta_contrato[0])
+							if err != nil {
+								return docente, outputError
+							} else {
+								if err = json.Unmarshal(contratoJson, &informacion_contrato); err == nil && informacion_contrato.TipoContrato.Id == 18 {
+									docente.NombreDocente = informacion_proveedor.NomProveedor
+									docente.NumeroDocumento = informacion_proveedor.NumDocumento
+
+									// Traer información de la vinculación del docente
+									var respuesta_vinculacion map[string]interface{}
+									order := "&order=desc"
+									sortby := "&sortby=FechaCreacion"
+
+									if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/vinculacion_docente/?query=PersonaId:"+numeroDocumento+sortby+order, &respuesta_vinculacion); err == nil && response == 200 {
+										if len(respuesta_vinculacion) > 0 {
+											var vinculacionDocente models.VinculacionesDocente
+											vinculacionJson, err := json.Marshal(respuesta_vinculacion["Data"].([]interface{})[0])
+											if err != nil {
+												return docente, outputError
+											} else {
+												if err = json.Unmarshal(vinculacionJson, &vinculacionDocente); err != nil {
+													return docente, outputError
+												} else {
+													docente.NivelAcademico = vinculacionDocente.ResolucionVinculacionDocente.NivelAcademico
+													var respuesta_resolucion map[string]interface{}
+													var resolucion models.Resolucion
+													if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(vinculacionDocente.ResolucionVinculacionDocente.Id), &respuesta_resolucion); err == nil && response == 200 {
+														if len(respuesta_resolucion) > 0 {
+															resolucionJson, err := json.Marshal(respuesta_resolucion["Data"].([]interface{})[0])
+															if err != nil {
+																return docente, outputError
+															} else {
+																if err = json.Unmarshal(resolucionJson, &resolucion); err != nil {
+																	return docente, outputError
+																} else {
+																	if resolucion.FechaInicio == nil || resolucion.FechaFin == nil {
+																		docente.Activo = "false"
+
+																	}
+																	//Verificacr si la fecha actual es mas reciente que la fecha de inicio y la fecha de fin del contrato
+																	if resolucion.FechaInicio != nil && resolucion.FechaFin != nil {
+																		if (*resolucion.FechaInicio).Before(*resolucion.FechaFin) {
+																			if (*resolucion.FechaInicio).Before(time.Now()) && (*resolucion.FechaFin).After(time.Now()) {
+																				docente.Activo = "true"
+																			} else {
+																				docente.Activo = "false"
+																			}
+																		} else {
+																			docente.Activo = "false"
+																		}
+																	} else {
+																		docente.Activo = "false"
+																	}
+																}
+															}
+														}
+													}
+
+												}
+											}
+										}
+									}
+								} else {
+									return docente, map[string]interface{}{
+										"Succes":  false,
+										"Status":  404,
+										"Message": "El docente no es de vinculación especial y no tiene un contrato de prestación de servicios",
+										"Funcion": "InformacionDve",
+									}
+								}
+							}
+						}
 					}
 				}
 			}
 		}
-
-	} else {
-		return docente, map[string]interface{}{
-			"Succes":  false,
-			"Status":  502,
-			"Message": "Error al obtener los datos del docente",
-			"Funcion": "InformacionDve",
-		}
 	}
-	return
+
+	return docente, nil
 }
 
 func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadHoraria []models.IntensidadHorariaDVE, outputError map[string]interface{}) {
