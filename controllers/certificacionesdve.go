@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/astaxie/beego"
 	"github.com/udistrital/evaluacion_mid/helpers"
@@ -38,7 +37,6 @@ func (c *InformacionCertificacionDveController) PostInformacionCertificacionDve(
 	var v BodyParams
 
 	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-
 	numeroDocumento := helpers.StringToSlice(v.NumeroDocumento)
 	periodoInicial := helpers.StringToSlice(v.PeriodoInicial)
 	periodoFinal := helpers.StringToSlice(v.PeriodoFinal)
@@ -46,7 +44,6 @@ func (c *InformacionCertificacionDveController) PostInformacionCertificacionDve(
 
 	certificacion, err := helpers.InformacionCertificacionDve(numeroDocumento, periodoInicial, periodoFinal, vinculaciones)
 
-	fmt.Println("El error es: ", err)
 	if err != nil {
 		c.Ctx.Output.SetStatus(204)
 		c.Data["json"] = map[string]interface{}{"Succes": true, "Status:": 204, "Message": "No hay datos que coincidan con los filtros", "Data": nil}

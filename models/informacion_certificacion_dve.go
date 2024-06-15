@@ -6,12 +6,14 @@ type InformacionCertificacionDve struct {
 }
 
 type InformacionDVE struct {
-	Activo             string `json:"activo"`
+	Activo             bool   `json:"activo"`
 	NombreDocente      string `json:"nombre_docente"`
 	NumeroDocumento    string `json:"numero_documento"`
 	NivelAcademico     string `json:"nivel_academico"`
 	Facultad           string `json:"facultad"`
 	ProyectoCurricular string `json:"proyecto_curricular"`
+	Categoria          string `json:"categoria"`
+	Dedicacion         string `json:"dedicacion"`
 }
 
 type IntensidadHorariaDVE struct {
