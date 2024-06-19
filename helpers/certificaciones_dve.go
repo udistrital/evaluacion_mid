@@ -72,8 +72,9 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 													docente.Dedicacion = vinculacionDocente.ResolucionVinculacionDocente.Dedicacion
 
 													pago, err := ObtenerUltimoSalarioDve(numeroDocumento)
+
 													if err != nil {
-														return docente, err
+														docente.UltimoPago = "Este docente no cuenta con un contrato por lo tanto no es posible obtener el ultimo salario"
 													} else {
 														docente.UltimoPago = pago
 													}
@@ -349,17 +350,16 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 			outputError = map[string]interface{}{
 				"Succes":  false,
 				"Status":  502,
-				"Message": "Error al obtener el ultimo salario del docente",
+				"Message": "Error al obtener el ultimo salario del docente, el docente no tiene salarios registrados",
 				"Funcion": "ObtenerUltimoSalaraDve",
 			}
-			panic(outputError)
 		}
 	}()
-
 	var respuesta_peticion map[string]interface{}
 	var detalle_preliquidacion []models.DetallePreliquidacion
 	var fecha time.Time
 	var nomina string
+
 	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve, &respuesta_peticion); err == nil && response == 200 {
 		if len(respuesta_peticion) > 0 {
 			LimpiezaRespuestaRefactor(respuesta_peticion, &detalle_preliquidacion)
@@ -389,7 +389,7 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 						for _, detalle := range detalles {
 							for _, det := range detalle.Detalle {
 								if det.ConceptoNominaId.Id == 152 {
-									ultimoSalario = strconv.Itoa(int(det.ValorCalculado))
+									ultimoSalario = FormatMoney(int(det.ValorCalculado), 0)
 									return ultimoSalario, nil
 								} else {
 									continue
@@ -400,7 +400,7 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 				}
 			}
 		} else {
-			return ultimoSalario, map[string]interface{}{
+			return "ultimoSalario", map[string]interface{}{
 				"Succes":  false,
 				"Status":  404,
 				"Message": "No se encontro el salario del docente",
