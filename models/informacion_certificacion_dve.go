@@ -3,6 +3,7 @@ package models
 type InformacionCertificacionDve struct {
 	InformacionDve    InformacionDVE         `json:"informacion_dve"`
 	IntensidadHoraria []IntensidadHorariaDVE `json:"intensidad_horaria"`
+	JefeTalentoHumano JefeTalentoHumano      `json:"informacion_certificacion_dve"`
 }
 
 type InformacionDVE struct {
@@ -24,4 +25,8 @@ type IntensidadHorariaDVE struct {
 	NumeroSemanas    string `json:"numero_semanas"`
 	HorasSemestrales string `json:"horas_semestrales"`
 	SalarioDocente   string `json:"salario_docente"`
+}
+type JefeTalentoHumano struct {
+	Nombre string `json:"Nombre"`
+	Cargo  string `json:"Cargo"`
 }
