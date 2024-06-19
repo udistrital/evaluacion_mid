@@ -271,6 +271,8 @@ definitions:
         type: string
       proyecto_curricular:
         type: string
+      ultimo_pago_dve:
+        type: string
   models.IntensidadHorariaDVE:
     title: IntensidadHorariaDVE
     type: object
