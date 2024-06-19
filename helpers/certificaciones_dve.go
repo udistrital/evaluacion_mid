@@ -206,6 +206,15 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 		IntensidadHoraria: intensidadHoraria,
 	}
 
+	certificacion = models.InformacionCertificacionDve{
+		InformacionDve:    docente,
+		IntensidadHoraria: intensidadHoraria,
+	}
+	infoTalentoHumano, errInfoTelento := InformacionJefeTalentoHumano()
+	if errInfoTelento == nil {
+		certificacion.JefeTalentoHumano = *infoTalentoHumano
+	}
+
 	return certificacion, nil
 }
 
@@ -261,4 +270,48 @@ func NombreFacultadProyecto(codigoFacultadProyecto int) (nombreFacultadProyecto 
 		}
 	}
 	return
+
+}
+func InformacionJefeTalentoHumano() (JefeTalentoHumano *models.JefeTalentoHumano, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  502,
+				"Message": "Error al obtener  Informacion del Jefe de TalentoHumano",
+				"Funcion": "InformacionJefeTalentoHumano",
+			}
+			panic(outputError)
+		}
+	}()
+
+	var respuesta []models.SupervisorContrato
+
+	var query = "/supervisor_contrato?query=DependenciaSupervisor:DEP633&sortby=FechaInicio&&order=desc"
+	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+query, &respuesta); (err == nil) && (response == 200) {
+		if respuesta != nil {
+
+			if respuesta[0].FechaFin.After(time.Now()) {
+
+				JefeTalentoHumano = &models.JefeTalentoHumano{
+					Nombre: respuesta[0].Nombre,
+					Cargo:  respuesta[0].Cargo,
+				}
+			} else {
+				outputError = map[string]interface{}{
+					"Succes":  true,
+					"Status":  200,
+					"Message": "No hay JefeTalentoHumano activo para la dependencia",
+					"Funcion": "InformacionJefeTalentoHumano",
+				}
+				panic(outputError)
+			}
+
+		} else {
+
+			return nil, outputError
+		}
+	}
+
+	return JefeTalentoHumano, nil
 }

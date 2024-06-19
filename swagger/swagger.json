@@ -361,6 +361,9 @@
             "title": "InformacionCertificacionDve",
             "type": "object",
             "properties": {
+                "informacion_certificacion_dve": {
+                    "$ref": "#/definitions/models.JefeTalentoHumano"
+                },
                 "informacion_dve": {
                     "$ref": "#/definitions/models.InformacionDVE"
                 },
@@ -425,6 +428,18 @@
                     "type": "string"
                 },
                 "salario_docente": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.JefeTalentoHumano": {
+            "title": "JefeTalentoHumano",
+            "type": "object",
+            "properties": {
+                "Cargo": {
+                    "type": "string"
+                },
+                "Nombre": {
                     "type": "string"
                 }
             }
