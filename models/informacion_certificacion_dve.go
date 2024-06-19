@@ -15,6 +15,7 @@ type InformacionDVE struct {
 	ProyectoCurricular string `json:"proyecto_curricular"`
 	Categoria          string `json:"categoria"`
 	Dedicacion         string `json:"dedicacion"`
+	UltimoPago         string `json:"ultimo_pago_dve"`
 }
 
 type IntensidadHorariaDVE struct {

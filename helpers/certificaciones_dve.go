@@ -41,12 +41,12 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 					var informacion_contrato models.ContratoGeneral
 					// Validar que el docente sea de vinculación especial y tenga un contrato de prestación de servicios
 					if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id), &respuesta_contrato); err == nil && response == 200 {
-						if len(respuesta_contrato) > 0 {
+						if respuesta_contrato != nil {
 							contratoJson, err := json.Marshal(respuesta_contrato[0])
 							if err != nil {
 								return docente, outputError
 							} else {
-								if err = json.Unmarshal(contratoJson, &informacion_contrato); err == nil && informacion_contrato.TipoContrato.Id == 18 {
+								if err = json.Unmarshal(contratoJson, &informacion_contrato); err == nil && informacion_contrato.TipoContrato.Id == 18 || informacion_contrato.TipoContrato.Id == 3 {
 									docente.NombreDocente = informacion_proveedor.NomProveedor
 									docente.NumeroDocumento = informacion_proveedor.NumDocumento
 
@@ -70,6 +70,13 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 													docente.NivelAcademico = vinculacionDocente.ResolucionVinculacionDocente.NivelAcademico
 													docente.Categoria = vinculacionDocente.Categoria
 													docente.Dedicacion = vinculacionDocente.ResolucionVinculacionDocente.Dedicacion
+
+													pago, err := ObtenerUltimoSalarioDve(numeroDocumento)
+													if err != nil {
+														return docente, err
+													} else {
+														docente.UltimoPago = pago
+													}
 
 													var respuesta_resolucion map[string]interface{}
 													var resolucion models.Resolucion
@@ -314,4 +321,92 @@ func InformacionJefeTalentoHumano() (JefeTalentoHumano *models.JefeTalentoHumano
 	}
 
 	return JefeTalentoHumano, nil
+}
+
+//funcion para que dado una fecha del estilo "2022-09-01T12:00:00Z" retorne el año y el mes, es decir 2022 y 9
+func ObtenerAnoMes(fecha time.Time) (ano string, mes string, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  502,
+				"Message": "Error al obtener el año y el mes",
+				"Funcion": "ObtenerAnoMes",
+			}
+			panic(outputError)
+		}
+	}()
+
+	ano = strconv.Itoa(fecha.Year())
+	mes = strconv.Itoa(int(fecha.Month()))
+
+	return ano, mes, nil
+}
+
+func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  502,
+				"Message": "Error al obtener el ultimo salario del docente",
+				"Funcion": "ObtenerUltimoSalaraDve",
+			}
+			panic(outputError)
+		}
+	}()
+
+	var respuesta_peticion map[string]interface{}
+	var detalle_preliquidacion []models.DetallePreliquidacion
+	var fecha time.Time
+	var nomina string
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve, &respuesta_peticion); err == nil && response == 200 {
+		if len(respuesta_peticion) > 0 {
+			LimpiezaRespuestaRefactor(respuesta_peticion, &detalle_preliquidacion)
+			for _, detalle := range detalle_preliquidacion {
+				if fecha.IsZero() {
+					fecha = detalle.ContratoPreliquidacionId.ContratoId.FechaInicio
+					nomina = strconv.Itoa(detalle.ContratoPreliquidacionId.PreliquidacionId.NominaId)
+				} else {
+					if fecha.Before(detalle.ContratoPreliquidacionId.ContratoId.FechaInicio) {
+						fecha = detalle.ContratoPreliquidacionId.ContratoId.FechaInicio
+						nomina = strconv.Itoa(detalle.ContratoPreliquidacionId.PreliquidacionId.NominaId)
+					} else {
+						fecha = fecha
+						nomina = nomina
+					}
+				}
+			}
+			ano, mes, errorAnoMes := ObtenerAnoMes(fecha)
+			if errorAnoMes != nil {
+				return ultimoSalario, errorAnoMes
+			} else {
+				var respuesta_detalle map[string]interface{}
+				var detalles []models.Detalle
+				if response, err := getJsonTest(beego.AppConfig.String("UrlMidTitan")+"/detalle_preliquidacion/obtener_detalle_DVE/"+ano+"/"+mes+"/"+numeroDocumentoDve+"/"+nomina, &respuesta_detalle); err == nil && response == 200 {
+					if len(respuesta_detalle) > 0 {
+						LimpiezaRespuestaRefactor(respuesta_detalle, &detalles)
+						for _, detalle := range detalles {
+							for _, det := range detalle.Detalle {
+								if det.ConceptoNominaId.Id == 152 {
+									ultimoSalario = strconv.Itoa(int(det.ValorCalculado))
+									return ultimoSalario, nil
+								} else {
+									continue
+								}
+							}
+						}
+					}
+				}
+			}
+		} else {
+			return ultimoSalario, map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "No se encontro el salario del docente",
+				"Funcion": "ObtenerUltimoSalaraDve",
+			}
+		}
+	}
+	return ultimoSalario, nil
 }

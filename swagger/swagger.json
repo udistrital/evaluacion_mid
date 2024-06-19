@@ -402,6 +402,9 @@
                 },
                 "proyecto_curricular": {
                     "type": "string"
+                },
+                "ultimo_pago_dve": {
+                    "type": "string"
                 }
             }
         },
