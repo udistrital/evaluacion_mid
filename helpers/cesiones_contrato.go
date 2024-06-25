@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
 // CesionesContratos Consulta las cesiones que se han realizado a una lista de contratos
@@ -22,7 +23,8 @@ func CesionesContratos(contratos []map[string]interface{}) (cesiones []map[strin
 		var detalleCesion []map[string]interface{}
 		query := "propiedad/?sortby=Id&order=desc&query=" + CrearQueryNovedadesCesion("0", fmt.Sprint(contratoSuscrito), fmt.Sprint(vigencia))
 
-		response, err := getJsonTest(basePath+query, &detalleCesion)
+		//response, err := getJsonTest(basePath+query, &detalleCesion)
+		response, err := request.GetJsonTest2(basePath+query, &detalleCesion)
 		if err != nil || response != 200 {
 			logs.Error(err)
 			outputError = map[string]interface{}{"funcion": "/CesionesContratos2", "err": err.Error(), "status": "502"}

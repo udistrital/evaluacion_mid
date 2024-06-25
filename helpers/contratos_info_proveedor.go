@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
 // ListaContratosProveedor ...
@@ -38,7 +39,8 @@ func cesionesProveedorContrato(idProveedor, contrato, vigencia string) (cesiones
 	query := "propiedad/?sortby=Id&order=asc&query=" + CrearQueryNovedadesCesion(idProveedor, contrato, vigencia)
 
 	var detalleCesiones []map[string]interface{}
-	response, err := getJsonTest(basePath+query, &detalleCesiones)
+	//response, err := getJsonTest(basePath+query, &detalleCesiones)
+	response, err := request.GetJsonTest2(basePath+query, &detalleCesiones)
 
 	if err != nil || response != 200 {
 		logs.Error(err)
@@ -70,7 +72,8 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
+	//if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
+	if response, err := request.GetJsonTest2(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
 	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/InfoProveedor1", "err": err.Error(), "status": "502"}
@@ -94,7 +97,8 @@ func ObtenerContratosProveedor(IDProv, supervisor, tipo string) (contrato []map[
 	urlCRUD := beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query="
 	query := CrearQueryContratoGeneral(IDProv, "0", "0", supervisor, tipo)
 
-	response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
+	//response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
+	response, err := request.GetJsonTest2(urlCRUD+query, &ContratosProveedor)
 	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosProveedor1", "err": err.Error(), "status": "502"}

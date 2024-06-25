@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
 // ListaContratosContrato ...
@@ -33,7 +34,8 @@ func ObtenerContratosContrato(NumContrato, vigencia, supervisor, tipo string) (c
 	var urlCRUD = beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query="
 	query := CrearQueryContratoGeneral("0", NumContrato, vigencia, supervisor, tipo)
 
-	response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
+	//response, err := getJsonTest(urlCRUD+query, &ContratosProveedor)
+	response, err := request.GetJsonTest2(urlCRUD+query, &ContratosProveedor)
 	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratosContrato1", "err": err.Error(), "status": "502"}

@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
 // InfoContrato ...
@@ -58,7 +59,8 @@ func InfoContrato(NumeroContrato string, vigencia string) (contrato []map[string
 func GetGependencia(CodDependencia string) (Dependencia []map[string]interface{}, outputError map[string]interface{}) {
 	var dependencia []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia); (err == nil) && (response == 200) {
+	//if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia); (err == nil) && (response == 200) {
+	if response, err := request.GetJsonTest2(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"dependencia_SIC?query=ESFCODIGODEP:"+CodDependencia+",EstadoRegistro:true&sortby=Id&order=desc&limit=1", &dependencia); (err == nil) && (response == 200) {
 	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetGependencia1", "err": err.Error(), "status": "502"}
@@ -79,7 +81,8 @@ func GetGependencia(CodDependencia string) (Dependencia []map[string]interface{}
 func GetSupervisorContrato(numeroDocSupervisor string, dependenciaSupervisor string) (supervisorResult []map[string]interface{}, outputError map[string]interface{}) {
 	var supervisor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato/?query=Documento:"+numeroDocSupervisor+"&DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato/?query=Documento:"+numeroDocSupervisor+"&DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor); (err == nil) && (response == 200) {
+	//if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato/?query=Documento:"+numeroDocSupervisor+"&DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor); (err == nil) && (response == 200) {
+	if response, err := request.GetJsonTest2(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"supervisor_contrato/?query=Documento:"+numeroDocSupervisor+"&DependenciaSupervisor:"+dependenciaSupervisor+"&sortby=FechaInicio&order=desc&limit=1", &supervisor); (err == nil) && (response == 200) {
 	} else {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/GetSupervisorContrato1", "err": err.Error(), "status": "502"}
@@ -100,7 +103,8 @@ func GetSupervisorContrato(numeroDocSupervisor string, dependenciaSupervisor str
 // ObtenerActividadContrato
 func ObtenerActividadContrato(NumContrato string, vigencia string) (contrato map[string]interface{}, outputError map[string]interface{}) {
 	var ActividadesContrato map[string]interface{}
-	_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"informacion_contrato/"+NumContrato+"/"+vigencia, &ActividadesContrato)
+	//_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"informacion_contrato/"+NumContrato+"/"+vigencia, &ActividadesContrato)
+	_, err := GetJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"informacion_contrato/"+NumContrato+"/"+vigencia, &ActividadesContrato)
 	if err != nil {
 		outputError = map[string]interface{}{"funcion": "/ObtenerActividadContrato", "err": err.Error(), "status": "502"}
 		return nil, outputError
@@ -112,7 +116,8 @@ func ObtenerActividadContrato(NumContrato string, vigencia string) (contrato map
 // ObtenerEstadoContrato
 func ObtenerEstadoContrato(NumContrato string, vigencia string) (res map[string]interface{}, outputError map[string]interface{}) {
 	var EstadoContrato map[string]interface{}
-	_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"contrato_estado/"+NumContrato+"/"+vigencia, &EstadoContrato)
+	//_, err := getJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"contrato_estado/"+NumContrato+"/"+vigencia, &EstadoContrato)
+	_, err := GetJsonWSO2Test(beego.AppConfig.String("administrativa_amazon_jbpm_url")+"contrato_estado/"+NumContrato+"/"+vigencia, &EstadoContrato)
 	if err != nil {
 		outputError = map[string]interface{}{"funcion": "/ObtenerEstadoContrato", "err": err.Error(), "status": "502"}
 		return nil, outputError
