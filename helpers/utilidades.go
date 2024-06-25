@@ -3,7 +3,7 @@ package helpers
 import (
 	"bytes"
 	"encoding/json"
-	"encoding/xml"
+	//"encoding/xml"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -13,9 +13,10 @@ import (
 	"time"
 
 	"github.com/astaxie/beego"
+	"github.com/udistrital/utils_oas/xray"
 )
 
-func sendJson(url string, trequest string, target interface{}, datajson interface{}) error {
+/*func sendJson(url string, trequest string, target interface{}, datajson interface{}) error {
 	b := new(bytes.Buffer)
 	if datajson != nil {
 		if err := json.NewEncoder(b).Encode(datajson); err != nil {
@@ -36,9 +37,9 @@ func sendJson(url string, trequest string, target interface{}, datajson interfac
 	}()
 
 	return json.NewDecoder(r.Body).Decode(target)
-}
+}*/
 
-func getJsonTest(url string, target interface{}) (status int, err error) {
+/*func getJsonTest(url string, target interface{}) (status int, err error) {
 	r, err := http.Get(url)
 	if err != nil {
 		return r.StatusCode, err
@@ -50,9 +51,9 @@ func getJsonTest(url string, target interface{}) (status int, err error) {
 	}()
 
 	return r.StatusCode, json.NewDecoder(r.Body).Decode(target)
-}
+}*/
 
-func getJson(url string, target interface{}) error {
+/*func getJson(url string, target interface{}) error {
 	r, err := http.Get(url)
 	if err != nil {
 		return err
@@ -64,7 +65,7 @@ func getJson(url string, target interface{}) error {
 	}()
 
 	return json.NewDecoder(r.Body).Decode(target)
-}
+}*/
 
 // func getJsonTest(w http.ResponseWriter,r *http.Request){
 // 	err := r.ParseForm()
@@ -80,7 +81,7 @@ func getJson(url string, target interface{}) error {
 // 	}
 //  }
 
-func getXml(url string, target interface{}) error {
+/*func getXml(url string, target interface{}) error {
 	r, err := http.Get(url)
 	if err != nil {
 		return err
@@ -92,9 +93,9 @@ func getXml(url string, target interface{}) error {
 	}()
 
 	return xml.NewDecoder(r.Body).Decode(target)
-}
+}*/
 
-func getJsonWSO2(urlp string, target interface{}) error {
+/*func getJsonWSO2(urlp string, target interface{}) error {
 	b := new(bytes.Buffer)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", urlp, b)
@@ -111,9 +112,9 @@ func getJsonWSO2(urlp string, target interface{}) error {
 	}()
 
 	return json.NewDecoder(r.Body).Decode(target)
-}
+}*/
 
-func getJsonWSO2Test(urlp string, target interface{}) (status int, err error) {
+/*func getJsonWSO2Test(urlp string, target interface{}) (status int, err error) {
 	b := new(bytes.Buffer)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", urlp, b)
@@ -130,6 +131,26 @@ func getJsonWSO2Test(urlp string, target interface{}) (status int, err error) {
 	}()
 
 	return r.StatusCode, json.NewDecoder(r.Body).Decode(target)
+}*/
+
+func GetJsonWSO2Test(urlp string, target interface{}) (status int, err error) {
+	b := new(bytes.Buffer)
+	req, _ := http.NewRequest("GET", urlp, b)
+	req.Header.Set("Accept", "application/json")
+	seg := xray.BeginSegmentSec(req)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	xray.UpdateSegment(resp, err, seg)
+	if err != nil {
+		beego.Error("error", err)
+		return resp.StatusCode, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			beego.Error(nil, err)
+		}
+	}()
+	return resp.StatusCode, json.NewDecoder(resp.Body).Decode(target)
 }
 
 func diff(a, b time.Time) (year, month, day int) {

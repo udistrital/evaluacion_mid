@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/evaluacion_mid/models"
+	"github.com/udistrital/utils_oas/request"
 )
 
 // ListaContratoMixto ...
@@ -39,7 +40,8 @@ func ObtenerContratoProveedor(ProveedorID, NumContrato, vigencia, supervisor, ti
 	var urlCRUD = beego.AppConfig.String("administrativa_amazon_api_url") + beego.AppConfig.String("administrativa_amazon_api_version") + "contrato_general?query="
 	query := CrearQueryContratoGeneral(ProveedorID, NumContrato, vigencia, supervisor, tipo)
 
-	response, err := getJsonTest(urlCRUD+query, &ContratoProveedor)
+	//response, err := getJsonTest(urlCRUD+query, &ContratoProveedor)
+	response, err := request.GetJsonTest2(urlCRUD+query, &ContratoProveedor)
 	if err != nil || response != 200 {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/ObtenerContratoProveedor1", "err": err.Error(), "status": "502"}
