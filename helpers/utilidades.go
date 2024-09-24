@@ -284,6 +284,7 @@ func CrearQueryContratoGeneral(proveedor, numeroContrato, vigencia, supervisor, 
 	}
 
 	query_ := strings.Join(query, ",")
+	query_ = query_ + "&limit=0"
 	return query_
 }
 
