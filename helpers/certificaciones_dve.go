@@ -2,7 +2,10 @@ package helpers
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/astaxie/beego"
@@ -149,44 +152,115 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		}
 	}()
 
-	intensidad1 := models.IntensidadHorariaDVE{
-		Ano:              "2002",
-		Periodo:          "II",
-		NombreAsignatura: "Tecnologia en mecanica",
-		HorasSemana:      "16",
-		NumeroSemanas:    "18",
-		HorasSemestrales: "288",
-		SalarioDocente:   "2000000",
+	fmt.Println("Periodo inicio: ", periodoInicial)
+	fmt.Println("Periodo fin: ", periodoFinal)
+
+	// Construir el json para enviar los datos de la autenticación
+	var bodyAutenticacion models.BodyAutenticacion
+	bodyAutenticacion.Username = beego.AppConfig.String("UsuarioAutenticacion")
+	bodyAutenticacion.Password = beego.AppConfig.String("ContrasenaAutenticacion")
+	bodyAutenticacion.Version = beego.AppConfig.String("VersionAutenticacion")
+
+	var respuesta_peticion map[string]interface{}
+	var response_autenticacion models.AutenticacionResponse
+
+	// Solicitud de autenticación
+	if err := sendJsonAutenticacion(beego.AppConfig.String("UrlAutenticacion"), "POST", &respuesta_peticion, bodyAutenticacion); err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al autenticar el usuario",
+			"Funcion": "IntensidadHorariaDve",
+		}
+		return intensidadHoraria, outputError
 	}
 
-	intensidad2 := models.IntensidadHorariaDVE{
-		Ano:              "2003",
-		Periodo:          "I",
-		NombreAsignatura: "Tecnologia en mecanica",
-		HorasSemana:      "16",
-		NumeroSemanas:    "18",
-		HorasSemestrales: "288",
-		SalarioDocente:   "2000000",
+	// Convertir la respuesta de la autenticación al modelo de autenticación
+	responseJson, err := json.Marshal(respuesta_peticion)
+	if err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener la respuesta de la autenticación",
+			"Funcion": "IntensidadHorariaDve",
+		}
+		return intensidadHoraria, outputError
 	}
 
-	intensidad3 := models.IntensidadHorariaDVE{
-		Ano:              "2003",
-		Periodo:          "II",
-		NombreAsignatura: "Tecnologia en mecanica",
-		HorasSemana:      "16",
-		NumeroSemanas:    "18",
-		HorasSemestrales: "288",
-		SalarioDocente:   "2000000",
+	json.Unmarshal(responseJson, &response_autenticacion)
+
+	// Creacion del json para obtener la carga academica
+	var bodyCargaAcademica models.BodyCargaAcademica
+	var cargas_academicas []models.CargaAcademica
+	//var respuesta_carga_academica map[string]interface{}
+
+	bodyCargaAcademica.Parametros.Identificacion = numeroDocumento[0]
+
+	if err := sendJsonWithToken(beego.AppConfig.String("UrlCargaAcademica"), "POST", &cargas_academicas, bodyCargaAcademica, response_autenticacion.Token); err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener la carga academica",
+			"Funcion": "IntensidadHorariaDve",
+		}
+		return intensidadHoraria, outputError
 	}
 
-	intensidadHoraria = append(intensidadHoraria, intensidad1)
-	intensidadHoraria = append(intensidadHoraria, intensidad2)
-	intensidadHoraria = append(intensidadHoraria, intensidad3)
+	cargasFiltradas := []models.CargaAcademica{}
+	for _, carga := range cargas_academicas {
+		incluir := true
+		// Filtrado por periodoInicial y periodoFinal si están presentes
+		if len(periodoInicial) > 0 {
+			anioInicial, periodoInicio, _ := ObtenerPeriodo(periodoInicial[0])
+			if carga.Anio < anioInicial || (carga.Anio == anioInicial && carga.Periodo < periodoInicio) {
+				incluir = false
+			}
+		}
+		if len(periodoFinal) > 0 {
+			anioFinal, periodoFin, _ := ObtenerPeriodo(periodoFinal[0])
+			if carga.Anio > anioFinal || (carga.Anio == anioFinal && carga.Periodo > periodoFin) {
+				incluir = false
+			}
+		}
+		if incluir {
+			cargasFiltradas = append(cargasFiltradas, carga)
+		}
+	}
+
+	for _, carga := range cargasFiltradas {
+
+		// Filtrar por vinculaciones si están presentes
+		if len(vinculaciones) > 0 {
+			encontrado := false
+			for _, vinculacion := range vinculaciones {
+				if carga.TipoVinculacion == vinculacion {
+					encontrado = true
+					break
+				}
+			}
+			if !encontrado {
+				continue
+			}
+		}
+
+		// Crear el objeto de intensidad horaria
+		intensidad := models.IntensidadHorariaDVE{
+			Ano:              strconv.Itoa(carga.Anio),
+			Periodo:          fmt.Sprintf("%d", carga.Periodo),
+			NombreAsignatura: carga.Espacio,
+			HorasSemana:      fmt.Sprintf("%d", carga.Hora),
+			NumeroSemanas:    "16",
+			HorasSemestrales: fmt.Sprintf("%d", carga.Hora*16),
+		}
+
+		intensidadHoraria = append(intensidadHoraria, intensidad)
+	}
 
 	return intensidadHoraria, nil
+
 }
 
-//helper que retorna la informacion de un docente y el listado de intensidades horarias en un solo objeto
+// helper que retorna la informacion de un docente y el listado de intensidades horarias en un solo objeto
 func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (certificacion models.InformacionCertificacionDve, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -199,12 +273,14 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 			panic(outputError)
 		}
 	}()
+
 	docente, errorDocente := InformacionDve(numeroDocumento[0])
 	if errorDocente != nil {
 		return certificacion, errorDocente
 	}
 
 	intensidadHoraria, errorIntensidadHoraria := IntensidadHorariaDve(numeroDocumento, periodoInicial, periodoFinal, vinculaciones)
+	fmt.Println("Intensidad horaria: ", intensidadHoraria)
 	if errorIntensidadHoraria != nil {
 		return certificacion, errorIntensidadHoraria
 	}
@@ -214,10 +290,7 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 		IntensidadHoraria: intensidadHoraria,
 	}
 
-	certificacion = models.InformacionCertificacionDve{
-		InformacionDve:    docente,
-		IntensidadHoraria: intensidadHoraria,
-	}
+	fmt.Println("Certificacion: ", certificacion)
 	infoTalentoHumano, errInfoTelento := InformacionJefeTalentoHumano()
 	if errInfoTelento == nil {
 		certificacion.JefeTalentoHumano = *infoTalentoHumano
@@ -226,7 +299,7 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 	return certificacion, nil
 }
 
-//helper que dado un codigo de facultad retorna el nombre de la facultad o del proyecto curricular
+// helper que dado un codigo de facultad retorna el nombre de la facultad o del proyecto curricular
 func NombreFacultadProyecto(codigoFacultadProyecto int) (nombreFacultadProyecto string, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -295,8 +368,9 @@ func InformacionJefeTalentoHumano() (JefeTalentoHumano *models.JefeTalentoHumano
 
 	var respuesta []models.SupervisorContrato
 
-	var query = "/supervisor_contrato?query=DependenciaSupervisor:DEP633&sortby=FechaInicio&&order=desc"
-	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+query, &respuesta); (err == nil) && (response == 200) {
+	var query = "/supervisor_contrato?query=DependenciaSupervisor:DEP633&sortby=FechaInicio&order=desc"
+	fmt.Println("Url talento humano: ", beego.AppConfig.String("UrlcrudAgoraProduccion")+query)
+	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgoraProduccion")+query, &respuesta); (err == nil) && (response == 200) {
 		if respuesta != nil {
 
 			if respuesta[0].FechaFin.After(time.Now()) {
@@ -324,7 +398,7 @@ func InformacionJefeTalentoHumano() (JefeTalentoHumano *models.JefeTalentoHumano
 	return JefeTalentoHumano, nil
 }
 
-//funcion para que dado una fecha del estilo "2022-09-01T12:00:00Z" retorne el año y el mes, es decir 2022 y 9
+// funcion para que dado una fecha del estilo "2022-09-01T12:00:00Z" retorne el año y el mes, es decir 2022 y 9
 func ObtenerAnoMes(fecha time.Time) (ano string, mes string, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -409,4 +483,75 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 		}
 	}
 	return ultimoSalario, nil
+}
+
+func ObtenerPeriodo(periodo string) (int, int, error) {
+	partes := strings.Split(periodo, "-")
+	if len(partes) != 2 {
+		return 0, 0, errors.New("Formato de periodo inválido")
+	}
+
+	// Convertir el año a entero
+	anio, err := strconv.Atoi(partes[0])
+	if err != nil {
+		return 0, 0, errors.New("Error al convertir el año a número")
+	}
+
+	// Determinar el periodo (I = 1, II = 2, III = 3, etc.)
+	var periodoNum int
+	switch partes[1] {
+	case "I":
+		periodoNum = 1
+	case "II":
+		periodoNum = 2
+	case "III":
+		periodoNum = 3
+	default:
+		return 0, 0, errors.New("Periodo no reconocido")
+	}
+
+	return anio, periodoNum, nil
+}
+
+// Calcula las horas entre dos tiempos en formato "5PM-6PM".
+func calcularHoras(horaLarga string) (int, error) {
+	partes := strings.Split(horaLarga, "-")
+	if len(partes) != 2 {
+		return 0, fmt.Errorf("Formato de HORA_LARGA inválido")
+	}
+
+	inicio, err := parseHora(partes[0])
+	if err != nil {
+		return 0, err
+	}
+
+	fin, err := parseHora(partes[1])
+	if err != nil {
+		return 0, err
+	}
+
+	if fin < inicio {
+		fin += 24
+	}
+
+	return fin - inicio, nil
+}
+
+// Convierte una hora en formato "5PM" o "10AM" a un valor en horas (24 horas).
+func parseHora(hora string) (int, error) {
+	hora = strings.TrimSpace(strings.ToUpper(hora))
+	if strings.HasSuffix(hora, "PM") || strings.HasSuffix(hora, "AM") {
+		t := hora[:len(hora)-2]
+		h, err := strconv.Atoi(t)
+		if err != nil {
+			return 0, fmt.Errorf("Error al parsear hora: %v", err)
+		}
+		if strings.HasSuffix(hora, "PM") && h != 12 {
+			h += 12
+		} else if strings.HasSuffix(hora, "AM") && h == 12 {
+			h = 0
+		}
+		return h, nil
+	}
+	return 0, fmt.Errorf("Formato de hora inválido: %s", hora)
 }
