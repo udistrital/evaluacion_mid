@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 )
 
 // Dado un numero de documento busca la informacion de un docente
-func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outputError map[string]interface{}) {
+func InformacionDve(numeroDocumento string, incluirSalario bool) (docente models.InformacionDVE, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
@@ -26,117 +27,461 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 		}
 	}()
 
-	var respuesta_peticion []map[string]interface{}
+	// Recuperar la información del proveedor
+
+	var respuesta_proveedor []map[string]interface{}
 	var informacion_proveedor models.InformacionProveedor
 
-	// Solicitud para obtener los datos del proveedor
-	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/informacion_proveedor/?query=NumDocumento:"+numeroDocumento, &respuesta_peticion); err == nil && response == 200 {
-		if len(respuesta_peticion) > 0 {
-			proveedorJson, err := json.Marshal(respuesta_peticion[0])
-			if err != nil {
-				return docente, outputError
+	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/informacion_proveedor/?query=NumDocumento:"+numeroDocumento, &respuesta_proveedor); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener la informacion del proveedor",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	if len(respuesta_proveedor) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "No se encontro ningun proveedor registrado con el numero de documento " + numeroDocumento,
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	proveedorJson, err := json.Marshal(respuesta_proveedor[0])
+	if err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al convertir la informacion del proveedor",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	json.Unmarshal(proveedorJson, &informacion_proveedor)
+
+	// Verificar que el proveedor haya tenido contratos de vinculacion especial
+
+	// var respuesta_contrato []map[string]interface{}
+	// var contratos []models.ContratoGeneral
+	// fmt.Println("Url contrato: ", beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&sortby=VigenciaContrato&order=desc&limit=-1")
+	// if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&sortby=VigenciaContrato&order=desc&limit=-1", &respuesta_contrato); err != nil && response != 200 {
+	// 	outputError = map[string]interface{}{
+	// 		"Succes":  false,
+	// 		"Status":  404,
+	// 		"Message": "Error al obtener la informacion del contrato",
+	// 		"Funcion": "InformacionDve",
+	// 	}
+	// 	return docente, outputError
+	// }
+
+	// if len(respuesta_contrato) == 0 {
+	// 	outputError = map[string]interface{}{
+	// 		"Succes":  false,
+	// 		"Status":  404,
+	// 		"Message": "No se encontro ningun contrato registrado con el numero de documento " + numeroDocumento,
+	// 		"Funcion": "InformacionDve",
+	// 	}
+	// 	return docente, outputError
+	// }
+
+	// contratoJson, err := json.Marshal(respuesta_contrato)
+	// if err != nil {
+	// 	outputError = map[string]interface{}{
+	// 		"Succes":  false,
+	// 		"Status":  404,
+	// 		"Message": "Error al convertir la informacion del contrato",
+	// 		"Funcion": "InformacionDve",
+	// 	}
+	// 	return docente, outputError
+	// }
+
+	// json.Unmarshal(contratoJson, &contratos)
+
+	// docente_dve := false
+	// for _, contrato := range contratos {
+	// 	if contrato.TipoContrato.Id == 18 || contrato.TipoContrato.Id == 3 || contrato.TipoContrato.Id == 2 {
+	// 		docente_dve = true
+	// 		break
+	// 	}
+	// }
+
+	// if !docente_dve {
+	// 	outputError = map[string]interface{}{
+	// 		"Succes":  false,
+	// 		"Status":  404,
+	// 		"Message": "El proveedor no es un docente de vinculacion especial",
+	// 		"Funcion": "InformacionDve",
+	// 	}
+	// 	return docente, outputError
+	// }
+
+	// Traer la informacion de la vinculacion del docente
+	var respuesta_vinculacion map[string]interface{}
+	var vinculacionDocente []models.VinculacionesDocenteResolucion
+	var ultimaVinculacion models.VinculacionesDocenteResolucion
+
+	//fmt.Println("Url vinculacion: ", beego.AppConfig.String("UrlCrudResoluciones")+"/vinculacion_docente/?query=PersonaId:"+numeroDocumento+"&sortby=FechaCreacion&order=desc")
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/vinculacion_docente/?query=PersonaId:"+numeroDocumento+"&sortby=FechaCreacion&order=desc", &respuesta_vinculacion); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener la informacion de la vinculacion del docente",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	if len(respuesta_vinculacion) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "No se encontro la informacion de la vinculacion del docente",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	LimpiezaRespuestaRefactor(respuesta_vinculacion, &vinculacionDocente)
+
+	var fechaMayor time.Time
+	for _, vinculacion := range vinculacionDocente {
+		if vinculacion.NumeroContrato == "" {
+			continue
+		}
+		if fechaMayor.Before(vinculacion.FechaInicio.AddDate(0, 0, 7*vinculacion.NumeroSemanas)) {
+			fechaMayor = vinculacion.FechaInicio.AddDate(0, 0, 7*vinculacion.NumeroSemanas)
+			ultimaVinculacion = vinculacion
+		}
+	}
+
+	var respuesta_resolucion map[string]interface{}
+	var resolucion models.Resolucion
+
+	//fmt.Println("Url resolucion: ", beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(ultimaVinculacion.ResolucionVinculacionDocente.Id))
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(ultimaVinculacion.ResolucionVinculacionDocente.Id), &respuesta_resolucion); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener la informacion de la resolucion",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	if len(respuesta_resolucion) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "No se encontro la informacion de la resolucion",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	resolucionJson, err := json.Marshal(respuesta_resolucion["Data"].([]interface{})[0])
+	if err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al convertir la informacion de la resolucion",
+			"Funcion": "InformacionDve",
+		}
+		return docente, outputError
+	}
+
+	json.Unmarshal(resolucionJson, &resolucion)
+
+	if (resolucion.FechaInicio.IsZero() || resolucion.FechaInicio.Year() == 1) || (resolucion.FechaFin.IsZero() || resolucion.FechaFin.Year() == 1) {
+		docente.Activo = false
+
+	}
+
+	if !resolucion.FechaInicio.IsZero() && !resolucion.FechaFin.IsZero() {
+		if (resolucion.FechaInicio).Before(resolucion.FechaFin) {
+			if (resolucion.FechaInicio).Before(time.Now()) && (resolucion.FechaFin).After(time.Now()) {
+				docente.Activo = true
 			} else {
-				// Convertir los datos al modelo de información proveedor
-				if err = json.Unmarshal(proveedorJson, &informacion_proveedor); err != nil {
-					return docente, outputError
-				} else {
-					var respuesta_contrato []map[string]interface{}
-					var informacion_contrato models.ContratoGeneral
-					// Validar que el docente sea de vinculación especial y tenga un contrato de prestación de servicios
-					if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id), &respuesta_contrato); err == nil && response == 200 {
-						if respuesta_contrato != nil {
-							contratoJson, err := json.Marshal(respuesta_contrato[0])
-							if err != nil {
-								return docente, outputError
-							} else {
-								if err = json.Unmarshal(contratoJson, &informacion_contrato); err == nil && informacion_contrato.TipoContrato.Id == 18 || informacion_contrato.TipoContrato.Id == 3 {
-									docente.NombreDocente = informacion_proveedor.NomProveedor
-									docente.NumeroDocumento = informacion_proveedor.NumDocumento
+				docente.Activo = false
+			}
+		} else {
+			docente.Activo = false
+		}
+	} else {
+		docente.Activo = false
+	}
 
-									// Traer información de la vinculación del docente
-									var respuesta_vinculacion map[string]interface{}
-									order := "&order=desc"
-									sortby := "&sortby=FechaCreacion"
+	if incluirSalario {
+		pago, err := ObtenerUltimoSalarioDve(numeroDocumento)
 
-									if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/vinculacion_docente/?query=PersonaId:"+numeroDocumento+sortby+order, &respuesta_vinculacion); err == nil && response == 200 {
-										if len(respuesta_vinculacion) > 0 {
-											var vinculacionDocente models.VinculacionesDocente
-											vinculacionJson, err := json.Marshal(respuesta_vinculacion["Data"].([]interface{})[0])
-											if err != nil {
-												return docente, outputError
-											} else {
-												if err = json.Unmarshal(vinculacionJson, &vinculacionDocente); err != nil {
-													return docente, outputError
-												} else {
-													docente.Facultad, _ = NombreFacultadProyecto(vinculacionDocente.ResolucionVinculacionDocente.FacultadId)
-													docente.ProyectoCurricular, _ = NombreFacultadProyecto(vinculacionDocente.ProyectoCurricularId)
-													docente.NivelAcademico = vinculacionDocente.ResolucionVinculacionDocente.NivelAcademico
-													docente.Categoria = vinculacionDocente.Categoria
-													docente.Dedicacion = vinculacionDocente.ResolucionVinculacionDocente.Dedicacion
+		if err != nil {
+			docente.UltimoPago = "Este docente no cuenta con un contrato activo por lo tanto no es posible obtener el ultimo salario"
+		} else {
+			docente.UltimoPago = pago
+		}
+	}
 
-													pago, err := ObtenerUltimoSalarioDve(numeroDocumento)
+	docente.NombreDocente = informacion_proveedor.NomProveedor
+	docente.NumeroDocumento = informacion_proveedor.NumDocumento
+	docente.Facultad, _ = NombreFacultadProyecto(ultimaVinculacion.ResolucionVinculacionDocente.FacultadId)
+	docente.ProyectoCurricular, _ = NombreFacultadProyecto(ultimaVinculacion.ProyectoCurricularId)
+	docente.NivelAcademico = ultimaVinculacion.ResolucionVinculacionDocente.NivelAcademico
+	docente.Categoria = ultimaVinculacion.Categoria
+	docente.Dedicacion = ultimaVinculacion.ResolucionVinculacionDocente.Dedicacion
 
-													if err != nil {
-														docente.UltimoPago = "Este docente no cuenta con un contrato por lo tanto no es posible obtener el ultimo salario"
-													} else {
-														docente.UltimoPago = pago
-													}
+	return docente, nil
 
-													var respuesta_resolucion map[string]interface{}
-													var resolucion models.Resolucion
-													if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(vinculacionDocente.ResolucionVinculacionDocente.Id), &respuesta_resolucion); err == nil && response == 200 {
-														if len(respuesta_resolucion) > 0 {
-															resolucionJson, err := json.Marshal(respuesta_resolucion["Data"].([]interface{})[0])
-															if err != nil {
-																return docente, outputError
-															} else {
-																if err = json.Unmarshal(resolucionJson, &resolucion); err != nil {
-																	return docente, outputError
-																} else {
-																	if resolucion.FechaInicio == nil || resolucion.FechaFin == nil {
-																		docente.Activo = false
+}
 
-																	}
-																	//Verificacr si la fecha actual es mas reciente que la fecha de inicio y la fecha de fin del contrato
-																	if resolucion.FechaInicio != nil && resolucion.FechaFin != nil {
-																		if (*resolucion.FechaInicio).Before(*resolucion.FechaFin) {
-																			if (*resolucion.FechaInicio).Before(time.Now()) && (*resolucion.FechaFin).After(time.Now()) {
-																				docente.Activo = true
-																			} else {
-																				docente.Activo = false
-																			}
-																		} else {
-																			docente.Activo = false
-																		}
-																	} else {
-																		docente.Activo = false
-																	}
-																}
-															}
-														}
-													}
+func VinculacionesDocenteDve(docDocente string) (vinculacionesDocente []models.VinculacionesDocente, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  502,
+				"Message": "Error al obtener las vinculaciones del docente",
+				"Funcion": "vinculacionesDocenteDve",
+			}
+		}
+	}()
 
-												}
-											}
-										}
-									}
-								} else {
-									return docente, map[string]interface{}{
-										"Succes":  false,
-										"Status":  404,
-										"Message": "El docente no es de vinculación especial y no tiene un contrato de prestación de servicios",
-										"Funcion": "InformacionDve",
-									}
-								}
-							}
-						}
-					}
+	var vinculaciones_old bool
+	var respuesta_proveedor []map[string]interface{}
+	var informacion_proveedor models.InformacionProveedor
+
+	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/informacion_proveedor/?query=NumDocumento:"+docDocente, &respuesta_proveedor); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener la informacion del proveedor",
+			"Funcion": "vinculacionesDocenteDve",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	if len(respuesta_proveedor) > 0 {
+		proveedorJson, err := json.Marshal(respuesta_proveedor[0])
+		if err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la informacion del proveedor",
+				"Funcion": "vinculacionesDocenteDve",
+			}
+			return vinculacionesDocente, outputError
+		} else {
+			if err = json.Unmarshal(proveedorJson, &informacion_proveedor); err != nil {
+				outputError = map[string]interface{}{
+					"Succes":  false,
+					"Status":  404,
+					"Message": "Error al obtener la informacion del proveedor",
+					"Funcion": "vinculacionesDocenteDve",
 				}
+				return vinculacionesDocente, outputError
 			}
 		}
 	}
 
-	return docente, nil
+	var respuesta_contrato []map[string]interface{}
+	var contratos []models.ContratoGeneral
+	//fmt.Println("Url contrato: ", beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=TipoContrato.Id__in:2|3|18,Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&limit=-1")
+	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=TipoContrato.Id__in:2|3|18,Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&limit=-1", &respuesta_contrato); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener los contratos del docente",
+			"Funcion": "vinculacionesDocenteDve",
+		}
+	}
+
+	if len(respuesta_contrato) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "El docente no tiene contratos de vinculacion especial",
+			"Funcion": "vinculacionesDocenteDve",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	contratoJson, err := json.Marshal(respuesta_contrato)
+	if err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener los contratos del docente",
+			"Funcion": "vinculacionesDocenteDve",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	json.Unmarshal(contratoJson, &contratos)
+
+	for _, contrato := range contratos {
+		if contrato.VigenciaContrato < 2023 {
+			vinculaciones_old = true
+			break
+		}
+	}
+
+	vinculacionesNew, error := ObtenerVinculacionesNew(docDocente)
+	if error != nil {
+		return vinculacionesDocente, error
+	}
+
+	if len(vinculacionesNew) > 0 {
+		vinculacionesDocente = append(vinculacionesDocente, vinculacionesNew...)
+	}
+
+	// aqui se debe implementar el servicio para obtener las vinculaciones anteriores al 2023
+	if vinculaciones_old {
+		fmt.Println("Vinculaciones old: ", vinculaciones_old)
+	}
+
+	return vinculacionesDocente, nil
+
+}
+
+func ObtenerVinculacionesNew(docDocente string) (vinculacionesDocente []models.VinculacionesDocente, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  502,
+				"Message": "Error al obtener las vinculaciones del docente",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+		}
+	}()
+
+	var respuesta_vinculacion map[string]interface{}
+	var vinculaciones_docente []models.VinculacionesDocenteResolucion
+
+	//fmt.Println("Url vinculacion: ", beego.AppConfig.String("UrlCrudResoluciones")+"/vinculacion_docente/?query=PersonaId:"+docDocente+"&limit=-1&sortby=VigenciaContrato&order=desc")
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/vinculacion_docente/?query=PersonaId:"+docDocente+"&limit=-1&sortby=Vigencia&order=desc", &respuesta_vinculacion); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener las vinculaciones del docente",
+			"Funcion": "obtenerVinculacionesNew",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	if len(respuesta_vinculacion) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "El docente no tiene contratos de vinculacion especial",
+			"Funcion": "obtenerVinculacionesNew",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	LimpiezaRespuestaRefactor(respuesta_vinculacion, &vinculaciones_docente)
+
+	for _, vinculacion := range vinculaciones_docente {
+
+		if vinculacion.NumeroContrato == "" {
+			continue
+		}
+		var respuesta_dependencia map[string]interface{}
+		var proyecto_curricular models.ProyectoCurricular
+		var parametros models.ParametrosData
+		var respuesta_resolucion map[string]interface{}
+		var resolucion models.Resolucion
+
+		// Peticion para traer el proyecto curricular
+		if response, err := getJsonTest(beego.AppConfig.String("UrlcrudOikos")+"/dependencia/"+strconv.Itoa(vinculacion.ProyectoCurricularId), &respuesta_dependencia); err != nil && response != 200 {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la dependencia",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+			return vinculacionesDocente, outputError
+		}
+
+		jsonProyectoCurricular, err := json.Marshal(respuesta_dependencia)
+		if err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la dependencia",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+			return vinculacionesDocente, outputError
+		}
+		json.Unmarshal(jsonProyectoCurricular, &proyecto_curricular)
+
+		// Peticion para traer la dedicacion
+		//fmt.Println("Url parametros: ", beego.AppConfig.String("UrlParametrosCrud")+"/parametro/?query=Id:"+strconv.Itoa(vinculacion.DedicacionId))
+		if response, err := getJsonTest(beego.AppConfig.String("UrlParametrosCrud")+"/parametro/?query=Id:"+strconv.Itoa(vinculacion.DedicacionId), &parametros); err != nil && response != 200 {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la dedicacion",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+			return vinculacionesDocente, outputError
+		}
+
+		// Peticion para traer el periodo academico
+
+		//fmt.Println("Url resolucion: ", beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/"+strconv.Itoa(vinculacion.ResolucionVinculacionDocente.Id))
+		if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/"+strconv.Itoa(vinculacion.ResolucionVinculacionDocente.Id), &respuesta_resolucion); err != nil && response != 200 {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la resolucion",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+			return vinculacionesDocente, outputError
+		}
+
+		LimpiezaRespuestaRefactor(respuesta_resolucion, &resolucion)
+
+		vinculacionDocente := models.VinculacionesDocente{
+			NumeroContrato: vinculacion.NumeroContrato,
+			Vigencia:       vinculacion.Vigencia,
+			FechaInicio:    vinculacion.FechaInicio,
+			//FechaFin:               vinculacion.FechaInicio.AddDate(0, 0, 7*vinculacion.NumeroSemanas),
+			NumeroHorasSemanales:   vinculacion.NumeroHorasSemanales,
+			NumeroSemanas:          vinculacion.NumeroSemanas,
+			NumeroHorasSemestrales: vinculacion.NumeroHorasSemanales * vinculacion.NumeroSemanas,
+			ProyectoCurricular:     proyecto_curricular.Nombre,
+			Categoria:              vinculacion.Categoria,
+			DependenciaAcademica:   vinculacion.DependenciaAcademica,
+		}
+
+		if resolucion.FechaFin.IsZero() || resolucion.FechaFin.Year() == 1 {
+			vinculacionDocente.FechaFin = vinculacion.FechaInicio.AddDate(0, 0, 7*vinculacion.NumeroSemanas)
+		} else {
+			vinculacionDocente.FechaFin = resolucion.FechaFin
+		}
+
+		if (resolucion != models.Resolucion{}) {
+			vinculacionDocente.Periodo = resolucion.Periodo
+			fmt.Println("Indicativo vinculacion: ", fmt.Sprintf("%d-%d-%d", vinculacion.Vigencia, resolucion.Periodo, vinculacion.DependenciaAcademica))
+			vinculacionDocente.IndicativoVinculacion = fmt.Sprintf("%d-%d-%d", vinculacion.Vigencia, resolucion.Periodo, vinculacion.DependenciaAcademica)
+		}
+
+		if len(parametros.Data) == 0 {
+			vinculacionDocente.Dedicacion = "No se encontro la dedicacion del docente"
+		} else {
+			vinculacionDocente.Dedicacion = parametros.Data[0].Nombre
+		}
+
+		vinculacionesDocente = append(vinculacionesDocente, vinculacionDocente)
+	}
+
+	return vinculacionesDocente, nil
+
 }
 
 func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadHoraria []models.IntensidadHorariaDVE, outputError map[string]interface{}) {
@@ -151,9 +496,6 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 			panic(outputError)
 		}
 	}()
-
-	fmt.Println("Periodo inicio: ", periodoInicial)
-	fmt.Println("Periodo fin: ", periodoFinal)
 
 	// Construir el json para enviar los datos de la autenticación
 	var bodyAutenticacion models.BodyAutenticacion
@@ -198,70 +540,161 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 
 	if err := sendJsonWithToken(beego.AppConfig.String("UrlCargaAcademica"), "POST", &cargas_academicas, bodyCargaAcademica, response_autenticacion.Token); err != nil {
 		outputError = map[string]interface{}{
-			"Succes":  false,
-			"Status":  404,
-			"Message": "Error al obtener la carga academica",
+			"Succes":  true,
+			"Status":  200,
+			"Message": "No se encontraron cargas academicas para el docente",
 			"Funcion": "IntensidadHorariaDve",
 		}
-		return intensidadHoraria, outputError
 	}
 
-	cargasFiltradas := []models.CargaAcademica{}
+	materiasUnicas := make(map[string]models.MateriaUnica)
+	listaMateriasUnicas := []models.MateriaUnica{}
+
 	for _, carga := range cargas_academicas {
-		incluir := true
-		// Filtrado por periodoInicial y periodoFinal si están presentes
-		if len(periodoInicial) > 0 {
-			anioInicial, periodoInicio, _ := ObtenerPeriodo(periodoInicial[0])
-			if carga.Anio < anioInicial || (carga.Anio == anioInicial && carga.Periodo < periodoInicio) {
-				incluir = false
+
+		clave := fmt.Sprintf("%d-%d-%d", carga.Anio, carga.Periodo, carga.CodProyecto)
+
+		if _, existe := materiasUnicas[clave]; !existe {
+			materiasUnicas[clave] = models.MateriaUnica{
+				Anio:            carga.Anio,
+				Periodo:         carga.Periodo,
+				Proyecto:        carga.Proyecto,
+				Docente:         carga.Docente,
+				CodProyecto:     carga.CodProyectoEstudiante,
+				TipoVinculacion: carga.TipoVinculacion,
+				Espacio:         carga.Espacio,
+				IDGrupo:         carga.IdGrupo,
 			}
-		}
-		if len(periodoFinal) > 0 {
-			anioFinal, periodoFin, _ := ObtenerPeriodo(periodoFinal[0])
-			if carga.Anio > anioFinal || (carga.Anio == anioFinal && carga.Periodo > periodoFin) {
-				incluir = false
-			}
-		}
-		if incluir {
-			cargasFiltradas = append(cargasFiltradas, carga)
 		}
 	}
 
-	for _, carga := range cargasFiltradas {
+	for _materia := range materiasUnicas {
+		listaMateriasUnicas = append(listaMateriasUnicas, materiasUnicas[_materia])
+	}
 
-		// Filtrar por vinculaciones si están presentes
+	// Traer las vinculaciones del docente
+
+	vinculacionesDocente, error := VinculacionesDocenteDve(numeroDocumento[0])
+	if error != nil {
+		return intensidadHoraria, error
+	}
+
+	vinculacionesFiltradas := []models.VinculacionesDocente{}
+
+	// Filtrar las vinculaciones por periodo
+	for _, vinculacion := range vinculacionesDocente {
+		incluir := true
+
+		if len(periodoInicial) > 0 {
+			anioInicial, periodoInicialNum, err := ObtenerPeriodo(periodoInicial[0])
+			if err != nil {
+				return intensidadHoraria, map[string]interface{}{
+					"Succes":  false,
+					"Status":  404,
+					"Message": err,
+					"Funcion": "IntensidadHorariaDve",
+				}
+			}
+
+			if vinculacion.Vigencia < anioInicial || (vinculacion.Vigencia == anioInicial && vinculacion.Periodo < periodoInicialNum) {
+				incluir = false
+			}
+		}
+
+		if len(periodoFinal) > 0 {
+			anioFinal, periodoFinalNum, err := ObtenerPeriodo(periodoFinal[0])
+			if err != nil {
+				return intensidadHoraria, map[string]interface{}{
+					"Succes":  false,
+					"Status":  404,
+					"Message": err,
+					"Funcion": "IntensidadHorariaDve",
+				}
+			}
+
+			if vinculacion.Vigencia > anioFinal || (vinculacion.Vigencia == anioFinal && vinculacion.Periodo > periodoFinalNum) {
+				incluir = false
+			}
+		}
+
 		if len(vinculaciones) > 0 {
+			clave := fmt.Sprintf("%d-%d-%d", vinculacion.Vigencia, vinculacion.Periodo, vinculacion.DependenciaAcademica)
 			encontrado := false
-			for _, vinculacion := range vinculaciones {
-				if carga.TipoVinculacion == vinculacion {
+
+			for _, v := range vinculaciones {
+				fmt.Println("Vinculacion encontrada: ", v)
+				fmt.Println("Vinculacion: ", clave)
+				if v == clave {
 					encontrado = true
 					break
 				}
 			}
+
 			if !encontrado {
-				continue
+				incluir = false
 			}
 		}
 
-		// Crear el objeto de intensidad horaria
-		intensidad := models.IntensidadHorariaDVE{
-			Ano:              strconv.Itoa(carga.Anio),
-			Periodo:          fmt.Sprintf("%d", carga.Periodo),
-			NombreAsignatura: carga.Espacio,
-			HorasSemana:      fmt.Sprintf("%d", carga.Hora),
-			NumeroSemanas:    "16",
-			HorasSemestrales: fmt.Sprintf("%d", carga.Hora*16),
+		if incluir {
+			vinculacionesFiltradas = append(vinculacionesFiltradas, vinculacion)
 		}
+	}
 
+	fmt.Println("Vinculaciones filtradas: ", vinculacionesFiltradas)
+
+	// Retornar las coincidencias de las materias unicas con las vinculaciones del docente
+
+	for _, vinculacion := range vinculacionesFiltradas {
+		var intensidad models.IntensidadHorariaDVE
+		intensidad.Anio = vinculacion.Vigencia
+		intensidad.Periodo = vinculacion.Periodo
+		intensidad.ProyectoCurricular = vinculacion.ProyectoCurricular
+		intensidad.HorasSemana = vinculacion.NumeroHorasSemanales
+		intensidad.NumeroSemanas = vinculacion.NumeroSemanas
+		intensidad.HorasSemestre = vinculacion.NumeroHorasSemestrales
+		intensidad.TipoVinculacion = vinculacion.Dedicacion
+		intensidad.Categoria = vinculacion.Categoria
+		for _, materia := range listaMateriasUnicas {
+			if vinculacion.Vigencia == materia.Anio && vinculacion.Periodo == materia.Periodo && vinculacion.DependenciaAcademica == materia.CodProyecto {
+				intensidad.Asignaturas = append(intensidad.Asignaturas, materia.Espacio)
+			}
+		}
 		intensidadHoraria = append(intensidadHoraria, intensidad)
 	}
+
+	for _, materia := range listaMateriasUnicas {
+		fmt.Println("{")
+		fmt.Println("Año: ", materia.Anio)
+		fmt.Println("Periodo: ", materia.Periodo)
+		fmt.Println("Proyecto: ", materia.Proyecto)
+		fmt.Println("Docente: ", materia.Docente)
+		fmt.Println("Tipo vinculacion: ", materia.TipoVinculacion)
+		fmt.Println("Espacio: ", materia.Espacio)
+		fmt.Println("ID Grupo: ", materia.IDGrupo)
+		fmt.Println("}")
+	}
+
+	fmt.Println("Intensidad Horaria")
+
+	OrdenarVinculaciones(intensidadHoraria)
 
 	return intensidadHoraria, nil
 
 }
 
+func OrdenarVinculaciones(vinculaciones []models.IntensidadHorariaDVE) {
+	sort.Slice(vinculaciones, func(i, j int) bool {
+		// Comparar Vigencia (años)
+		if vinculaciones[i].Anio != vinculaciones[j].Anio {
+			return vinculaciones[i].Anio > vinculaciones[j].Anio
+		}
+		// Comparar Período si los años son iguales
+		return vinculaciones[i].Periodo > vinculaciones[j].Periodo
+	})
+}
+
 // helper que retorna la informacion de un docente y el listado de intensidades horarias en un solo objeto
-func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (certificacion models.InformacionCertificacionDve, outputError map[string]interface{}) {
+func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string, incluirSalario bool) (certificacion models.InformacionCertificacionDve, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
@@ -274,7 +707,7 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 		}
 	}()
 
-	docente, errorDocente := InformacionDve(numeroDocumento[0])
+	docente, errorDocente := InformacionDve(numeroDocumento[0], incluirSalario)
 	if errorDocente != nil {
 		return certificacion, errorDocente
 	}
@@ -290,9 +723,8 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 		IntensidadHoraria: intensidadHoraria,
 	}
 
-	fmt.Println("Certificacion: ", certificacion)
-	infoTalentoHumano, errInfoTelento := InformacionJefeTalentoHumano()
-	if errInfoTelento == nil {
+	infoTalentoHumano, errInfoTalento := InformacionJefeTalentoHumano()
+	if errInfoTalento == nil {
 		certificacion.JefeTalentoHumano = *infoTalentoHumano
 	}
 
@@ -429,60 +861,92 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 			}
 		}
 	}()
-	var respuesta_peticion map[string]interface{}
+
+	var respuesta_preliquidacion map[string]interface{}
 	var detalle_preliquidacion []models.DetallePreliquidacion
 	var fecha time.Time
 	var nomina string
 
-	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve, &respuesta_peticion); err == nil && response == 200 {
-		if len(respuesta_peticion) > 0 {
-			LimpiezaRespuestaRefactor(respuesta_peticion, &detalle_preliquidacion)
-			for _, detalle := range detalle_preliquidacion {
-				if fecha.IsZero() {
-					fecha = detalle.ContratoPreliquidacionId.ContratoId.FechaInicio
-					nomina = strconv.Itoa(detalle.ContratoPreliquidacionId.PreliquidacionId.NominaId)
-				} else {
-					if fecha.Before(detalle.ContratoPreliquidacionId.ContratoId.FechaInicio) {
-						fecha = detalle.ContratoPreliquidacionId.ContratoId.FechaInicio
-						nomina = strconv.Itoa(detalle.ContratoPreliquidacionId.PreliquidacionId.NominaId)
-					} else {
-						fecha = fecha
-						nomina = nomina
-					}
-				}
-			}
-			ano, mes, errorAnoMes := ObtenerAnoMes(fecha)
-			if errorAnoMes != nil {
-				return ultimoSalario, errorAnoMes
+	//fmt.Println("Url detalle preliquidacion: ", beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve)
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve, &respuesta_preliquidacion); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener el ultimo salario del docente",
+			"Funcion": "ObtenerUltimoSalaraDve",
+		}
+		return ultimoSalario, outputError
+	}
+
+	if len(respuesta_preliquidacion) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "El docente no tiene salarios registrados",
+			"Funcion": "ObtenerUltimoSalaraDve",
+		}
+		return ultimoSalario, outputError
+	}
+
+	LimpiezaRespuestaRefactor(respuesta_preliquidacion, &detalle_preliquidacion)
+
+	for _, detalle := range detalle_preliquidacion {
+
+		if fecha.IsZero() {
+			fecha = detalle.ContratoPreliquidacionId.ContratoId.FechaInicio
+			nomina = strconv.Itoa(detalle.ContratoPreliquidacionId.PreliquidacionId.NominaId)
+		}
+
+		if detalle.ContratoPreliquidacionId.ContratoId.FechaInicio.After(fecha) {
+			fecha = detalle.ContratoPreliquidacionId.ContratoId.FechaInicio
+			nomina = strconv.Itoa(detalle.ContratoPreliquidacionId.PreliquidacionId.NominaId)
+		}
+	}
+
+	anio, mes, error := ObtenerAnoMes(fecha)
+	if error != nil {
+		return ultimoSalario, error
+	}
+
+	var respuesta_detalle map[string]interface{}
+	var detalles []models.Detalle
+
+	fmt.Println("Url detalle preliquidacion: ", beego.AppConfig.String("UrlMidTitan")+"/detalle_preliquidacion/obtener_detalle_DVE/"+anio+"/"+mes+"/"+numeroDocumentoDve+"/"+nomina)
+	if response, err := getJsonTest(beego.AppConfig.String("UrlMidTitan")+"/detalle_preliquidacion/obtener_detalle_DVE/"+anio+"/"+mes+"/"+numeroDocumentoDve+"/"+nomina, &respuesta_detalle); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener el ultimo salario del docente",
+			"Funcion": "ObtenerUltimoSalaraDve",
+		}
+		return ultimoSalario, outputError
+	}
+
+	if len(respuesta_detalle) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "El docente no tiene salarios registrados",
+			"Funcion": "ObtenerUltimoSalaraDve",
+		}
+		return ultimoSalario, outputError
+	}
+
+	LimpiezaRespuestaRefactor(respuesta_detalle, &detalles)
+
+	for _, detalle := range detalles {
+		for _, det := range detalle.Detalle {
+			if det.ConceptoNominaId.Id == 152 {
+				ultimoSalario = FormatMoney(int(det.ValorCalculado), 0)
+				return ultimoSalario, nil
 			} else {
-				var respuesta_detalle map[string]interface{}
-				var detalles []models.Detalle
-				if response, err := getJsonTest(beego.AppConfig.String("UrlMidTitan")+"/detalle_preliquidacion/obtener_detalle_DVE/"+ano+"/"+mes+"/"+numeroDocumentoDve+"/"+nomina, &respuesta_detalle); err == nil && response == 200 {
-					if len(respuesta_detalle) > 0 {
-						LimpiezaRespuestaRefactor(respuesta_detalle, &detalles)
-						for _, detalle := range detalles {
-							for _, det := range detalle.Detalle {
-								if det.ConceptoNominaId.Id == 152 {
-									ultimoSalario = FormatMoney(int(det.ValorCalculado), 0)
-									return ultimoSalario, nil
-								} else {
-									continue
-								}
-							}
-						}
-					}
-				}
-			}
-		} else {
-			return "ultimoSalario", map[string]interface{}{
-				"Succes":  false,
-				"Status":  404,
-				"Message": "No se encontro el salario del docente",
-				"Funcion": "ObtenerUltimoSalaraDve",
+				continue
 			}
 		}
 	}
+
 	return ultimoSalario, nil
+
 }
 
 func ObtenerPeriodo(periodo string) (int, int, error) {
@@ -511,47 +975,4 @@ func ObtenerPeriodo(periodo string) (int, int, error) {
 	}
 
 	return anio, periodoNum, nil
-}
-
-// Calcula las horas entre dos tiempos en formato "5PM-6PM".
-func calcularHoras(horaLarga string) (int, error) {
-	partes := strings.Split(horaLarga, "-")
-	if len(partes) != 2 {
-		return 0, fmt.Errorf("Formato de HORA_LARGA inválido")
-	}
-
-	inicio, err := parseHora(partes[0])
-	if err != nil {
-		return 0, err
-	}
-
-	fin, err := parseHora(partes[1])
-	if err != nil {
-		return 0, err
-	}
-
-	if fin < inicio {
-		fin += 24
-	}
-
-	return fin - inicio, nil
-}
-
-// Convierte una hora en formato "5PM" o "10AM" a un valor en horas (24 horas).
-func parseHora(hora string) (int, error) {
-	hora = strings.TrimSpace(strings.ToUpper(hora))
-	if strings.HasSuffix(hora, "PM") || strings.HasSuffix(hora, "AM") {
-		t := hora[:len(hora)-2]
-		h, err := strconv.Atoi(t)
-		if err != nil {
-			return 0, fmt.Errorf("Error al parsear hora: %v", err)
-		}
-		if strings.HasSuffix(hora, "PM") && h != 12 {
-			h += 12
-		} else if strings.HasSuffix(hora, "AM") && h == 12 {
-			h = 0
-		}
-		return h, nil
-	}
-	return 0, fmt.Errorf("Formato de hora inválido: %s", hora)
 }

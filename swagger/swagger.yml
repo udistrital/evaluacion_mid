@@ -165,6 +165,29 @@ paths:
             $ref: '#/definitions/models.InformacionCertificacionDve'
         "400":
           description: Bad request
+  /informacion_certificacion_dve/vinculaciones_docente/{documento_docente}:
+    get:
+      tags:
+      - informacion_certificacion_dve
+      description: Fetches the linkage information of a teacher based on their document number.
+      operationId: InformacionCertificacionDveController.VinculacionesDve
+      parameters:
+      - in: query
+        name: documento_docente
+        description: Document number of the teacher
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '"List of linkages for the teacher"'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.VinculacionesDocente'
+        "404":
+          description: Not Found "The requested information could not be found"
+        "502":
+          description: Bad Gateway "Error processing the request due to an unexpected failure"
   /plantilla/:
     get:
       tags:
@@ -279,19 +302,30 @@ definitions:
     title: IntensidadHorariaDVE
     type: object
     properties:
-      ano:
+      Asignaturas:
+        type: array
+        items:
+          type: string
+      Año:
+        type: integer
+        format: int64
+      Categoria:
         type: string
-      horas_semanales:
+      HorasSemanales:
+        type: integer
+        format: int64
+      HorasSemestre:
+        type: integer
+        format: int64
+      NumeroSemanas:
+        type: integer
+        format: int64
+      Periodo:
+        type: integer
+        format: int64
+      ProyectoCurricular:
         type: string
-      horas_semestrales:
-        type: string
-      nombre_asignatura:
-        type: string
-      numero_semanas:
-        type: string
-      periodo:
-        type: string
-      salario_docente:
+      TipoVinculacion:
         type: string
   models.JefeTalentoHumano:
     title: JefeTalentoHumano
@@ -301,6 +335,44 @@ definitions:
         type: string
       Nombre:
         type: string
+  models.VinculacionesDocente:
+    title: VinculacionesDocente
+    type: object
+    properties:
+      Categoria:
+        type: string
+      Dedicacion:
+        type: string
+      DependenciaAcademica:
+        type: integer
+        format: int64
+      FechaFin:
+        type: string
+        format: datetime
+      FechaInicio:
+        type: string
+        format: datetime
+      IndicativoVinculacion:
+        type: string
+      NumeroContrato:
+        type: string
+      NumeroHorasSemanales:
+        type: integer
+        format: int64
+      NumeroHorasSemestrales:
+        type: integer
+        format: int64
+      NumeroSemanas:
+        type: integer
+        format: int64
+      Periodo:
+        type: integer
+        format: int64
+      ProyectoCurricular:
+        type: string
+      Vigencia:
+        type: integer
+        format: int64
 tags:
 - name: filtroContrato
   description: |

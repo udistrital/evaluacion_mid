@@ -37,6 +37,17 @@ type CargaAcademica struct {
 	Hora                  int    `json:"HORA"`
 	HoraLarga             string `json:"HORA_LARGA"`
 	CodProyectoEstudiante int    `json:"COD_PROYECTO_ESTUDIANTE"`
-	CodEstudiante         int    `json:"COD_ESTUDIANTE"`
+	CodEstudiante         int64  `json:"COD_ESTUDIANTE"`
 	Estudiante            string `json:"ESTUDIANTE"`
+}
+
+type MateriaUnica struct {
+	Anio            int
+	Periodo         int
+	Proyecto        string
+	Docente         string
+	CodProyecto     int
+	TipoVinculacion string
+	Espacio         string
+	IDGrupo         int
 }

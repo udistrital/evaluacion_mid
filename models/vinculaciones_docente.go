@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type ResolucionVinculacionDocente struct {
 	Id                int    `json:"Id"`
 	FacultadId        int    `json:"FacultadId"`
@@ -10,7 +12,7 @@ type ResolucionVinculacionDocente struct {
 	FechaModificacion string `json:"FechaModificacion"`
 }
 
-type VinculacionesDocente struct {
+type VinculacionesDocenteResolucion struct {
 	Id                           int                          `json:"Id"`
 	NumeroContrato               string                       `json:"NumeroContrato"`
 	Vigencia                     int                          `json:"Vigencia"`
@@ -27,9 +29,25 @@ type VinculacionesDocente struct {
 	DependenciaAcademica         int                          `json:"DependenciaAcademica"`
 	NumeroRp                     int                          `json:"NumeroRp"`
 	VigenciaRp                   int                          `json:"VigenciaRp"`
-	FechaInicio                  string                       `json:"FechaInicio"`
+	FechaInicio                  time.Time                    `json:"FechaInicio"`
 	Activo                       bool                         `json:"Activo"`
 	FechaCreacion                string                       `json:"FechaCreacion"`
 	FechaModificacion            string                       `json:"FechaModificacion"`
 	NumeroHorasTrabajadas        int                          `json:"NumeroHorasTrabajadas"`
+}
+
+type VinculacionesDocente struct {
+	NumeroContrato         string    `json:"NumeroContrato"`
+	Vigencia               int       `json:"Vigencia"`
+	Periodo                int       `json:"Periodo"`
+	FechaInicio            time.Time `json:"FechaInicio"`
+	FechaFin               time.Time `json:"FechaFin"`
+	NumeroHorasSemanales   int       `json:"NumeroHorasSemanales"`
+	NumeroSemanas          int       `json:"NumeroSemanas"`
+	NumeroHorasSemestrales int       `json:"NumeroHorasSemestrales"`
+	Dedicacion             string    `json:"Dedicacion"`
+	ProyectoCurricular     string    `json:"ProyectoCurricular"`
+	Categoria              string    `json:"Categoria"`
+	DependenciaAcademica   int       `json:"DependenciaAcademica"`
+	IndicativoVinculacion  string    `json:"IndicativoVinculacion"`
 }

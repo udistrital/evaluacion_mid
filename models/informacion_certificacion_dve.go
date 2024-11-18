@@ -19,14 +19,17 @@ type InformacionDVE struct {
 }
 
 type IntensidadHorariaDVE struct {
-	Ano              string `json:"ano"`
-	Periodo          string `json:"periodo"`
-	NombreAsignatura string `json:"nombre_asignatura"`
-	HorasSemana      string `json:"horas_semanales"`
-	NumeroSemanas    string `json:"numero_semanas"`
-	HorasSemestrales string `json:"horas_semestrales"`
-	SalarioDocente   string `json:"salario_docente"`
+	Anio               int      `json:"Año"`
+	Periodo            int      `json:"Periodo"`
+	ProyectoCurricular string   `json:"ProyectoCurricular"`
+	Asignaturas        []string `json:"Asignaturas"`
+	HorasSemana        int      `json:"HorasSemanales"`
+	NumeroSemanas      int      `json:"NumeroSemanas"`
+	HorasSemestre      int      `json:"HorasSemestre"`
+	TipoVinculacion    string   `json:"TipoVinculacion"`
+	Categoria          string   `json:"Categoria"`
 }
+
 type JefeTalentoHumano struct {
 	Nombre string `json:"Nombre"`
 	Cargo  string `json:"Cargo"`
