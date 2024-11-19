@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"math/big"
 	"net/http"
 	"net/url"
@@ -13,6 +15,8 @@ import (
 	"time"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
+	"github.com/udistrital/utils_oas/xray"
 )
 
 func sendJson(url string, trequest string, target interface{}, datajson interface{}) error {
@@ -21,6 +25,7 @@ func sendJson(url string, trequest string, target interface{}, datajson interfac
 		if err := json.NewEncoder(b).Encode(datajson); err != nil {
 			beego.Error(err)
 		}
+		fmt.Println("Body JSON enviado:", b.String())
 	}
 	client := &http.Client{}
 	req, err := http.NewRequest(trequest, url, b)
@@ -36,6 +41,154 @@ func sendJson(url string, trequest string, target interface{}, datajson interfac
 	}()
 
 	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func SendJson2(url string, trequest string, target interface{}, datajson interface{}) error {
+	b := new(bytes.Buffer)
+	if datajson != nil {
+		if err := json.NewEncoder(b).Encode(datajson); err != nil {
+			beego.Error(err)
+		}
+	}
+
+	client := &http.Client{}
+	req, _ := http.NewRequest(trequest, url, b)
+	seg := xray.BeginSegmentSec(req)
+	defer func() {
+		//Catch
+		if r := recover(); r != nil {
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			xray.UpdateSegment(resp, err, seg)
+			if err != nil {
+				beego.Error("Error reading response. ", err)
+			}
+
+			defer resp.Body.Close()
+			mensaje, err := io.ReadAll(resp.Body)
+			if err != nil {
+				beego.Error("Error converting response. ", err)
+			}
+			bodyreq, err := io.ReadAll(req.Body)
+			if err != nil {
+				beego.Error("Error converting response. ", err)
+			}
+			respuesta := map[string]interface{}{"request": map[string]interface{}{"url": req.URL.String(), "header": req.Header, "body": bodyreq}, "body": mensaje, "statusCode": resp.StatusCode, "status": resp.Status}
+			e, err := json.Marshal(respuesta)
+			if err != nil {
+				logs.Error(err)
+			}
+			json.Unmarshal(e, &target)
+		}
+	}()
+
+	req.Header.Set("Authorization", "")
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("accept", "*/*")
+	r, err := client.Do(req)
+	xray.UpdateSegment(r, err, seg)
+	if err != nil {
+		beego.Error("error", err)
+		return err
+	}
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			beego.Error(err)
+		}
+	}()
+
+	fmt.Println("Respuesta del servidor:", json.NewDecoder(r.Body).Decode(target))
+
+	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func sendJsonAutenticacion(url string, trequest string, target interface{}, datajson interface{}) error {
+	b := new(bytes.Buffer)
+	if datajson != nil {
+		if err := json.NewEncoder(b).Encode(datajson); err != nil {
+			beego.Error("Error al codificar el JSON:", err)
+			return err
+		}
+		fmt.Println("Body JSON enviado:", b.String())
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest(trequest, url, b)
+	if err != nil {
+		beego.Error("Error al crear la solicitud:", err)
+		return err
+	}
+	// Agregar encabezados necesarios
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	r, err := client.Do(req)
+	if err != nil {
+		beego.Error("Error en la solicitud:", err)
+		return err
+	}
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			beego.Error("Error al cerrar el cuerpo de la respuesta:", err)
+		}
+	}()
+
+	// Leer y mostrar la respuesta del servidor
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+
+	// Decodificar JSON en el objeto de destino
+	if err := json.Unmarshal(bodyBytes, target); err != nil {
+		beego.Error("Error al decodificar el JSON:", err)
+		return err
+	}
+
+	return nil
+}
+
+func sendJsonWithToken(url string, trequest string, target interface{}, datajson interface{}, token string) error {
+	b := new(bytes.Buffer)
+	if datajson != nil {
+		if err := json.NewEncoder(b).Encode(datajson); err != nil {
+			beego.Error("Error al codificar el JSON:", err)
+			return err
+		}
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest(trequest, url, b)
+	if err != nil {
+		beego.Error("Error al crear la solicitud:", err)
+		return err
+	}
+
+	// Agregar encabezados necesarios
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	r, err := client.Do(req)
+	if err != nil {
+		beego.Error("Error en la solicitud:", err)
+		return err
+	}
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			beego.Error("Error al cerrar el cuerpo de la respuesta:", err)
+		}
+	}()
+
+	// Leer y mostrar la respuesta del servidor
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+
+	// Decodificar JSON en el objeto de destino
+	if err := json.Unmarshal(bodyBytes, target); err != nil {
+		beego.Error("Error al decodificar el JSON:", err)
+		return err
+	}
+
+	return nil
 }
 
 func getJsonTest(url string, target interface{}) (status int, err error) {
@@ -304,4 +457,25 @@ func CrearQueryNovedadesCesion(proveedor, numeroContrato, vigencia string) strin
 
 	query_ := strings.Join(query, ",")
 	return query_
+}
+
+// Funcion para agregar los datos a un slice
+func StringToSlice(cadena string) (slice []string) {
+	parts := strings.Split(cadena, ",")
+
+	if cadena != "" {
+		for _, part := range parts {
+			slice = append(slice, part)
+		}
+	}
+	return slice
+}
+
+func LimpiezaRespuestaRefactor(respuesta map[string]interface{}, v interface{}) {
+	b, err := json.Marshal(respuesta["Data"])
+	if err != nil {
+		panic(err)
+	}
+
+	json.Unmarshal(b, v)
 }

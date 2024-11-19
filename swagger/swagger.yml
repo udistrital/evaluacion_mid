@@ -123,6 +123,71 @@ paths:
           description: '{}'
         "404":
           description: not found resource
+  /informacion_certificacion_dve/:
+    post:
+      tags:
+      - informacion_certificacion_dve
+      description: get certification information by various parameters
+      operationId: InformacionCertificacionDveController.PostInformacionCertificacionDve
+      parameters:
+      - in: query
+        name: numero_documento
+        description: List of document numbers
+        required: true
+        type: array
+        items:
+          type: string
+      - in: query
+        name: periodo_inicial
+        description: List of initial periods
+        required: true
+        type: array
+        items:
+          type: string
+      - in: query
+        name: periodo_final
+        description: List of final periods
+        required: true
+        type: array
+        items:
+          type: string
+      - in: query
+        name: vinculaciones
+        description: List of linkages
+        required: true
+        type: array
+        items:
+          type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.InformacionCertificacionDve'
+        "400":
+          description: Bad request
+  /informacion_certificacion_dve/vinculaciones_docente/{documento_docente}:
+    get:
+      tags:
+      - informacion_certificacion_dve
+      description: Fetches the linkage information of a teacher based on their document number.
+      operationId: InformacionCertificacionDveController.VinculacionesDve
+      parameters:
+      - in: query
+        name: documento_docente
+        description: Document number of the teacher
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '"List of linkages for the teacher"'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.VinculacionesDocente'
+        "404":
+          description: Not Found "The requested information could not be found"
+        "502":
+          description: Bad Gateway "Error processing the request due to an unexpected failure"
   /plantilla/:
     get:
       tags:
@@ -199,6 +264,109 @@ definitions:
   '{}':
     title: '{}'
     type: object
+  models.InformacionCertificacionDve:
+    title: InformacionCertificacionDve
+    type: object
+    properties:
+      informacion_certificacion_dve:
+        $ref: '#/definitions/models.JefeTalentoHumano'
+      informacion_dve:
+        $ref: '#/definitions/models.InformacionDVE'
+      intensidad_horaria:
+        type: array
+        items:
+          $ref: '#/definitions/models.IntensidadHorariaDVE'
+  models.InformacionDVE:
+    title: InformacionDVE
+    type: object
+    properties:
+      activo:
+        type: boolean
+      categoria:
+        type: string
+      dedicacion:
+        type: string
+      facultad:
+        type: string
+      nivel_academico:
+        type: string
+      nombre_docente:
+        type: string
+      numero_documento:
+        type: string
+      proyecto_curricular:
+        type: string
+      ultimo_pago_dve:
+        type: string
+  models.IntensidadHorariaDVE:
+    title: IntensidadHorariaDVE
+    type: object
+    properties:
+      Asignaturas:
+        type: array
+        items:
+          type: string
+      Año:
+        type: integer
+        format: int64
+      HorasSemanales:
+        type: integer
+        format: int64
+      HorasSemestre:
+        type: integer
+        format: int64
+      NumeroSemanas:
+        type: integer
+        format: int64
+      Periodo:
+        type: integer
+        format: int64
+      ProyectoCurricular:
+        type: string
+      TipoVinculacion:
+        type: string
+  models.JefeTalentoHumano:
+    title: JefeTalentoHumano
+    type: object
+    properties:
+      Cargo:
+        type: string
+      Nombre:
+        type: string
+  models.VinculacionesDocente:
+    title: VinculacionesDocente
+    type: object
+    properties:
+      Dedicacion:
+        type: string
+      DependenciaAcademica:
+        type: integer
+        format: int64
+      FechaFin:
+        type: string
+        format: datetime
+      FechaInicio:
+        type: string
+        format: datetime
+      NumeroContrato:
+        type: string
+      NumeroHorasSemanales:
+        type: integer
+        format: int64
+      NumeroHorasSemestrales:
+        type: integer
+        format: int64
+      NumeroSemanas:
+        type: integer
+        format: int64
+      Periodo:
+        type: integer
+        format: int64
+      ProyectoCurricular:
+        type: string
+      Vigencia:
+        type: integer
+        format: int64
 tags:
 - name: filtroContrato
   description: |
