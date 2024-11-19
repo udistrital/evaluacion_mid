@@ -309,8 +309,6 @@ definitions:
       Año:
         type: integer
         format: int64
-      Categoria:
-        type: string
       HorasSemanales:
         type: integer
         format: int64
@@ -339,8 +337,6 @@ definitions:
     title: VinculacionesDocente
     type: object
     properties:
-      Categoria:
-        type: string
       Dedicacion:
         type: string
       DependenciaAcademica:
@@ -352,8 +348,6 @@ definitions:
       FechaInicio:
         type: string
         format: datetime
-      IndicativoVinculacion:
-        type: string
       NumeroContrato:
         type: string
       NumeroHorasSemanales:

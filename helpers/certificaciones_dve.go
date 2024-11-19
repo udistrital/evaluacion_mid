@@ -65,62 +65,6 @@ func InformacionDve(numeroDocumento string, incluirSalario bool) (docente models
 
 	json.Unmarshal(proveedorJson, &informacion_proveedor)
 
-	// Verificar que el proveedor haya tenido contratos de vinculacion especial
-
-	// var respuesta_contrato []map[string]interface{}
-	// var contratos []models.ContratoGeneral
-	// fmt.Println("Url contrato: ", beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&sortby=VigenciaContrato&order=desc&limit=-1")
-	// if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&sortby=VigenciaContrato&order=desc&limit=-1", &respuesta_contrato); err != nil && response != 200 {
-	// 	outputError = map[string]interface{}{
-	// 		"Succes":  false,
-	// 		"Status":  404,
-	// 		"Message": "Error al obtener la informacion del contrato",
-	// 		"Funcion": "InformacionDve",
-	// 	}
-	// 	return docente, outputError
-	// }
-
-	// if len(respuesta_contrato) == 0 {
-	// 	outputError = map[string]interface{}{
-	// 		"Succes":  false,
-	// 		"Status":  404,
-	// 		"Message": "No se encontro ningun contrato registrado con el numero de documento " + numeroDocumento,
-	// 		"Funcion": "InformacionDve",
-	// 	}
-	// 	return docente, outputError
-	// }
-
-	// contratoJson, err := json.Marshal(respuesta_contrato)
-	// if err != nil {
-	// 	outputError = map[string]interface{}{
-	// 		"Succes":  false,
-	// 		"Status":  404,
-	// 		"Message": "Error al convertir la informacion del contrato",
-	// 		"Funcion": "InformacionDve",
-	// 	}
-	// 	return docente, outputError
-	// }
-
-	// json.Unmarshal(contratoJson, &contratos)
-
-	// docente_dve := false
-	// for _, contrato := range contratos {
-	// 	if contrato.TipoContrato.Id == 18 || contrato.TipoContrato.Id == 3 || contrato.TipoContrato.Id == 2 {
-	// 		docente_dve = true
-	// 		break
-	// 	}
-	// }
-
-	// if !docente_dve {
-	// 	outputError = map[string]interface{}{
-	// 		"Succes":  false,
-	// 		"Status":  404,
-	// 		"Message": "El proveedor no es un docente de vinculacion especial",
-	// 		"Funcion": "InformacionDve",
-	// 	}
-	// 	return docente, outputError
-	// }
-
 	// Traer la informacion de la vinculacion del docente
 	var respuesta_vinculacion map[string]interface{}
 	var vinculacionDocente []models.VinculacionesDocenteResolucion
@@ -163,8 +107,8 @@ func InformacionDve(numeroDocumento string, incluirSalario bool) (docente models
 	var respuesta_resolucion map[string]interface{}
 	var resolucion models.Resolucion
 
-	//fmt.Println("Url resolucion: ", beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(ultimaVinculacion.ResolucionVinculacionDocente.Id))
-	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(ultimaVinculacion.ResolucionVinculacionDocente.Id), &respuesta_resolucion); err != nil && response != 200 {
+	//fmt.Println("Url resolucion: ", beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(vinculacionDocente[0].ResolucionVinculacionDocente.Id))
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudResoluciones")+"/resolucion/?query=Id:"+strconv.Itoa(vinculacionDocente[0].ResolucionVinculacionDocente.Id), &respuesta_resolucion); err != nil && response != 200 {
 		outputError = map[string]interface{}{
 			"Succes":  false,
 			"Status":  404,
@@ -220,7 +164,7 @@ func InformacionDve(numeroDocumento string, incluirSalario bool) (docente models
 		pago, err := ObtenerUltimoSalarioDve(numeroDocumento)
 
 		if err != nil {
-			docente.UltimoPago = "Este docente no cuenta con un contrato activo por lo tanto no es posible obtener el ultimo salario"
+			docente.UltimoPago = "No se encontro un salario para el docente"
 		} else {
 			docente.UltimoPago = pago
 		}
@@ -455,7 +399,6 @@ func ObtenerVinculacionesNew(docDocente string) (vinculacionesDocente []models.V
 			NumeroSemanas:          vinculacion.NumeroSemanas,
 			NumeroHorasSemestrales: vinculacion.NumeroHorasSemanales * vinculacion.NumeroSemanas,
 			ProyectoCurricular:     proyecto_curricular.Nombre,
-			Categoria:              vinculacion.Categoria,
 			DependenciaAcademica:   vinculacion.DependenciaAcademica,
 		}
 
@@ -467,8 +410,6 @@ func ObtenerVinculacionesNew(docDocente string) (vinculacionesDocente []models.V
 
 		if (resolucion != models.Resolucion{}) {
 			vinculacionDocente.Periodo = resolucion.Periodo
-			fmt.Println("Indicativo vinculacion: ", fmt.Sprintf("%d-%d-%d", vinculacion.Vigencia, resolucion.Periodo, vinculacion.DependenciaAcademica))
-			vinculacionDocente.IndicativoVinculacion = fmt.Sprintf("%d-%d-%d", vinculacion.Vigencia, resolucion.Periodo, vinculacion.DependenciaAcademica)
 		}
 
 		if len(parametros.Data) == 0 {
@@ -618,7 +559,8 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		}
 
 		if len(vinculaciones) > 0 {
-			clave := fmt.Sprintf("%d-%d-%d", vinculacion.Vigencia, vinculacion.Periodo, vinculacion.DependenciaAcademica)
+			//clave := fmt.Sprintf("%d-%d", vinculacion.Vigencia, vinculacion.Periodo, vinculacion.DependenciaAcademica)
+			clave := fmt.Sprintf("%d-%d", vinculacion.Vigencia, vinculacion.Periodo)
 			encontrado := false
 
 			for _, v := range vinculaciones {
@@ -640,8 +582,6 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		}
 	}
 
-	fmt.Println("Vinculaciones filtradas: ", vinculacionesFiltradas)
-
 	// Retornar las coincidencias de las materias unicas con las vinculaciones del docente
 
 	for _, vinculacion := range vinculacionesFiltradas {
@@ -653,9 +593,8 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		intensidad.NumeroSemanas = vinculacion.NumeroSemanas
 		intensidad.HorasSemestre = vinculacion.NumeroHorasSemestrales
 		intensidad.TipoVinculacion = vinculacion.Dedicacion
-		intensidad.Categoria = vinculacion.Categoria
 		for _, materia := range listaMateriasUnicas {
-			if vinculacion.Vigencia == materia.Anio && vinculacion.Periodo == materia.Periodo && vinculacion.DependenciaAcademica == materia.CodProyecto {
+			if vinculacion.Vigencia == materia.Anio && vinculacion.Periodo == materia.Periodo {
 				intensidad.Asignaturas = append(intensidad.Asignaturas, materia.Espacio)
 			}
 		}
@@ -673,8 +612,6 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		fmt.Println("ID Grupo: ", materia.IDGrupo)
 		fmt.Println("}")
 	}
-
-	fmt.Println("Intensidad Horaria")
 
 	OrdenarVinculaciones(intensidadHoraria)
 
@@ -867,8 +804,8 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 	var fecha time.Time
 	var nomina string
 
-	//fmt.Println("Url detalle preliquidacion: ", beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve)
-	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve, &respuesta_preliquidacion); err != nil && response != 200 {
+	//fmt.Println("Url detalle preliquidacion: ", beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve+"&sortby=FechaCreacion&order=desc")
+	if response, err := getJsonTest(beego.AppConfig.String("UrlCrudTitan")+"/detalle_preliquidacion/?query=ContratoPreliquidacionId.ContratoId.Documento:"+numeroDocumentoDve+"&sortby=FechaCreacion&order=desc", &respuesta_preliquidacion); err != nil && response != 200 {
 		outputError = map[string]interface{}{
 			"Succes":  false,
 			"Status":  404,
@@ -934,16 +871,28 @@ func ObtenerUltimoSalarioDve(numeroDocumentoDve string) (ultimoSalario string, o
 
 	LimpiezaRespuestaRefactor(respuesta_detalle, &detalles)
 
-	for _, detalle := range detalles {
-		for _, det := range detalle.Detalle {
-			if det.ConceptoNominaId.Id == 152 {
-				ultimoSalario = FormatMoney(int(det.ValorCalculado), 0)
-				return ultimoSalario, nil
-			} else {
-				continue
-			}
+	// for _, detalle := range detalles {
+	// 	for _, det := range detalle.Detalle {
+	// 		if det.ConceptoNominaId.Id == 152 {
+	// 			ultimoSalario = FormatMoney(int(det.ValorCalculado), 0)
+	// 			return ultimoSalario, nil
+	// 		} else {
+	// 			continue
+	// 		}
+	// 	}
+	// }
+
+	if len(detalles) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "El docente no tiene salarios registrados",
+			"Funcion": "ObtenerUltimoSalaraDve",
 		}
+		return ultimoSalario, outputError
 	}
+
+	ultimoSalario = FormatMoney(int(detalles[0].TotalDevengado), 0)
 
 	return ultimoSalario, nil
 

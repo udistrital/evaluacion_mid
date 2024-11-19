@@ -47,7 +47,5 @@ type VinculacionesDocente struct {
 	NumeroHorasSemestrales int       `json:"NumeroHorasSemestrales"`
 	Dedicacion             string    `json:"Dedicacion"`
 	ProyectoCurricular     string    `json:"ProyectoCurricular"`
-	Categoria              string    `json:"Categoria"`
 	DependenciaAcademica   int       `json:"DependenciaAcademica"`
-	IndicativoVinculacion  string    `json:"IndicativoVinculacion"`
 }

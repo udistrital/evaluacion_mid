@@ -27,7 +27,6 @@ type IntensidadHorariaDVE struct {
 	NumeroSemanas      int      `json:"NumeroSemanas"`
 	HorasSemestre      int      `json:"HorasSemestre"`
 	TipoVinculacion    string   `json:"TipoVinculacion"`
-	Categoria          string   `json:"Categoria"`
 }
 
 type JefeTalentoHumano struct {
