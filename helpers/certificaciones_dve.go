@@ -701,6 +701,8 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		intensidad.NumeroSemanas = vinculacion.NumeroSemanas
 		intensidad.HorasSemestre = vinculacion.NumeroHorasSemestrales
 		intensidad.TipoVinculacion = vinculacion.Dedicacion
+		intensidad.FechaInicio = vinculacion.FechaInicio
+		intensidad.FechaFin = vinculacion.FechaFin
 		for _, materia := range listaMateriasUnicas {
 			if vinculacion.Vigencia == materia.Anio && vinculacion.Periodo == materia.Periodo {
 				intensidad.Asignaturas = append(intensidad.Asignaturas, materia.Espacio)

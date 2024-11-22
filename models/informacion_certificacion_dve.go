@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type InformacionCertificacionDve struct {
 	InformacionDve    InformacionDVE         `json:"informacion_dve"`
 	IntensidadHoraria []IntensidadHorariaDVE `json:"intensidad_horaria"`
@@ -19,14 +21,16 @@ type InformacionDVE struct {
 }
 
 type IntensidadHorariaDVE struct {
-	Anio               int      `json:"Año"`
-	Periodo            int      `json:"Periodo"`
-	ProyectoCurricular string   `json:"ProyectoCurricular"`
-	Asignaturas        []string `json:"Asignaturas"`
-	HorasSemana        int      `json:"HorasSemanales"`
-	NumeroSemanas      int      `json:"NumeroSemanas"`
-	HorasSemestre      int      `json:"HorasSemestre"`
-	TipoVinculacion    string   `json:"TipoVinculacion"`
+	Anio               int       `json:"Año"`
+	Periodo            int       `json:"Periodo"`
+	ProyectoCurricular string    `json:"ProyectoCurricular"`
+	Asignaturas        []string  `json:"Asignaturas"`
+	FechaInicio        time.Time `json:"FechaInicio"`
+	FechaFin           time.Time `json:"FechaFin"`
+	HorasSemana        int       `json:"HorasSemanales"`
+	NumeroSemanas      int       `json:"NumeroSemanas"`
+	HorasSemestre      int       `json:"HorasSemestre"`
+	TipoVinculacion    string    `json:"TipoVinculacion"`
 }
 
 type JefeTalentoHumano struct {
