@@ -195,6 +195,7 @@ func VinculacionesDocenteDve(docDocente string) (vinculacionesDocente []models.V
 	}()
 
 	var vinculaciones_old bool
+	var vinculaciones_new bool
 	var respuesta_proveedor []map[string]interface{}
 	var informacion_proveedor models.InformacionProveedor
 
@@ -273,19 +274,37 @@ func VinculacionesDocenteDve(docDocente string) (vinculacionesDocente []models.V
 		}
 	}
 
-	vinculacionesNew, error := ObtenerVinculacionesNew(docDocente)
-	if error != nil {
-		return vinculacionesDocente, error
+	for _, contrato := range contratos {
+		if contrato.VigenciaContrato >= 2023 {
+			vinculaciones_new = true
+			break
+		}
 	}
 
-	if len(vinculacionesNew) > 0 {
-		vinculacionesDocente = append(vinculacionesDocente, vinculacionesNew...)
+	if vinculaciones_new {
+		vinculacionesNew, error := ObtenerVinculacionesNew(docDocente)
+		if error != nil {
+			return vinculacionesDocente, error
+		}
+
+		if len(vinculacionesNew) > 0 {
+			vinculacionesDocente = append(vinculacionesDocente, vinculacionesNew...)
+		}
 	}
 
 	// aqui se debe implementar el servicio para obtener las vinculaciones anteriores al 2023
 	if vinculaciones_old {
-		fmt.Println("Vinculaciones old: ", vinculaciones_old)
+		vinculacionesOld, error := ObtenerVinculacionesOld(docDocente)
+		if error != nil {
+			return vinculacionesDocente, error
+		}
+
+		if len(vinculacionesOld) > 0 {
+			vinculacionesDocente = append(vinculacionesDocente, vinculacionesOld...)
+		}
 	}
+
+	OrdenarVinculaciones(vinculacionesDocente)
 
 	return vinculacionesDocente, nil
 
@@ -297,7 +316,7 @@ func ObtenerVinculacionesNew(docDocente string) (vinculacionesDocente []models.V
 			outputError = map[string]interface{}{
 				"Succes":  false,
 				"Status":  502,
-				"Message": "Error al obtener las vinculaciones del docente",
+				"Message": "Error al obtener las vinculaciones a partir del 2023 del docente",
 				"Funcion": "obtenerVinculacionesNew",
 			}
 		}
@@ -423,6 +442,95 @@ func ObtenerVinculacionesNew(docDocente string) (vinculacionesDocente []models.V
 
 	return vinculacionesDocente, nil
 
+}
+
+func ObtenerVinculacionesOld(docDocente string) (vinculacionesDocente []models.VinculacionesDocente, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  502,
+				"Message": "Error al obtener las vinculaciones antes del 2023 del docente",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+		}
+	}()
+
+	var vinculacionesOld models.VinculacionesDocenteOld
+	var respuesta_vinculacion_old map[string]interface{}
+	if response, err := getJsonWSO2Test(beego.AppConfig.String("UrlAdministrativaJbpm")+"/vinculacion_docente/"+docDocente, &respuesta_vinculacion_old); err != nil && response != 200 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al obtener las vinculaciones anteriores al 2023 del docente",
+			"Funcion": "vinculacionesDocenteDve",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	vinculacionesOldJson, err := json.Marshal(respuesta_vinculacion_old)
+	if err != nil {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": "Error al deserializar las vinculaciones anteriores al 2023 del docente",
+			"Funcion": "vinculacionesDocenteDve",
+		}
+		return vinculacionesDocente, outputError
+	}
+
+	json.Unmarshal(vinculacionesOldJson, &vinculacionesOld)
+
+	for _, vinculacion := range vinculacionesOld.Docente.VinculacionesOld {
+		var proyecto_curricular models.ProyectoCurricular
+		var respuesta_dependencia map[string]interface{}
+		// Peticion para traer el proyecto curricular
+		//fmt.Println("Url dependencia: ", beego.AppConfig.String("UrlcrudOikos")+"/dependencia/"+vinculacion.ProyectoCurricularId)
+		if response, err := getJsonTest(beego.AppConfig.String("UrlcrudOikos")+"/dependencia/"+vinculacion.ProyectoCurricularId, &respuesta_dependencia); err != nil && response != 200 {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la dependencia",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+			return vinculacionesDocente, outputError
+		}
+
+		jsonProyectoCurricular, err := json.Marshal(respuesta_dependencia)
+		if err != nil {
+			outputError = map[string]interface{}{
+				"Succes":  false,
+				"Status":  404,
+				"Message": "Error al obtener la dependencia",
+				"Funcion": "obtenerVinculacionesNew",
+			}
+			return vinculacionesDocente, outputError
+		}
+		json.Unmarshal(jsonProyectoCurricular, &proyecto_curricular)
+
+		vigencia, _ := strconv.Atoi(vinculacion.Vigencia)
+		periodo, _ := strconv.Atoi(vinculacion.Periodo)
+		numero_horas_semanales, _ := strconv.Atoi(vinculacion.NumeroHorasSemanales)
+		numero_semanas, _ := strconv.Atoi(vinculacion.NumeroSemanas)
+		dependencia_academica, _ := strconv.Atoi(vinculacion.ProyectoCurricularId)
+		vinculacionDocente := models.VinculacionesDocente{
+			NumeroContrato:         vinculacion.NumeroContrato,
+			Vigencia:               vigencia,
+			Periodo:                periodo,
+			FechaInicio:            vinculacion.FechaInicio,
+			FechaFin:               vinculacion.FechaFin,
+			NumeroHorasSemanales:   numero_horas_semanales,
+			NumeroSemanas:          numero_semanas,
+			NumeroHorasSemestrales: numero_horas_semanales * numero_semanas,
+			Dedicacion:             vinculacion.Descripcion,
+			ProyectoCurricular:     proyecto_curricular.Nombre,
+			DependenciaAcademica:   dependencia_academica,
+		}
+
+		vinculacionesDocente = append(vinculacionesDocente, vinculacionDocente)
+	}
+
+	return vinculacionesDocente, nil
 }
 
 func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadHoraria []models.IntensidadHorariaDVE, outputError map[string]interface{}) {
@@ -593,6 +701,8 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		intensidad.NumeroSemanas = vinculacion.NumeroSemanas
 		intensidad.HorasSemestre = vinculacion.NumeroHorasSemestrales
 		intensidad.TipoVinculacion = vinculacion.Dedicacion
+		intensidad.FechaInicio = vinculacion.FechaInicio
+		intensidad.FechaFin = vinculacion.FechaFin
 		for _, materia := range listaMateriasUnicas {
 			if vinculacion.Vigencia == materia.Anio && vinculacion.Periodo == materia.Periodo {
 				intensidad.Asignaturas = append(intensidad.Asignaturas, materia.Espacio)
@@ -613,17 +723,28 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		fmt.Println("}")
 	}
 
-	OrdenarVinculaciones(intensidadHoraria)
+	OrdenarIntensidadHoraria(intensidadHoraria)
 
 	return intensidadHoraria, nil
 
 }
 
-func OrdenarVinculaciones(vinculaciones []models.IntensidadHorariaDVE) {
+func OrdenarIntensidadHoraria(vinculaciones []models.IntensidadHorariaDVE) {
 	sort.Slice(vinculaciones, func(i, j int) bool {
 		// Comparar Vigencia (años)
 		if vinculaciones[i].Anio != vinculaciones[j].Anio {
 			return vinculaciones[i].Anio > vinculaciones[j].Anio
+		}
+		// Comparar Período si los años son iguales
+		return vinculaciones[i].Periodo > vinculaciones[j].Periodo
+	})
+}
+
+func OrdenarVinculaciones(vinculaciones []models.VinculacionesDocente) {
+	sort.Slice(vinculaciones, func(i, j int) bool {
+		// Comparar Vigencia (años)
+		if vinculaciones[i].Vigencia != vinculaciones[j].Vigencia {
+			return vinculaciones[i].Vigencia > vinculaciones[j].Vigencia
 		}
 		// Comparar Período si los años son iguales
 		return vinculaciones[i].Periodo > vinculaciones[j].Periodo

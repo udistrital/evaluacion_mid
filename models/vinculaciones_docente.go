@@ -49,3 +49,22 @@ type VinculacionesDocente struct {
 	ProyectoCurricular     string    `json:"ProyectoCurricular"`
 	DependenciaAcademica   int       `json:"DependenciaAcademica"`
 }
+
+type VinculacionesDocenteOld struct {
+	Docente struct {
+		VinculacionesOld []VinculacionOld `json:"vinculaciones"`
+	} `json:"docente"`
+}
+
+type VinculacionOld struct {
+	Vigencia             string    `json:"vigencia"`
+	Descripcion          string    `json:"descripcion"`
+	NumeroContrato       string    `json:"numero_contrato"`
+	FechaInicio          time.Time `json:"fecha_inicio"`
+	NumeroHorasSemanales string    `json:"numero_horas_semanales"`
+	Periodo              string    `json:"periodo"`
+	FechaFin             time.Time `json:"fecha_fin"`
+	ProyectoCurricularId string    `json:"proyecto_curricular_id"`
+	NumeroSemanas        string    `json:"numero_semanas"`
+	DedicacionId         string    `json:"dedicacion_id"`
+}
