@@ -309,6 +309,12 @@ definitions:
       Año:
         type: integer
         format: int64
+      FechaFin:
+        type: string
+        format: datetime
+      FechaInicio:
+        type: string
+        format: datetime
       HorasSemanales:
         type: integer
         format: int64
