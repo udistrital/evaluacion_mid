@@ -457,6 +457,12 @@
                     "type": "integer",
                     "format": "int64"
                 },
+                "Categoria": {
+                    "type": "string"
+                },
+                "Facultad": {
+                    "type": "string"
+                },
                 "FechaFin": {
                     "type": "string",
                     "format": "datetime"
@@ -473,6 +479,9 @@
                     "type": "integer",
                     "format": "int64"
                 },
+                "NivelAcademico": {
+                    "type": "string"
+                },
                 "NumeroSemanas": {
                     "type": "integer",
                     "format": "int64"
@@ -485,6 +494,9 @@
                     "type": "string"
                 },
                 "TipoVinculacion": {
+                    "type": "string"
+                },
+                "Valor": {
                     "type": "string"
                 }
             }

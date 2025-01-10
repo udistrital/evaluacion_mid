@@ -309,6 +309,10 @@ definitions:
       Año:
         type: integer
         format: int64
+      Categoria:
+        type: string
+      Facultad:
+        type: string
       FechaFin:
         type: string
         format: datetime
@@ -321,6 +325,8 @@ definitions:
       HorasSemestre:
         type: integer
         format: int64
+      NivelAcademico:
+        type: string
       NumeroSemanas:
         type: integer
         format: int64
@@ -330,6 +336,8 @@ definitions:
       ProyectoCurricular:
         type: string
       TipoVinculacion:
+        type: string
+      Valor:
         type: string
   models.JefeTalentoHumano:
     title: JefeTalentoHumano
