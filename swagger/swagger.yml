@@ -282,19 +282,9 @@ definitions:
     properties:
       activo:
         type: boolean
-      categoria:
-        type: string
-      dedicacion:
-        type: string
-      facultad:
-        type: string
-      nivel_academico:
-        type: string
       nombre_docente:
         type: string
       numero_documento:
-        type: string
-      proyecto_curricular:
         type: string
       ultimo_pago_dve:
         type: string
@@ -303,9 +293,7 @@ definitions:
     type: object
     properties:
       Asignaturas:
-        type: array
-        items:
-          type: string
+        type: string
       Año:
         type: integer
         format: int64
@@ -334,6 +322,8 @@ definitions:
         type: integer
         format: int64
       ProyectoCurricular:
+        type: string
+      Resolucion:
         type: string
       TipoVinculacion:
         type: string
