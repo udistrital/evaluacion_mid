@@ -107,8 +107,8 @@ steps:
     event:
     - push
 
-- name: publish_to_ecr_release
-  image: plugins/ecr
+- name: publish_to_ecr_release  
+  image: plugins/ecr:20.18.5
   settings:
     access_key:
       from_secret: AWS_ACCESS_KEY_ID
@@ -127,7 +127,7 @@ steps:
     - push
 
 - name: publish_to_ecr_master
-  image: plugins/ecr
+  image: plugins/ecr:20.18.5
   settings:
     access_key:
       from_secret: AWS_ACCESS_KEY_ID
