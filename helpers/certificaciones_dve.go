@@ -533,7 +533,7 @@ func ObtenerVinculacionesOld(docDocente string) (vinculacionesDocente []models.V
 	return vinculacionesDocente, nil
 }
 
-func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadHoraria []models.IntensidadHorariaDVE, ultimaVinculacion models.Certificado, outputError map[string]interface{}) {
+func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadHoraria []models.IntensidadHorariaDVE, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
@@ -558,7 +558,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 			"Message": fmt.Sprintf(`Error al obtener las vinculaciones del docente %s`, numeroDocumento),
 			"Funcion": "IntensidadHorariaDve",
 		}
-		return intensidadHoraria, ultimaVinculacion, outputError
+		return intensidadHoraria, outputError
 	}
 
 	vinculacionesJson, err := json.Marshal(respuesta_vinculacion)
@@ -569,16 +569,13 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 			"Message": fmt.Sprintf(`Error al obtener las vinculaciones del docente %s`, numeroDocumento),
 			"Funcion": "IntensidadHorariaDve",
 		}
-		return intensidadHoraria, ultimaVinculacion, outputError
+		return intensidadHoraria, outputError
 	}
 
 	json.Unmarshal(vinculacionesJson, &vinculaciones_docente)
 
 	for _, vinculacion := range vinculaciones_docente.Docente.Certificados {
-		//Retornar la ultima vinculacion del docente
-		if ultimaVinculacion.FechaFin.IsZero() || ultimaVinculacion.FechaFin.Before(vinculacion.FechaFin) {
-			ultimaVinculacion = vinculacion
-		}
+
 		vigencia, _ := strconv.Atoi(strings.Split(vinculacion.Periodo, "-")[0])
 		periodo, _ := strconv.Atoi(strings.Split(vinculacion.Periodo, "-")[1])
 		incluir := true
@@ -586,7 +583,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		if len(periodoInicial) > 0 {
 			anioInicial, periodoInicialNum, err := ObtenerPeriodo(periodoInicial[0])
 			if err != nil {
-				return intensidadHoraria, ultimaVinculacion, map[string]interface{}{
+				return intensidadHoraria, map[string]interface{}{
 					"Succes":  false,
 					"Status":  404,
 					"Message": err,
@@ -602,7 +599,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		if len(periodoFinal) > 0 {
 			anioFinal, periodoFinalNum, err := ObtenerPeriodo(periodoFinal[0])
 			if err != nil {
-				return intensidadHoraria, ultimaVinculacion, map[string]interface{}{
+				return intensidadHoraria, map[string]interface{}{
 					"Succes":  false,
 					"Status":  404,
 					"Message": err,
@@ -658,7 +655,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 
 	OrdenarIntensidadHoraria(intensidadHoraria)
 
-	return intensidadHoraria, ultimaVinculacion, nil
+	return intensidadHoraria, nil
 }
 
 // func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadHoraria []models.IntensidadHorariaDVE, outputError map[string]interface{}) {
@@ -857,6 +854,9 @@ func OrdenarIntensidadHoraria(vinculaciones []models.IntensidadHorariaDVE) {
 	sort.Slice(vinculaciones, func(i, j int) bool {
 
 		if vinculaciones[i].Anio == vinculaciones[j].Anio && vinculaciones[i].Periodo == vinculaciones[j].Periodo {
+			if vinculaciones[i].FechaInicio.Equal(vinculaciones[j].FechaInicio) {
+				return vinculaciones[i].Valor < vinculaciones[j].Valor
+			}
 			return vinculaciones[i].FechaFin.After(vinculaciones[j].FechaFin)
 		}
 		// Comparar Vigencia (años)
@@ -894,7 +894,7 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 	}()
 
 	fechaActual := time.Now()
-	intensidadHoraria, ultimaVinculacion, errorIntensidadHoraria := IntensidadHorariaDve(numeroDocumento, periodoInicial, periodoFinal, vinculaciones)
+	intensidadHoraria, errorIntensidadHoraria := IntensidadHorariaDve(numeroDocumento, periodoInicial, periodoFinal, vinculaciones)
 	if errorIntensidadHoraria != nil {
 		return certificacion, errorIntensidadHoraria
 	}
@@ -905,10 +905,10 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 	}
 
 	if incluirSalario {
-		docente.UltimoPago = ultimaVinculacion.Valor
+		docente.UltimoPago = intensidadHoraria[0].Valor
 	}
 
-	if !ultimaVinculacion.FechaInicio.IsZero() && !fechaActual.Before(ultimaVinculacion.FechaInicio) && !ultimaVinculacion.FechaFin.IsZero() && !fechaActual.After(ultimaVinculacion.FechaFin) {
+	if !intensidadHoraria[0].FechaInicio.IsZero() && !fechaActual.Before(intensidadHoraria[0].FechaInicio) && !intensidadHoraria[0].FechaFin.IsZero() && !fechaActual.After(intensidadHoraria[0].FechaFin) {
 		docente.Activo = true
 	} else {
 		docente.Activo = false
