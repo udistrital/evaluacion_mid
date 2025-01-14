@@ -245,41 +245,6 @@
                 }
             }
         },
-        "/informacion_certificacion_dve/vinculaciones_docente/{documento_docente}": {
-            "get": {
-                "tags": [
-                    "informacion_certificacion_dve"
-                ],
-                "description": "Fetches the linkage information of a teacher based on their document number.",
-                "operationId": "InformacionCertificacionDveController.VinculacionesDve",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "documento_docente",
-                        "description": "Document number of the teacher",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "\"List of linkages for the teacher\"",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.VinculacionesDocente"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found \"The requested information could not be found\""
-                    },
-                    "502": {
-                        "description": "Bad Gateway \"Error processing the request due to an unexpected failure\""
-                    }
-                }
-            }
-        },
         "/plantilla/": {
             "get": {
                 "tags": [
@@ -405,7 +370,7 @@
                 "intensidad_horaria": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.IntensidadHorariaDVE"
+                        "$ref": "#/definitions/models.IntensidadesDocente"
                     }
                 }
             }
@@ -417,10 +382,25 @@
                 "activo": {
                     "type": "boolean"
                 },
+                "categoria": {
+                    "type": "string"
+                },
+                "dedicacion": {
+                    "type": "string"
+                },
+                "facultad": {
+                    "type": "string"
+                },
+                "nivel_academico": {
+                    "type": "string"
+                },
                 "nombre_docente": {
                     "type": "string"
                 },
                 "numero_documento": {
+                    "type": "string"
+                },
+                "proyecto_curricular": {
                     "type": "string"
                 },
                 "ultimo_pago_dve": {
@@ -428,16 +408,55 @@
                 }
             }
         },
-        "models.IntensidadHorariaDVE": {
-            "title": "IntensidadHorariaDVE",
+        "models.IntensidadesDocente": {
+            "title": "IntensidadesDocente",
+            "type": "object",
+            "properties": {
+                "Año": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "HorasSemanales": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "NumeroSemanas": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Periodo": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Resoluciones": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResolucionDocente"
+                    }
+                },
+                "TipoVinculacion": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.JefeTalentoHumano": {
+            "title": "JefeTalentoHumano",
+            "type": "object",
+            "properties": {
+                "Cargo": {
+                    "type": "string"
+                },
+                "Nombre": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResolucionDocente": {
+            "title": "ResolucionDocente",
             "type": "object",
             "properties": {
                 "Asignaturas": {
                     "type": "string"
-                },
-                "Año": {
-                    "type": "integer",
-                    "format": "int64"
                 },
                 "Categoria": {
                     "type": "string"
@@ -468,10 +487,6 @@
                     "type": "integer",
                     "format": "int64"
                 },
-                "Periodo": {
-                    "type": "integer",
-                    "format": "int64"
-                },
                 "ProyectoCurricular": {
                     "type": "string"
                 },
@@ -483,65 +498,6 @@
                 },
                 "Valor": {
                     "type": "string"
-                }
-            }
-        },
-        "models.JefeTalentoHumano": {
-            "title": "JefeTalentoHumano",
-            "type": "object",
-            "properties": {
-                "Cargo": {
-                    "type": "string"
-                },
-                "Nombre": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.VinculacionesDocente": {
-            "title": "VinculacionesDocente",
-            "type": "object",
-            "properties": {
-                "Dedicacion": {
-                    "type": "string"
-                },
-                "DependenciaAcademica": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "FechaFin": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "FechaInicio": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "NumeroContrato": {
-                    "type": "string"
-                },
-                "NumeroHorasSemanales": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "NumeroHorasSemestrales": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "NumeroSemanas": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "Periodo": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "ProyectoCurricular": {
-                    "type": "string"
-                },
-                "Vigencia": {
-                    "type": "integer",
-                    "format": "int64"
                 }
             }
         },
