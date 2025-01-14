@@ -28,7 +28,7 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 	}()
 
 	fechaActual := time.Now()
-	intensidadDocente, errorIntensidadHoraria := IntensidadHorariaDve(numeroDocumento, periodoInicial, periodoFinal, vinculaciones)
+	intensidadDocente, ultimaVinculacion, errorIntensidadHoraria := IntensidadHorariaDve(numeroDocumento, periodoInicial, periodoFinal, vinculaciones)
 	if errorIntensidadHoraria != nil {
 		return certificacion, errorIntensidadHoraria
 	}
@@ -42,7 +42,7 @@ func InformacionCertificacionDve(numeroDocumento []string, periodoInicial []stri
 		docente.UltimoPago = intensidadDocente[0].Resoluciones[0].Valor
 	}
 
-	if !intensidadDocente[0].Resoluciones[0].FechaInicio.IsZero() && !fechaActual.Before(intensidadDocente[0].Resoluciones[0].FechaInicio) && !intensidadDocente[0].Resoluciones[0].FechaFin.IsZero() && !fechaActual.After(intensidadDocente[0].Resoluciones[0].FechaFin) {
+	if !ultimaVinculacion.FechaInicio.IsZero() && !fechaActual.Before(ultimaVinculacion.FechaInicio) && !ultimaVinculacion.FechaFin.IsZero() && !fechaActual.After(ultimaVinculacion.FechaFin) {
 		docente.Activo = true
 	} else {
 		docente.Activo = false
@@ -237,7 +237,7 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 }
 
 // helper que retorna todas las intensidades de un docente en un periodo determinado
-func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadDocente []models.IntensidadesDocente, outputError map[string]interface{}) {
+func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, periodoFinal []string, vinculaciones []string) (intensidadDocente []models.IntensidadesDocente, ultimaVinculacion models.Certificado, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{
@@ -251,7 +251,6 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 	}()
 
 	//Obtener los datos de las vinculaciones del docente
-
 	var vinculaciones_docente models.Docentes
 	var intensidadHoraria []models.IntensidadHorariaDVE
 	var respuesta_vinculacion map[string]interface{}
@@ -264,7 +263,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 			"Message": fmt.Sprintf(`Error al obtener las vinculaciones del docente %s`, numeroDocumento),
 			"Funcion": "IntensidadHorariaDve",
 		}
-		return intensidadDocente, outputError
+		return intensidadDocente, ultimaVinculacion, outputError
 	}
 
 	vinculacionesJson, err := json.Marshal(respuesta_vinculacion)
@@ -275,12 +274,17 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 			"Message": fmt.Sprintf(`Error al obtener las vinculaciones del docente %s`, numeroDocumento),
 			"Funcion": "IntensidadHorariaDve",
 		}
-		return intensidadDocente, outputError
+		return intensidadDocente, ultimaVinculacion, outputError
 	}
 
 	json.Unmarshal(vinculacionesJson, &vinculaciones_docente)
 
 	for _, vinculacion := range vinculaciones_docente.Docente.Certificados {
+
+		//Retornar la ultima vinculacion del docente
+		if ultimaVinculacion.FechaFin.IsZero() || ultimaVinculacion.FechaFin.Before(vinculacion.FechaFin) {
+			ultimaVinculacion = vinculacion
+		}
 
 		vigencia, _ := strconv.Atoi(strings.Split(vinculacion.Periodo, "-")[0])
 		periodo, _ := strconv.Atoi(strings.Split(vinculacion.Periodo, "-")[1])
@@ -289,7 +293,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		if len(periodoInicial) > 0 {
 			anioInicial, periodoInicialNum, err := ObtenerPeriodo(periodoInicial[0])
 			if err != nil {
-				return intensidadDocente, map[string]interface{}{
+				return intensidadDocente, ultimaVinculacion, map[string]interface{}{
 					"Succes":  false,
 					"Status":  404,
 					"Message": err,
@@ -305,7 +309,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 		if len(periodoFinal) > 0 {
 			anioFinal, periodoFinalNum, err := ObtenerPeriodo(periodoFinal[0])
 			if err != nil {
-				return intensidadDocente, map[string]interface{}{
+				return intensidadDocente, ultimaVinculacion, map[string]interface{}{
 					"Succes":  false,
 					"Status":  404,
 					"Message": err,
@@ -402,7 +406,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 
 	}
 
-	return intensidadDocente, nil
+	return intensidadDocente, ultimaVinculacion, nil
 }
 
 // helper que retorna la informacion del jefe de talento humano
