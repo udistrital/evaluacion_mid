@@ -267,11 +267,22 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 	}
 
 	vinculacionesJson, err := json.Marshal(respuesta_vinculacion)
+
 	if err != nil {
 		outputError = map[string]interface{}{
 			"Succes":  false,
 			"Status":  404,
 			"Message": fmt.Sprintf(`Error al obtener las vinculaciones del docente %s`, numeroDocumento),
+			"Funcion": "IntensidadHorariaDve",
+		}
+		return intensidadDocente, ultimaVinculacion, outputError
+	}
+
+	if docente, exists := respuesta_vinculacion["docente"]; !exists || len(docente.(map[string]interface{})) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": fmt.Sprintf(`no existe datos de intensidad Horaria  para el documento %s`, numeroDocumento),
 			"Funcion": "IntensidadHorariaDve",
 		}
 		return intensidadDocente, ultimaVinculacion, outputError

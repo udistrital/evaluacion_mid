@@ -46,9 +46,10 @@ func (c *InformacionCertificacionDveController) PostInformacionCertificacionDve(
 	certificacion, err := helpers.InformacionCertificacionDve(numeroDocumento, periodoInicial, periodoFinal, v.Vinculaciones, incluirSalario)
 
 	if err != nil {
-		c.Ctx.Output.SetStatus(200)
-		c.Data["json"] = map[string]interface{}{"Succes": true, "Status:": 200, "Message": err, "Data": nil}
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = map[string]interface{}{"Succes": true, "Status:": 404, "Message": err, "Data": nil}
 	} else {
+		c.Ctx.Output.SetStatus(200)
 		c.Data["json"] = map[string]interface{}{"Succes": true, "Status:": 200, "Message": "Consulta exitosa", "Data": certificacion}
 	}
 
