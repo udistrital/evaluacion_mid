@@ -243,7 +243,7 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 			outputError = map[string]interface{}{
 				"Succes":  false,
 				"Status":  502,
-				"Message": fmt.Sprintf(`Error al obtener la intensidad horaria del docente %s`, numeroDocumento),
+				"Message": fmt.Sprintf(`error al obtener la intensidad horaria del docente: %s`, numeroDocumento),
 				"Funcion": "InformacionCertificacionDve",
 			}
 			panic(outputError)
@@ -267,11 +267,22 @@ func IntensidadHorariaDve(numeroDocumento []string, periodoInicial []string, per
 	}
 
 	vinculacionesJson, err := json.Marshal(respuesta_vinculacion)
+
 	if err != nil {
 		outputError = map[string]interface{}{
 			"Succes":  false,
 			"Status":  404,
 			"Message": fmt.Sprintf(`Error al obtener las vinculaciones del docente %s`, numeroDocumento),
+			"Funcion": "IntensidadHorariaDve",
+		}
+		return intensidadDocente, ultimaVinculacion, outputError
+	}
+
+	if docente, exists := respuesta_vinculacion["docente"]; !exists || len(docente.(map[string]interface{})) == 0 {
+		outputError = map[string]interface{}{
+			"Succes":  false,
+			"Status":  404,
+			"Message": fmt.Sprintf(`no se encontro informacion del docente con el documento %s`, numeroDocumento),
 			"Funcion": "IntensidadHorariaDve",
 		}
 		return intensidadDocente, ultimaVinculacion, outputError
@@ -841,7 +852,7 @@ func ObtenerPeriodo(periodo string) (int, int, error) {
 // 			outputError = map[string]interface{}{
 // 				"Succes":  false,
 // 				"Status":  502,
-// 				"Message": "Error al obtener la intensidad horaria del docente",
+// 				"Message": "Error al obtener la horaria del docente",
 // 				"Funcion": "IntensidadHorariaDve",
 // 			}
 // 			panic(outputError)
