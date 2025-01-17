@@ -183,6 +183,68 @@
                 }
             }
         },
+        "/informacion_certificacion_dve/": {
+            "post": {
+                "tags": [
+                    "informacion_certificacion_dve"
+                ],
+                "description": "get certification information by various parameters",
+                "operationId": "InformacionCertificacionDveController.PostInformacionCertificacionDve",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "numero_documento",
+                        "description": "List of document numbers",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "periodo_inicial",
+                        "description": "List of initial periods",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "periodo_final",
+                        "description": "List of final periods",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "vinculaciones",
+                        "description": "List of linkages",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.InformacionCertificacionDve"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/plantilla/": {
             "get": {
                 "tags": [
@@ -295,6 +357,150 @@
         }
     },
     "definitions": {
+        "models.InformacionCertificacionDve": {
+            "title": "InformacionCertificacionDve",
+            "type": "object",
+            "properties": {
+                "informacion_certificacion_dve": {
+                    "$ref": "#/definitions/models.JefeTalentoHumano"
+                },
+                "informacion_dve": {
+                    "$ref": "#/definitions/models.InformacionDVE"
+                },
+                "intensidad_horaria": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.IntensidadesDocente"
+                    }
+                }
+            }
+        },
+        "models.InformacionDVE": {
+            "title": "InformacionDVE",
+            "type": "object",
+            "properties": {
+                "activo": {
+                    "type": "boolean"
+                },
+                "categoria": {
+                    "type": "string"
+                },
+                "dedicacion": {
+                    "type": "string"
+                },
+                "facultad": {
+                    "type": "string"
+                },
+                "nivel_academico": {
+                    "type": "string"
+                },
+                "nombre_docente": {
+                    "type": "string"
+                },
+                "numero_documento": {
+                    "type": "string"
+                },
+                "proyecto_curricular": {
+                    "type": "string"
+                },
+                "ultimo_pago_dve": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.IntensidadesDocente": {
+            "title": "IntensidadesDocente",
+            "type": "object",
+            "properties": {
+                "Año": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "HorasSemanales": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "NumeroSemanas": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Periodo": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Resoluciones": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResolucionDocente"
+                    }
+                },
+                "TipoVinculacion": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.JefeTalentoHumano": {
+            "title": "JefeTalentoHumano",
+            "type": "object",
+            "properties": {
+                "Cargo": {
+                    "type": "string"
+                },
+                "Nombre": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResolucionDocente": {
+            "title": "ResolucionDocente",
+            "type": "object",
+            "properties": {
+                "Asignaturas": {
+                    "type": "string"
+                },
+                "Categoria": {
+                    "type": "string"
+                },
+                "Facultad": {
+                    "type": "string"
+                },
+                "FechaFin": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "FechaInicio": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "HorasSemanales": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "HorasSemestre": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "NivelAcademico": {
+                    "type": "string"
+                },
+                "NumeroSemanas": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ProyectoCurricular": {
+                    "type": "string"
+                },
+                "Resolucion": {
+                    "type": "string"
+                },
+                "TipoVinculacion": {
+                    "type": "string"
+                },
+                "Valor": {
+                    "type": "string"
+                }
+            }
+        },
         "{}": {
             "title": "{}",
             "type": "object"
