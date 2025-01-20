@@ -86,7 +86,7 @@ func InformacionDve(numeroDocumento string) (docente models.InformacionDVE, outp
 	var respuesta_proveedor []map[string]interface{}
 	var informacion_proveedor models.InformacionProveedor
 
-	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/informacion_proveedor/?query=NumDocumento:"+numeroDocumento, &respuesta_proveedor); err != nil && response != 200 {
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"/informacion_proveedor/?query=NumDocumento:"+numeroDocumento, &respuesta_proveedor); err != nil && response != 200 {
 		outputError = map[string]interface{}{
 			"Succes":  false,
 			"Status":  404,
@@ -437,8 +437,8 @@ func InformacionJefeTalentoHumano() (JefeTalentoHumano *models.JefeTalentoHumano
 	var respuesta []models.SupervisorContrato
 
 	var query = "/supervisor_contrato?query=DependenciaSupervisor:DEP633&sortby=FechaInicio&order=desc"
-	fmt.Println("Url talento humano: ", beego.AppConfig.String("UrlcrudAgoraProduccion")+query)
-	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgoraProduccion")+query, &respuesta); (err == nil) && (response == 200) {
+	fmt.Println("Url talento humano: ", beego.AppConfig.String("administrativa_amazon_api_url")+query)
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+query, &respuesta); (err == nil) && (response == 200) {
 		if respuesta != nil {
 
 			if respuesta[0].FechaFin.After(time.Now()) {
@@ -512,7 +512,7 @@ func ObtenerPeriodo(periodo string) (int, int, error) {
 // 	var respuesta_proveedor []map[string]interface{}
 // 	var informacion_proveedor models.InformacionProveedor
 
-// 	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/informacion_proveedor/?query=NumDocumento:"+docDocente, &respuesta_proveedor); err != nil && response != 200 {
+// 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"/informacion_proveedor/?query=NumDocumento:"+docDocente, &respuesta_proveedor); err != nil && response != 200 {
 // 		outputError = map[string]interface{}{
 // 			"Succes":  false,
 // 			"Status":  404,
@@ -547,8 +547,8 @@ func ObtenerPeriodo(periodo string) (int, int, error) {
 
 // 	var respuesta_contrato []map[string]interface{}
 // 	var contratos []models.ContratoGeneral
-// 	//fmt.Println("Url contrato: ", beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=TipoContrato.Id__in:2|3|18,Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&limit=-1")
-// 	if response, err := getJsonTest(beego.AppConfig.String("UrlcrudAgora")+"/contrato_general/?query=TipoContrato.Id__in:2|3|18,Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&limit=-1", &respuesta_contrato); err != nil && response != 200 {
+// 	//fmt.Println("Url contrato: ", beego.AppConfig.String("administrativa_amazon_api_url")+"/contrato_general/?query=TipoContrato.Id__in:2|3|18,Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&limit=-1")
+// 	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+"/contrato_general/?query=TipoContrato.Id__in:2|3|18,Contratista:"+strconv.Itoa(informacion_proveedor.Id)+"&limit=-1", &respuesta_contrato); err != nil && response != 200 {
 // 		outputError = map[string]interface{}{
 // 			"Succes":  false,
 // 			"Status":  404,
