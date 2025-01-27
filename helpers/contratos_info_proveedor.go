@@ -70,12 +70,12 @@ func InfoProveedor(IdentProv string) (proveedor []map[string]interface{}, output
 	// registroNovedadPost := make(map[string]interface{})
 	var infoProveedor []map[string]interface{}
 	//error := getJson(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor)
-	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err == nil) && (response == 200) {
-	} else {
+	if response, err := getJsonTest(beego.AppConfig.String("administrativa_amazon_api_url")+beego.AppConfig.String("administrativa_amazon_api_version")+"informacion_proveedor?query=NumDocumento:"+IdentProv+"&limit=0", &infoProveedor); (err != nil) && (response != 200) {
 		logs.Error(err)
 		outputError = map[string]interface{}{"funcion": "/InfoProveedor1", "err": err.Error(), "status": "502"}
 		return nil, outputError
 	}
+
 	if len(infoProveedor) < 1 {
 		//fmt.Println(error)
 		//errorProv := models.CrearError("no se pudo traer la info del proveedor")
